@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!-- Estructura básica de un documento HTML para el juego de béisbol tiradados -->
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Hace que el diseño sea adaptable en móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Béisbol Tiradados</title>
+    <!-- Aquí puedes enlazar tu archivo de estilos -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Contenedor principal del juego -->
+    <div id="app">
+        <!-- Contenedor del marcador arriba -->
+        <div class="marcador-container">
+            <!--
+              Marcador de béisbol clásico:
+              - Tabla con una fila por equipo (Visitante y Local)
+              - Columnas para cada entrada (1-9), carreras (R), hits (H) y errores (E)
+              - Cada celda tiene clases y data-atributos para fácil actualización con JavaScript
+            -->
+            <table class="marcador">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <!-- Celda vacía para los nombres de los equipos -->
+                        <th>1</th>
+                        <!-- Entrada 1 -->
+                        <th>2</th>
+                        <th>3</th>
+                        <th>4</th>
+                        <th>5</th>
+                        <th>6</th>
+                        <th>7</th>
+                        <th>8</th>
+                        <th>9</th>
+                        <th>R</th>
+                        <!-- Total de carreras (Runs) -->
+                        <th>H</th>
+                        <!-- Total de hits -->
+                        <th>E</th>
+                        <!-- Total de errores -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>Visitante</th>
+                        <!-- Fila del equipo visitante -->
+                        <!-- Celdas de cada entrada para el visitante -->
+                        <td class="v-inning" data-inning="1">0</td>
+                        <td class="v-inning" data-inning="2">0</td>
+                        <td class="v-inning" data-inning="3">0</td>
+                        <td class="v-inning" data-inning="4">0</td>
+                        <td class="v-inning" data-inning="5">0</td>
+                        <td class="v-inning" data-inning="6">0</td>
+                        <td class="v-inning" data-inning="7">0</td>
+                        <td class="v-inning" data-inning="8">0</td>
+                        <td class="v-inning" data-inning="9">0</td>
+                        <td class="v-runs">0</td>
+                        <!-- Total carreras visitante -->
+                        <td class="v-hits">0</td>
+                        <!-- Total hits visitante -->
+                        <td class="v-errors">0</td>
+                        <!-- Total errores visitante -->
+                    </tr>
+                    <tr>
+                        <th>Local</th>
+                        <!-- Fila del equipo local -->
+                        <!-- Celdas de cada entrada para el local -->
+                        <td class="l-inning" data-inning="1">0</td>
+                        <td class="l-inning" data-inning="2">0</td>
+                        <td class="l-inning" data-inning="3">0</td>
+                        <td class="l-inning" data-inning="4">0</td>
+                        <td class="l-inning" data-inning="5">0</td>
+                        <td class="l-inning" data-inning="6">0</td>
+                        <td class="l-inning" data-inning="7">0</td>
+                        <td class="l-inning" data-inning="8">0</td>
+                        <td class="l-inning" data-inning="9">0</td>
+                        <td class="l-runs">0</td>
+                        <!-- Total carreras local -->
+                        <td class="l-hits">0</td>
+                        <!-- Total hits local -->
+                        <td class="l-errors">0</td>
+                        <!-- Total errores local -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Estructura de dos columnas laterales para los equipos -->
+        <div class="dashboard">
+            <!-- Columna izquierda: Equipo visitante -->
+            <div class="col col-visitante">
+                <h2>Visitante</h2>
+                <!-- Aquí puedes agregar más info del equipo visitante -->
+            </div>
+            <!-- Columna central: aquí va el terreno de juego -->
+            <div class="col col-central">
+                <!-- Cambia 'zelaia.jpg' por el nombre real de tu imagen si es diferente -->
+                <img src="zelaia.jpg" alt="Terreno de juego de béisbol" class="terreno-img">
+            </div>
+            <!-- Columna derecha: Equipo local -->
+            <div class="col col-local">
+                <h2>Local</h2>
+                <!-- Aquí puedes agregar más info del equipo local -->
+            </div>
+        </div>
+    </div>
+    <!-- Enlazamos el archivo de JavaScript -->
+    <script src="script.js"></script>
+</body>
+
+</html>

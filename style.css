@@ -1,0 +1,76 @@
+.col-central {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Centra horizontalmente */
+    justify-content: flex-start;
+    /* Arriba */
+    background: transparent;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.terreno-img {
+    max-width: 85%;
+    max-height: 85%;
+    object-fit: contain;
+    border-radius: 2px;
+    box-shadow: 0 2px 12px #0005;
+    margin-top: 0;
+}
+
+.col-central {
+    flex: 1 1 auto;
+    /* Ocupa todo el espacio disponible entre las columnas laterales */
+}
+
+html,
+body {
+    height: 100vh;
+    overflow: hidden;
+}
+
+
+/* Estilos generales para el fondo y fuente */
+
+body {
+    background: #0b1424;
+    color: #e5e7eb;
+    font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
+    margin: 0;
+}
+
+
+/* Contenedor principal del dashboard */
+
+.dashboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+
+/* Columnas laterales */
+
+.col {
+    background: #1a2332;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    width: 370px;
+    box-shadow: 0 2px 8px #0003;
+    display: flex;
+    flex-direction: column;
+    height: 120%;
+}
+
+.col-visitante {
+    /* Puedes personalizar más si quieres */
+    border: 2px solid #3b82f6;
+}
+
+.col-local {
+    /* Puedes personalizar más si quieres */
+    border: 2px solid #f59e42;
+}

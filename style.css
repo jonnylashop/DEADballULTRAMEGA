@@ -74,3 +74,208 @@ body {
     /* Puedes personalizar más si quieres */
     border: 2px solid #f59e42;
 }
+
+
+/* ===== ESTILOS PARA TABLAS DE ROSTER ===== */
+
+.roster-container {
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 8px;
+    border: 1px solid #374151;
+}
+
+.roster-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1f2937;
+    color: #e5e7eb;
+    font-size: 0.8rem;
+}
+
+.roster-table thead {
+    background: #374151;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.roster-table th,
+.roster-table td {
+    padding: 0.4rem 0.3rem;
+    border: 1px solid #4b5563;
+    text-align: center;
+}
+
+.roster-table th {
+    font-weight: bold;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+
+/* Estilos para filas draggables */
+
+.player-row {
+    transition: all 0.2s ease;
+    cursor: default;
+}
+
+.player-row:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.player-row[dragging="true"] {
+    opacity: 0.5;
+    background: #3b82f6;
+}
+
+
+/* Handle de arrastre */
+
+.drag-handle {
+    cursor: grab;
+    color: #6b7280;
+    font-weight: bold;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: #3b82f6;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+
+/* Selectores de posición */
+
+.position-select {
+    background: #374151;
+    color: #e5e7eb;
+    border: 1px solid #6b7280;
+    border-radius: 4px;
+    padding: 0.2rem;
+    font-size: 0.75rem;
+    width: 60px;
+}
+
+.position-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+
+/* Foto de jugador */
+
+.player-photo {
+    font-size: 1.2em;
+    width: 30px;
+}
+
+
+/* Estadísticas */
+
+.batting-avg,
+.on-base-pct {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+
+/* Traits */
+
+.trait-tag {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+}
+
+.trait-pwr {
+    background: #dc2626;
+}
+
+
+/* Power - Rojo */
+
+.trait-spd {
+    background: #16a34a;
+}
+
+
+/* Speed - Verde */
+
+.trait-def {
+    background: #2563eb;
+}
+
+
+/* Defense - Azul */
+
+.trait-con {
+    background: #7c3aed;
+}
+
+
+/* Contact - Morado */
+
+.trait-clu {
+    background: #ea580c;
+}
+
+
+/* Clutch - Naranja */
+
+.trait-ace {
+    background: #dc2626;
+}
+
+
+/* Ace - Rojo */
+
+.trait-vet {
+    background: #6b7280;
+}
+
+
+/* Veteran - Gris */
+
+.trait-pit {
+    background: #059669;
+}
+
+
+/* Pitcher - Verde oscuro */
+
+
+/* Estado del juego */
+
+.game-status {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+
+/* Responsividad para tablas */
+
+@media (max-width: 768px) {
+    .roster-table {
+        font-size: 0.7rem;
+    }
+    .roster-table th,
+    .roster-table td {
+        padding: 0.2rem 0.1rem;
+    }
+    .position-select {
+        width: 50px;
+        font-size: 0.65rem;
+    }
+}

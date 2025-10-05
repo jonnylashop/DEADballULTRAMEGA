@@ -2,9 +2,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Centra horizontalmente */
     justify-content: flex-start;
-    /* Arriba */
     background: transparent;
     padding: 0 !important;
     margin: 0 !important;
@@ -62,7 +60,8 @@ body {
     box-shadow: 0 2px 8px #0003;
     display: flex;
     flex-direction: column;
-    height: 120%;
+    /* AJUSTADO: altura automática para acomodar 11 jugadores */
+    min-height: 100vh;
 }
 
 .col-visitante {
@@ -80,10 +79,12 @@ body {
 
 .roster-container {
     margin-top: 1rem;
-    max-height: 400px;
-    overflow-y: auto;
     border-radius: 8px;
     border: 1px solid #374151;
+    overflow-x: hidden;
+    /* Evitar desbordamiento horizontal */
+    width: 100%;
+    /* Respetar ancho del contenedor padre */
 }
 
 .roster-table {
@@ -92,6 +93,10 @@ body {
     background: #1f2937;
     color: #e5e7eb;
     font-size: 0.8rem;
+    table-layout: fixed;
+    /* Forzar ancho de columnas */
+    max-width: 100%;
+    /* No exceder contenedor */
 }
 
 .roster-table thead {
@@ -103,15 +108,105 @@ body {
 
 .roster-table th,
 .roster-table td {
-    padding: 0.4rem 0.3rem;
+    padding: 0.2rem 0.1rem;
     border: 1px solid #4b5563;
     text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
+
+
+/* Anchos específicos para cada columna */
+
+.roster-table th:nth-child(1),
+.roster-table td:nth-child(1) {
+    width: 7%;
+}
+
+
+/* Handle */
+
+.roster-table th:nth-child(2),
+.roster-table td:nth-child(2) {
+    width: 6%;
+}
+
+
+/* # */
+
+.roster-table th:nth-child(3),
+.roster-table td:nth-child(3) {
+    width: 6%;
+}
+
+
+/* Foto */
+
+.roster-table th:nth-child(4),
+.roster-table td:nth-child(4) {
+    width: 27%;
+}
+
+
+/* Nombre */
+
+.roster-table th:nth-child(5),
+.roster-table td:nth-child(5) {
+    width: 12%;
+}
+
+
+/* Posición */
+
+.roster-table th:nth-child(6),
+.roster-table td:nth-child(6) {
+    width: 6%;
+}
+
+
+/* L/R */
+
+.roster-table th:nth-child(7),
+.roster-table td:nth-child(7) {
+    width: 13.5%;
+}
+
+
+/* BT */
+
+.roster-table th:nth-child(8),
+.roster-table td:nth-child(8) {
+    width: 13.5%;
+}
+
+
+/* OBT */
+
+.roster-table th:nth-child(9),
+.roster-table td:nth-child(9) {
+    width: 8%;
+}
+
+
+/* Traits */
+
+.roster-table th:nth-child(10),
+.roster-table td:nth-child(10) {
+    width: 6%;
+}
+
+
+/* Estado */
 
 .roster-table th {
     font-weight: bold;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
+    /* Más pequeño para encabezados */
     text-transform: uppercase;
+    line-height: 1.1;
+    padding: 0.15rem 0.05rem;
+    /* Padding reducido para encabezados */
 }
 
 
@@ -132,13 +227,17 @@ body {
 }
 
 
-/* Handle de arrastre */
+/* Handle de arrastre - REDUCIDO */
 
 .drag-handle {
     cursor: grab;
     color: #6b7280;
     font-weight: bold;
     user-select: none;
+    font-size: 0.8rem;
+    /* Tamaño reducido */
+    width: 100%;
+    text-align: center;
 }
 
 .drag-handle:hover {
@@ -153,13 +252,26 @@ body {
 /* Selectores de posición */
 
 .position-select {
-    background: #374151;
-    color: #e5e7eb;
-    border: 1px solid #6b7280;
+    background: #374151 !important;
+    color: #ffffff !important;
+    /* Blanco puro para máximo contraste */
+    border: 2px solid #6b7280 !important;
     border-radius: 4px;
-    padding: 0.2rem;
-    font-size: 0.75rem;
-    width: 60px;
+    padding: 0.3rem 0.2rem;
+    /* Más padding */
+    font-size: 0.75rem !important;
+    /* Más grande */
+    font-weight: bold !important;
+    /* Negrita para visibilidad */
+    width: 100% !important;
+    max-width: 50px !important;
+    /* Aún más ancho */
+    min-width: 45px !important;
+    /* Ancho mínimo garantizado */
+    text-align: center !important;
+    line-height: 1.3 !important;
+    height: auto !important;
+    box-sizing: border-box !important;
 }
 
 .position-select:focus {
@@ -169,11 +281,39 @@ body {
 }
 
 
+/* Opciones del selector de posición */
+
+.position-select option {
+    background: #374151 !important;
+    color: #ffffff !important;
+    font-size: 0.75rem !important;
+    font-weight: bold !important;
+    padding: 0.2rem !important;
+}
+
+
 /* Foto de jugador */
 
 .player-photo {
-    font-size: 1.2em;
-    width: 30px;
+    font-size: 1em;
+    /* Reducido */
+    width: 100%;
+}
+
+
+/* Número de jugador */
+
+.player-number {
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+
+/* Nombres de jugadores */
+
+.player-name {
+    font-size: 0.7rem;
+    font-weight: 500;
 }
 
 
@@ -187,16 +327,19 @@ body {
 }
 
 
-/* Traits */
+/* Traits - COMPACTOS */
 
 .trait-tag {
     display: inline-block;
-    padding: 0.1rem 0.4rem;
-    border-radius: 10px;
-    font-size: 0.65rem;
+    padding: 0.1rem 0.2rem;
+    /* Padding reducido */
+    border-radius: 8px;
+    font-size: 0.55rem;
+    /* Tamaño reducido */
     font-weight: bold;
     color: white;
     text-transform: uppercase;
+    line-height: 1;
 }
 
 .trait-pwr {

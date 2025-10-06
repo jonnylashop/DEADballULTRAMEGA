@@ -625,6 +625,81 @@
             <div class="col col-central">
                 <!-- Cambia 'zelaia.jpg' por el nombre real de tu imagen si es diferente -->
                 <img src="zelaia.jpg" alt="Terreno de juego de béisbol" class="terreno-img">
+
+                <!-- Sistema de dados debajo del terreno -->
+                <div class="dice-system">
+                    <!-- Etiquetas de dados -->
+                    <div class="dice-labels">
+                        <div class="dice-label">
+                            <span class="dice-type">VARIABLE</span>
+                            <span class="dice-description">DADO<br>LANZADOR</span>
+                        </div>
+                        <div class="operator-spacer"></div>
+                        <div class="dice-label">
+                            <span class="dice-type">D100</span>
+                            <span class="dice-description">DADO<br>BATEADOR</span>
+                        </div>
+                        <div class="operator-spacer"></div>
+                        <div class="dice-label">
+                            <span class="dice-type">OBT + BONUS</span>
+                            <span class="dice-description">MODIFICADOR</span>
+                        </div>
+                        <div class="operator-spacer"></div>
+                        <div class="dice-label">
+                            <span class="dice-type">RESULTADO</span>
+                            <span class="dice-description">TOTAL</span>
+                        </div>
+                    </div>
+
+                    <!-- Contenedores de dados y cálculo -->
+                    <div class="dice-calculation">
+                        <div class="dice-container">
+                            <div class="dice-result" id="dice-lanzador">
+                                <span class="dice-value">-</span>
+                            </div>
+                            <select class="dice-selector" id="dice-type-selector">
+                                <option value="20">D20</option>
+                                <option value="12" selected>D12</option>
+                                <option value="8">D8</option>
+                                <option value="4">D4</option>
+                                <option value="-4">-D4</option>
+                                <option value="-8">-D8</option>
+                                <option value="-12">-D12</option>
+                                <option value="-20">-D20</option>
+                            </select>
+                            <button class="dice-roll-btn" data-dice="variable">🎲</button>
+                        </div>
+
+                        <div class="operator">+</div>
+
+                        <div class="dice-container">
+                            <div class="dice-result" id="dice-bateador">
+                                <span class="dice-value">-</span>
+                            </div>
+                            <button class="dice-roll-btn" data-dice="d100">🎲</button>
+                        </div>
+
+                        <div class="operator">+</div>
+
+                        <div class="dice-container modifier">
+                            <div class="dice-result" id="obt-value">
+                                <span class="dice-value">OBT</span>
+                            </div>
+                            <div class="malus-display" id="malus-value">
+                                <span class="dice-value">0</span>
+                            </div>
+                        </div>
+
+                        <div class="operator">=</div>
+
+                        <div class="dice-container result">
+                            <div class="dice-result" id="total-result">
+                                <span class="dice-value">-</span>
+                            </div>
+                            <div class="result-status" id="result-status"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- Columna derecha: Equipo local -->
             <div class="col col-local">

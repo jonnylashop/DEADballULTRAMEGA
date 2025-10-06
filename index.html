@@ -320,7 +320,10 @@
         <div class="dashboard">
             <!-- Columna izquierda: Equipo visitante -->
             <div class="col col-visitante">
-                <h2>🛫 Equipo Visitante</h2>
+                <div class="team-header">
+                    <h2>🛫 Equipo Visitante</h2>
+                    <button class="config-btn" onclick="openTeamConfig('visitante')">⚙️</button>
+                </div>
 
                 <!-- Tabla de roster del equipo visitante -->
                 <div class="roster-container">
@@ -703,7 +706,10 @@
             </div>
             <!-- Columna derecha: Equipo local -->
             <div class="col col-local">
-                <h2>🏠 Equipo Local</h2>
+                <div class="team-header">
+                    <h2>🏠 Equipo Local</h2>
+                    <button class="config-btn" onclick="openTeamConfig('local')">⚙️</button>
+                </div>
 
                 <!-- Tabla de roster del equipo local -->
                 <div class="roster-container">
@@ -1006,6 +1012,51 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de configuración de equipos -->
+    <div class="modal-overlay" id="team-config-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">⚙️ Configurar Equipo</h3>
+                <button class="modal-close" onclick="closeTeamConfig()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Selector de equipos predefinidos -->
+                <div class="config-section">
+                    <label for="preset-teams">Equipos Predefinidos:</label>
+                    <select id="preset-teams" onchange="loadPresetTeam()">
+                        <option value="">Seleccionar equipo...</option>
+                        <option value="yankees">New York Yankees</option>
+                        <option value="dodgers">Los Angeles Dodgers</option>
+                        <option value="red_sox">Boston Red Sox</option>
+                        <option value="giants">San Francisco Giants</option>
+                        <option value="custom">Personalizado</option>
+                    </select>
+                </div>
+
+                <!-- Editor de equipo -->
+                <div class="config-section">
+                    <label for="team-name">Nombre del Equipo:</label>
+                    <input type="text" id="team-name" placeholder="Nombre del equipo">
+                </div>
+
+                <!-- Lista de jugadores para editar -->
+                <div class="config-section">
+                    <h4>Jugadores del Equipo:</h4>
+                    <div class="players-editor" id="players-editor">
+                        <!-- Se llenará dinámicamente con JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeTeamConfig()">Cancelar</button>
+                <button class="btn-primary" onclick="saveTeamConfig()">Guardar Equipo</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Enlazamos el archivo de JavaScript -->
     <script src="script.js"></script>
 </body>

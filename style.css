@@ -1,29 +1,11 @@
 .col-central {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    background: transparent;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.terreno-img {
-    max-width: 100%;
-    max-height: 60vh;
-    object-fit: contain;
-    border-radius: 20px;
-    box-shadow: 0 2px 12px #0005;
-    margin-bottom: 0;
-    /* Sin margen inferior para pegar al contenedor de dados */
-}
-
-.col-central {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    /* Cambiado para permitir que los elementos ocupen todo el ancho */
     justify-content: flex-start;
+    background: transparent;
     padding: 1rem;
     gap: 0;
     /* Eliminado el gap para pegar los elementos */
@@ -32,17 +14,38 @@
     box-sizing: border-box;
 }
 
+.terreno-img {
+    width: calc(100% - 40px);
+    /* Mismo ancho que el sistema de dados */
+    max-width: calc(100% - 40px);
+    max-height: 60vh;
+    object-fit: contain;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px #0005;
+    margin-bottom: 0;
+    margin-left: 20px;
+    /* Centrado */
+    margin-right: 20px;
+    /* Centrado */
+    /* Sin margen inferior para pegar al contenedor de dados */
+}
+
 
 /* ===== SISTEMA DE DADOS ===== */
 
 .dice-system {
-    width: 100%;
+    width: calc(100% - 40px);
+    /* Mismo ancho que la imagen del terreno descontando padding */
     max-width: 100%;
     background: #1a2332;
     border-radius: 15px;
     padding: 1rem;
     border: 2px solid #374151;
     margin-top: 0;
+    margin-left: 20px;
+    /* Centrado igual que la imagen */
+    margin-right: 20px;
+    /* Centrado igual que la imagen */
     /* Pegado directamente a la imagen */
     box-sizing: border-box;
 }
@@ -683,6 +686,147 @@ body {
 }
 
 
+/* ===== CONTENEDORES ADICIONALES DEBAJO DE ALINEACIONES ===== */
+
+.extra-container {
+    background: #0f172a;
+    border-radius: 12px;
+    border: 2px solid #334155;
+    padding: 1rem;
+    margin-top: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.extra-container h3 {
+    color: #3b82f6;
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    text-align: center;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 0.5rem;
+}
+
+.visitante-extra {
+    border-color: #3b82f6;
+}
+
+.visitante-extra h3 {
+    color: #3b82f6;
+}
+
+.local-extra {
+    border-color: #16a34a;
+}
+
+.local-extra h3 {
+    color: #16a34a;
+}
+
+.dice-result-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.result-display {
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid #334155;
+}
+
+.result-label {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.result-value {
+    font-size: 1.1rem;
+    color: #e2e8f0;
+    font-weight: bold;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+.result-description {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    margin-top: 0.5rem;
+    line-height: 1.4;
+}
+
+.additional-rolls {
+    border-top: 1px solid #334155;
+    padding-top: 0.75rem;
+}
+
+.additional-rolls h4 {
+    color: #f59e0b;
+    font-size: 0.85rem;
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+}
+
+.roll-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.roll-btn {
+    background: #374151;
+    color: #e5e7eb;
+    border: 1px solid #6b7280;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.roll-btn:hover {
+    background: #4b5563;
+    border-color: #9ca3af;
+}
+
+.roll-btn:active {
+    transform: translateY(1px);
+}
+
+.visitante-extra .roll-btn:hover {
+    border-color: #3b82f6;
+    background: #1e40af20;
+}
+
+.local-extra .roll-btn:hover {
+    border-color: #16a34a;
+    background: #15803d20;
+}
+
+
+/* Responsive para contenedores adicionales */
+
+@media (max-width: 768px) {
+    .extra-container {
+        padding: 0.75rem;
+        margin-top: 0.75rem;
+    }
+    .extra-container h3 {
+        font-size: 0.9rem;
+    }
+    .stat-label {
+        font-size: 0.75rem;
+    }
+    .stat-value {
+        font-size: 0.8rem;
+        min-width: 2.5rem;
+    }
+}
+
+
 /* Modal de configuración */
 
 .modal-overlay {
@@ -850,4 +994,431 @@ body {
 
 .btn-secondary:hover {
     background: #4b5563;
+}
+
+
+/* ===== CONTROLES DEL JUEGO ===== */
+
+
+/*
+  CONTENEDOR DE CONTROLES DEL JUEGO
+  Botones para iniciar, pausar, reiniciar el juego
+*/
+
+.game-controls {
+    display: flex;
+    /* Disposición flexible */
+    justify-content: center;
+    /* Centrar botones */
+    gap: 1rem;
+    /* Espacio entre botones */
+    margin: 1rem 0;
+    /* Margen superior e inferior */
+    padding: 0.5rem;
+    /* Espaciado interno */
+}
+
+
+/*
+  BOTÓN PARA INICIAR NUEVO JUEGO
+  Botón principal para comenzar una partida
+*/
+
+.start-game-btn {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    /* Gradiente verde */
+    color: white;
+    /* Texto blanco */
+    border: none;
+    /* Sin borde por defecto */
+    border-radius: 12px;
+    /* Bordes muy redondeados */
+    padding: 0.75rem 1.5rem;
+    /* Espaciado generoso */
+    font-size: 1.1rem;
+    /* Fuente más grande */
+    font-weight: bold;
+    /* Negrita */
+    cursor: pointer;
+    /* Cursor de puntero */
+    transition: all 0.3s ease;
+    /* Transición suave */
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+    /* Sombra verde */
+    border: 2px solid transparent;
+    /* Borde transparente para hover */
+}
+
+
+/*
+  EFECTO HOVER PARA BOTÓN DE INICIAR JUEGO
+*/
+
+.start-game-btn:hover {
+    background: linear-gradient(135deg, #15803d, #16a34a);
+    /* Gradiente invertido */
+    transform: translateY(-2px);
+    /* Elevación sutil */
+    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
+    /* Sombra más intensa */
+    border-color: #22c55e;
+    /* Borde verde claro */
+}
+
+
+/*
+  EFECTO ACTIVO PARA BOTÓN DE INICIAR JUEGO
+*/
+
+.start-game-btn:active {
+    transform: translateY(0);
+    /* Volver a posición original */
+    box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
+    /* Sombra reducida */
+}
+
+
+/*
+  BOTÓN PARA REINICIAR JUEGO
+  Botón secundario para reiniciar la partida
+*/
+
+.reset-game-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    /* Gradiente naranja */
+    color: white;
+    /* Texto blanco */
+    border: none;
+    /* Sin borde por defecto */
+    border-radius: 12px;
+    /* Bordes muy redondeados */
+    padding: 0.75rem 1.5rem;
+    /* Espaciado generoso */
+    font-size: 1rem;
+    /* Fuente normal */
+    font-weight: bold;
+    /* Negrita */
+    cursor: pointer;
+    /* Cursor de puntero */
+    transition: all 0.3s ease;
+    /* Transición suave */
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    /* Sombra naranja */
+    border: 2px solid transparent;
+    /* Borde transparente para hover */
+}
+
+
+/*
+  EFECTO HOVER PARA BOTÓN DE REINICIAR
+*/
+
+.reset-game-btn:hover {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    /* Gradiente invertido */
+    transform: translateY(-2px);
+    /* Elevación sutil */
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+    /* Sombra más intensa */
+    border-color: #fbbf24;
+    /* Borde amarillo claro */
+}
+
+
+/*
+  EFECTO ACTIVO PARA BOTÓN DE REINICIAR
+*/
+
+.reset-game-btn:active {
+    transform: translateY(0);
+    /* Volver a posición original */
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+    /* Sombra reducida */
+}
+
+
+/*
+  RESPONSIVE PARA CONTROLES DEL JUEGO
+  Ajustes para pantallas pequeñas
+*/
+
+@media (max-width: 768px) {
+    .game-controls {
+        flex-direction: column;
+        /* Apilar botones verticalmente */
+        gap: 0.5rem;
+        /* Menos espacio entre botones */
+        margin: 0.75rem 0;
+        /* Menos margen */
+    }
+    .start-game-btn,
+    .reset-game-btn {
+        padding: 0.5rem 1rem;
+        /* Menos padding en móvil */
+        font-size: 1rem;
+        /* Fuente más pequeña */
+    }
+}
+
+
+/* ===== ESTILOS PARA ESTADO DEL JUEGO ===== */
+
+
+/*
+  ESTILOS PARA RESALTAR EL INNING ATUAL
+  Estos estilos se aplican dinámicamente cuando el JavaScript
+  detecta qué inning está activo en el marcador
+*/
+
+.current-inning {
+    background: #fbbf24 !important;
+    /* Fondo amarillo para destacar */
+    color: #1f2937 !important;
+    /* Texto oscuro para contraste */
+    font-weight: bold !important;
+    /* Negrita para más énfasis */
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+    /* Brillo sutil */
+    position: relative;
+}
+
+
+/*
+  ESTILO ADICIONAL PARA EL EQUIPO QUE ESTÁ BATEANDO
+  Se aplica además del current-inning cuando es el turno de ese equipo
+*/
+
+.batting-team {
+    background: #16a34a !important;
+    /* Fondo verde para el equipo que batea */
+    color: white !important;
+    /* Texto blanco para contraste */
+    animation: pulse 2s infinite;
+    /* Animación pulsante para más atención */
+}
+
+
+/*
+  ANIMACIÓN PULSANTE PARA EL EQUIPO QUE BATEA
+  Crea un efecto visual que llama la atención al turno activo
+*/
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 8px rgba(22, 163, 74, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 16px rgba(22, 163, 74, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 8px rgba(22, 163, 74, 0.5);
+    }
+}
+
+
+/*
+  ESTILO PARA RESALTAR AL BATEADOR ACTUAL
+  Se aplica a la fila del jugador que está al bate
+*/
+
+.current-batter {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+    /* Gradiente azul */
+    color: white !important;
+    /* Texto blanco para contraste */
+    font-weight: bold !important;
+    /* Negrita para destacar */
+    border: 2px solid #60a5fa !important;
+    /* Borde azul claro */
+    border-radius: 8px !important;
+    /* Bordes redondeados */
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    /* Sombra azul */
+    transform: scale(1.02);
+    /* Ligeramente más grande */
+    transition: all 0.3s ease;
+    /* Transición suave */
+    position: relative;
+    z-index: 10;
+    /* Por encima de otros elementos */
+}
+
+
+/*
+  EFECTO HOVER PARA EL BATEADOR ACTUAL
+  Interacción adicional cuando el usuario pasa el mouse
+*/
+
+.current-batter:hover {
+    transform: scale(1.03);
+    /* Aún más grande al hacer hover */
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
+    /* Sombra más intensa */
+}
+
+
+/*
+  INDICADOR VISUAL ADICIONAL PARA EL BATEADOR ACTUAL
+  Agrega un indicador visual antes del nombre del jugador
+*/
+
+.current-batter .player-name::before {
+    content: "🏏 ";
+    /* Emoji de bate como indicador */
+    font-size: 1.2em;
+    margin-right: 0.3rem;
+}
+
+
+/*
+  ESTILOS PARA LA INFORMACIÓN DEL ESTADO DEL JUEGO
+  Contenedor que muestra información del inning, bateador, outs, etc.
+*/
+
+.game-info-display {
+    background: #1f2937;
+    /* Fondo gris oscuro */
+    border: 2px solid #374151;
+    /* Borde gris */
+    border-radius: 12px;
+    /* Bordes redondeados */
+    padding: 1rem;
+    /* Espaciado interno */
+    margin-bottom: 1rem;
+    /* Espacio hacia abajo */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    /* Sombra */
+}
+
+
+/*
+  TÍTULO DE LA INFORMACIÓN DEL JUEGO
+*/
+
+.game-info-display h3 {
+    color: #3b82f6;
+    /* Color azul */
+    margin: 0 0 0.75rem 0;
+    /* Sin margen superior */
+    text-align: center;
+    /* Centrado */
+    font-size: 1.2rem;
+    /* Tamaño de fuente */
+}
+
+
+/*
+  INFORMACIÓN DEL INNING ACTUAL
+*/
+
+.inning-info {
+    background: #374151;
+    /* Fondo gris */
+    padding: 0.5rem;
+    /* Espaciado interno */
+    border-radius: 6px;
+    /* Bordes redondeados */
+    margin-bottom: 0.5rem;
+    /* Espacio hacia abajo */
+    text-align: center;
+    /* Centrado */
+    font-size: 1rem;
+    /* Tamaño de fuente */
+}
+
+
+/*
+  INFORMACIÓN DEL BATEADOR ACTUAL
+*/
+
+.batter-info {
+    background: #374151;
+    /* Fondo gris */
+    padding: 0.5rem;
+    /* Espaciado interno */
+    border-radius: 6px;
+    /* Bordes redondeados */
+    margin-bottom: 0.5rem;
+    /* Espacio hacia abajo */
+    text-align: center;
+    /* Centrado */
+    color: #60a5fa;
+    /* Color azul claro */
+}
+
+
+/*
+  INFORMACIÓN DEL COUNT (OUTS, BOLAS, STRIKES)
+*/
+
+.count-info {
+    display: flex;
+    /* Disposición flexible */
+    justify-content: space-around;
+    /* Espaciado uniforme */
+    background: #374151;
+    /* Fondo gris */
+    padding: 0.5rem;
+    /* Espaciado interno */
+    border-radius: 6px;
+    /* Bordes redondeados */
+    font-family: monospace;
+    /* Fuente monoespaciada */
+    font-weight: bold;
+    /* Negrita */
+}
+
+
+/*
+  COLORES ESPECÍFICOS PARA CADA ELEMENTO DEL COUNT
+*/
+
+.outs {
+    color: #ef4444;
+    /* Rojo para outs */
+}
+
+.balls {
+    color: #16a34a;
+    /* Verde para bolas */
+}
+
+.strikes {
+    color: #f59e0b;
+    /* Amarillo para strikes */
+}
+
+
+/*
+  RESPONSIVE PARA DISPOSITIVOS MÓVILES
+  Ajustes para pantallas pequeñas
+*/
+
+@media (max-width: 768px) {
+    .game-info-display {
+        padding: 0.75rem;
+        /* Menos espaciado en móvil */
+        margin-bottom: 0.75rem;
+        /* Menos margen en móvil */
+    }
+    .game-info-display h3 {
+        font-size: 1rem;
+        /* Fuente más pequeña en móvil */
+    }
+    .count-info {
+        flex-direction: column;
+        /* Apilar verticalmente en móvil */
+        gap: 0.25rem;
+        /* Espacio entre elementos */
+        text-align: center;
+        /* Centrar texto */
+    }
+    .current-batter {
+        transform: scale(1.01);
+        /* Menos escala en móvil */
+    }
+    .current-batter:hover {
+        transform: scale(1.02);
+        /* Menos hover en móvil */
+    }
 }

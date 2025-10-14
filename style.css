@@ -6,260 +6,245 @@
     /* Cambiado para permitir que los elementos ocupen todo el ancho */
     justify-content: flex-start;
     background: transparent;
-    padding: 1rem;
+    padding: 0 !important;
+    /* Importante: anular el padding heredado de .col */
+    margin: 0;
+    /* Sin margen para eliminar cualquier espacio */
     gap: 0;
     /* Eliminado el gap para pegar los elementos */
     max-width: calc(100vw - 740px - 4rem);
     overflow-x: hidden;
     box-sizing: border-box;
+    position: relative;
+    /* Necesario para posicionar el botón sobre el estadio */
 }
 
 .terreno-img {
-    width: calc(100% - 40px);
-    /* Mismo ancho que el sistema de dados */
-    max-width: calc(100% - 40px);
-    max-height: 60vh;
+    width: 100%;
+    /* Ocupa todo el ancho disponible */
+    max-width: 100%;
+    height: auto;
+    /* Altura automática para mantener proporciones */
     object-fit: contain;
     border-radius: 20px;
-    box-shadow: 0 2px 12px #0005;
-    margin-bottom: 0;
-    margin-left: 20px;
-    /* Centrado */
-    margin-right: 20px;
-    /* Centrado */
-    /* Sin margen inferior para pegar al contenedor de dados */
+    /* Mismo radio que las columnas laterales para alineación visual */
+    box-shadow: 0 2px 8px #0003;
+    /* Misma sombra que las columnas laterales */
+    margin: 0 !important;
+    /* Importante: sin márgenes en absoluto */
+    padding: 0 !important;
+    /* Importante: sin padding */
+    border: 2px solid #374151;
+    /* Borde sutil para definir mejor los límites */
+    display: block;
+    /* Asegurar que es un elemento de bloque */
+    position: relative;
+    top: 0;
+    /* Posicionar en la parte superior */
 }
 
 
 /* ===== SISTEMA DE DADOS ===== */
 
-.dice-system {
-    width: calc(100% - 40px);
-    /* Mismo ancho que la imagen del terreno descontando padding */
-    max-width: 100%;
-    background: #1a2332;
-    border-radius: 15px;
-    padding: 1rem;
-    border: 2px solid #374151;
-    margin-top: 0;
-    margin-left: 20px;
-    /* Centrado igual que la imagen */
-    margin-right: 20px;
-    /* Centrado igual que la imagen */
-    /* Pegado directamente a la imagen */
-    box-sizing: border-box;
-}
 
-.dice-labels {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1rem;
-    gap: 0.5rem;
-    /* Aumentado para coincidir con dice-calculation */
-}
+/* ===== SISTEMA DE DADOS DINÁMICO ===== */
 
-.dice-label {
-    text-align: center;
-    color: #16a34a;
-    font-weight: bold;
-    min-width: 110px;
-    /* Mismo ancho que dice-container */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.dice-type {
-    display: block;
-    font-size: 1rem;
-    margin-bottom: 0.2rem;
-    color: #16a34a;
-}
-
-.dice-description {
-    display: block;
-    font-size: 0.75rem;
-    line-height: 1.2;
-    color: #9ca3af;
-}
-
-.dice-calculation {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    /* Aumentado para mejor espaciado */
-    flex-wrap: nowrap;
-    /* No permitir wrap para mantener alineación */
-}
-
-.dice-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    /* Aumentado para mejor espaciado */
-    min-width: 110px;
-    /* Ampliado para acomodar contenedores más grandes */
-}
-
-.dice-result {
-    width: 90px;
-    /* Ampliado aún más para mejor visibilidad */
-    height: 90px;
-    /* Ampliado aún más para mejor visibilidad */
-    background: #374151;
-    border: 2px solid #6b7280;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.dynamic-dice-container {
+    background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%);
+    border-radius: 20px;
+    border: 3px solid #374151;
+    margin-top: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    animation: slideIn 0.5s ease-out;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
-}
-
-.dice-value {
-    font-size: 1.5rem;
-    /* Ampliado más para mejor legibilidad */
-    font-weight: bold;
-    color: #e5e7eb;
+    overflow: hidden;
 }
 
 
-/* Selector de dados variable */
+/* Efecto de brillo sutil */
 
-.dice-selector {
-    background: #374151;
-    color: #e5e7eb;
-    border: 1px solid #6b7280;
-    border-radius: 6px;
-    padding: 0.3rem;
-    font-size: 0.8rem;
+.dynamic-dice-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+    pointer-events: none;
+}
+
+.dynamic-dice-container:hover::before {
+    left: 100%;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dice-system h3 {
+    color: #3b82f6;
+    margin: 0 0 1rem 0;
     text-align: center;
+    font-size: 1rem;
+    border-bottom: 1px solid #374151;
+    padding-bottom: 0.5rem;
 }
 
-.dice-selector:focus {
-    outline: none;
-    border-color: #3b82f6;
+.dice-action-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
+.current-batter-info {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid #334155;
+}
 
-/* Etiqueta fija para D100 */
-
-.dice-label-fixed {
-    font-size: 0.8rem;
-    color: #16a34a;
+.batter-name {
+    display: block;
     font-weight: bold;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.batter-stats {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.dice-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
 }
 
 .dice-roll-btn {
     background: #3b82f6;
+    color: white;
     border: none;
-    border-radius: 6px;
-    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
     font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    min-width: 150px;
 }
 
 .dice-roll-btn:hover {
     background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
+.dice-roll-btn:active {
+    transform: translateY(0);
+}
 
-/* Campo de bonus (ahora display del malus) */
+.dice-results {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #334155;
+    width: 100%;
+    box-sizing: border-box;
+}
 
-.malus-display {
-    width: 90px;
-    /* Mismo tamaño que dice-result */
-    height: 90px;
-    /* Mismo tamaño que dice-result */
-    border: 1px solid #6b7280;
-    border-radius: 4px;
-    background: #4a5568;
-    color: #feb2b2;
+.result-item {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.result-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.result-value {
+    color: #16a34a;
     font-size: 1.2rem;
     font-weight: bold;
 }
 
-.malus-display .dice-value {
+.result-description {
+    color: #cbd5e1;
     font-size: 0.8rem;
-    font-weight: bold;
+    line-height: 1.4;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #334155;
 }
 
 
-/* Campo de bonus legacy (mantener por compatibilidad) */
+/* Estilos específicos para columnas */
 
-.bonus-input {
-    width: 50px;
-    padding: 0.2rem;
-    border: 1px solid #6b7280;
-    border-radius: 4px;
-    background: #374151;
-    color: #e5e7eb;
-    text-align: center;
-    font-size: 0.7rem;
+#dice-container-visitante .dice-system h3 {
+    color: #3b82f6;
 }
 
-
-/* Etiqueta del modificador */
-
-.modifier-label {
-    font-size: 0.6rem;
-    color: #9ca3af;
-    text-align: center;
-    margin-top: 0.2rem;
+#dice-container-visitante .dynamic-dice-container {
+    border-color: #3b82f6;
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2), 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(59, 130, 246, 0.2);
 }
 
-.operator {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #e5e7eb;
-    margin: 0 0.3rem;
+#dice-container-visitante .dynamic-dice-container:hover {
+    border-color: #60a5fa;
+    box-shadow: 0 12px 35px rgba(59, 130, 246, 0.3), 0 6px 15px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(59, 130, 246, 0.3);
+    transform: translateY(-2px);
 }
 
-
-/* Espaciadores para alinear títulos con operadores */
-
-.operator-spacer {
-    width: calc(1.5rem + 0.6rem);
-    /* Mismo ancho que .operator (font-size + margen) */
-    height: 1rem;
-    /* Altura mínima para mantener estructura */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+#dice-container-local .dice-system h3 {
+    color: #16a34a;
 }
 
+#dice-container-local .dynamic-dice-container {
+    border-color: #16a34a;
+    box-shadow: 0 8px 25px rgba(22, 163, 74, 0.2), 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(22, 163, 74, 0.2);
+}
 
-/* Resultado final */
+#dice-container-local .dynamic-dice-container:hover {
+    border-color: #22c55e;
+    box-shadow: 0 12px 35px rgba(22, 163, 74, 0.3), 0 6px 15px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(22, 163, 74, 0.3);
+    transform: translateY(-2px);
+}
 
-.dice-container.result .dice-result {
+#dice-container-local .dice-roll-btn {
     background: #16a34a;
-    border-color: #15803d;
 }
 
-.result-status {
-    font-size: 0.7rem;
-    font-weight: bold;
-    text-align: center;
-    margin-top: 0.2rem;
-}
-
-
-/* Bonus/Malus modifier */
-
-.dice-container.modifier .dice-result {
-    background: #ea580c;
-    border-color: #c2410c;
+#dice-container-local .dice-roll-btn:hover {
+    background: #15803d;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
 }
 
 html,
 body {
     height: 100vh;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
+    /* Eliminar cualquier espacio por defecto */
 }
 
 
@@ -270,6 +255,36 @@ body {
     color: #e5e7eb;
     font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
     margin: 0;
+    padding: 0;
+    /* Asegurar que no hay márgenes ni padding */
+}
+
+
+/* Contenedor principal del app */
+
+#app {
+    margin: 0;
+    padding: 0;
+    /* Sin espacios en el contenedor principal */
+}
+
+
+/* Tabla del marcador */
+
+.marcador-table {
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+    width: 100%;
+    /* Sin espacios en la tabla del marcador */
+}
+
+.marcador-table th,
+.marcador-table td {
+    margin: 0;
+    padding: 0.2rem;
+    /* Padding mínimo necesario para legibilidad */
+    border: 1px solid #374151;
 }
 
 
@@ -281,6 +296,10 @@ body {
     align-items: stretch;
     height: 100vh;
     box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    gap: 0;
+    /* Eliminar cualquier espacio entre columnas */
 }
 
 
@@ -312,7 +331,7 @@ body {
 /* ===== ESTILOS PARA TABLAS DE ROSTER ===== */
 
 .roster-container {
-    margin-top: 1rem;
+    margin-top: 0;
     border-radius: 8px;
     border: 1px solid #374151;
     overflow-x: hidden;
@@ -686,147 +705,6 @@ body {
 }
 
 
-/* ===== CONTENEDORES ADICIONALES DEBAJO DE ALINEACIONES ===== */
-
-.extra-container {
-    background: #0f172a;
-    border-radius: 12px;
-    border: 2px solid #334155;
-    padding: 1rem;
-    margin-top: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.extra-container h3 {
-    color: #3b82f6;
-    margin: 0 0 0.75rem 0;
-    font-size: 1rem;
-    text-align: center;
-    border-bottom: 1px solid #334155;
-    padding-bottom: 0.5rem;
-}
-
-.visitante-extra {
-    border-color: #3b82f6;
-}
-
-.visitante-extra h3 {
-    color: #3b82f6;
-}
-
-.local-extra {
-    border-color: #16a34a;
-}
-
-.local-extra h3 {
-    color: #16a34a;
-}
-
-.dice-result-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.result-display {
-    background: #1e293b;
-    border-radius: 8px;
-    padding: 0.75rem;
-    text-align: center;
-    border: 1px solid #334155;
-}
-
-.result-label {
-    font-size: 0.9rem;
-    color: #94a3b8;
-    font-style: italic;
-}
-
-.result-value {
-    font-size: 1.1rem;
-    color: #e2e8f0;
-    font-weight: bold;
-    display: block;
-    margin-top: 0.5rem;
-}
-
-.result-description {
-    font-size: 0.8rem;
-    color: #cbd5e1;
-    margin-top: 0.5rem;
-    line-height: 1.4;
-}
-
-.additional-rolls {
-    border-top: 1px solid #334155;
-    padding-top: 0.75rem;
-}
-
-.additional-rolls h4 {
-    color: #f59e0b;
-    font-size: 0.85rem;
-    margin: 0 0 0.5rem 0;
-    text-align: center;
-}
-
-.roll-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.roll-btn {
-    background: #374151;
-    color: #e5e7eb;
-    border: 1px solid #6b7280;
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: left;
-}
-
-.roll-btn:hover {
-    background: #4b5563;
-    border-color: #9ca3af;
-}
-
-.roll-btn:active {
-    transform: translateY(1px);
-}
-
-.visitante-extra .roll-btn:hover {
-    border-color: #3b82f6;
-    background: #1e40af20;
-}
-
-.local-extra .roll-btn:hover {
-    border-color: #16a34a;
-    background: #15803d20;
-}
-
-
-/* Responsive para contenedores adicionales */
-
-@media (max-width: 768px) {
-    .extra-container {
-        padding: 0.75rem;
-        margin-top: 0.75rem;
-    }
-    .extra-container h3 {
-        font-size: 0.9rem;
-    }
-    .stat-label {
-        font-size: 0.75rem;
-    }
-    .stat-value {
-        font-size: 0.8rem;
-        min-width: 2.5rem;
-    }
-}
-
-
 /* Modal de configuración */
 
 .modal-overlay {
@@ -1001,6 +879,30 @@ body {
 
 
 /*
+  CONTENEDOR DEL BOTÓN DE INICIAR JUEGO
+  Posicionado sobre el estadio para dar inicio al programa
+*/
+
+.start-game-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    /* Por encima de la imagen del estadio */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 0;
+    height: 0;
+    /* Sin dimensiones para no ocupar espacio en el flujo del documento */
+    margin: 0;
+    padding: 0;
+    /* Sin márgenes ni padding */
+}
+
+
+/*
   CONTENEDOR DE CONTROLES DEL JUEGO
   Botones para iniciar, pausar, reiniciar el juego
 */
@@ -1012,10 +914,14 @@ body {
     /* Centrar botones */
     gap: 1rem;
     /* Espacio entre botones */
-    margin: 1rem 0;
-    /* Margen superior e inferior */
-    padding: 0.5rem;
-    /* Espaciado interno */
+    margin: 0;
+    /* Sin márgenes para eliminar espacio */
+    padding: 0;
+    /* Sin padding para eliminar espacio */
+    height: 0;
+    /* Sin altura cuando está vacío */
+    overflow: hidden;
+    /* Ocultar contenido que pueda desbordarse */
 }
 
 
@@ -1031,22 +937,24 @@ body {
     /* Texto blanco */
     border: none;
     /* Sin borde por defecto */
-    border-radius: 12px;
+    border-radius: 15px;
     /* Bordes muy redondeados */
-    padding: 0.75rem 1.5rem;
-    /* Espaciado generoso */
-    font-size: 1.1rem;
-    /* Fuente más grande */
+    padding: 1rem 2rem;
+    /* Espaciado más generoso para visibilidad */
+    font-size: 1.3rem;
+    /* Fuente más grande para destacar sobre el estadio */
     font-weight: bold;
     /* Negrita */
     cursor: pointer;
     /* Cursor de puntero */
     transition: all 0.3s ease;
     /* Transición suave */
-    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
-    /* Sombra verde */
-    border: 2px solid transparent;
-    /* Borde transparente para hover */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(22, 163, 74, 0.6);
+    /* Sombra más intensa para destacar sobre la imagen */
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    /* Borde semi-transparente para mejor contraste */
+    backdrop-filter: blur(2px);
+    /* Efecto de desenfoque para destacar sobre el fondo */
 }
 
 
@@ -1389,6 +1297,30 @@ body {
 }
 
 
+/* 
+  ESTILO COMPACTO PARA INFORMACIÓN DEL JUEGO (UNA LÍNEA)
+*/
+
+.game-info-compact {
+    background: #374151;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0 0 0;
+    /* Solo margen superior, sin margen inferior para pegar al sistema de dados */
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.game-status-compact {
+    color: #e5e7eb;
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
 /*
   RESPONSIVE PARA DISPOSITIVOS MÓVILES
   Ajustes para pantallas pequeñas
@@ -1421,4 +1353,79 @@ body {
         transform: scale(1.02);
         /* Menos hover en móvil */
     }
+}
+
+
+/* Estilos para el marcador con botón de reiniciar */
+
+.marcador-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+    /* Eliminar margen inferior */
+    padding: 0;
+    /* Eliminar padding */
+}
+
+.marcador-title {
+    font-size: 1rem;
+    color: #e5e7eb;
+    font-weight: 500;
+}
+
+.marcador-header .reset-game-btn {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.marcador-header .reset-game-btn:hover {
+    background: #b91c1c;
+}
+
+
+/* Estilos para el marcador con botón lateral */
+
+.marcador-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    /* Eliminar gap */
+    margin: 0;
+    /* Eliminar márgenes */
+    padding: 0;
+    /* Eliminar padding */
+}
+
+.marcador-wrapper {
+    flex: 1;
+}
+
+.marcador-button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    /* Altura mínima para alinearse con la tabla */
+}
+
+.marcador-button-container .reset-game-btn {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.marcador-button-container .reset-game-btn:hover {
+    background: #b91c1c;
 }

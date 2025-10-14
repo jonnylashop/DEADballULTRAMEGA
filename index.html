@@ -16,62 +16,62 @@
     <div id="app">
         <!-- Contenedor del marcador arriba -->
         <div class="marcador-container">
-            <!--
-              Marcador de béisbol clásico:
-              - Tabla con una fila por equipo (Visitante y Local)
-              - Columnas para cada entrada (1-9), carreras (R), hits (H) y errores (E)
-            -->
-            <table class="marcador-table">
-                <thead>
-                    <tr>
-                        <th>Equipo</th>
-                        <th>1</th>
-                        <th>2</th>
-                        <th>3</th>
-                        <th>4</th>
-                        <th>5</th>
-                        <th>6</th>
-                        <th>7</th>
-                        <th>8</th>
-                        <th>9</th>
-                        <th>R</th>
-                        <th>H</th>
-                        <th>E</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="team-name">Visitante</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="total-runs">0</td>
-                        <td class="total-hits">0</td>
-                        <td class="total-errors">0</td>
-                    </tr>
-                    <tr>
-                        <td class="team-name">Local</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="inning-score">0</td>
-                        <td class="total-runs">0</td>
-                        <td class="total-hits">0</td>
-                        <td class="total-errors">0</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="marcador-wrapper">
+                <table class="marcador-table">
+                    <thead>
+                        <tr>
+                            <th>Equipo</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                            <th>8</th>
+                            <th>9</th>
+                            <th>R</th>
+                            <th>H</th>
+                            <th>E</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="team-name">Visitante</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="total-runs">0</td>
+                            <td class="total-hits">0</td>
+                            <td class="total-errors">0</td>
+                        </tr>
+                        <tr>
+                            <td class="team-name">Local</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="inning-score">0</td>
+                            <td class="total-runs">0</td>
+                            <td class="total-hits">0</td>
+                            <td class="total-errors">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="marcador-button-container">
+                <!-- El botón se moverá aquí dinámicamente -->
+            </div>
         </div>
 
         <!-- Estructura de dos columnas laterales para los equipos -->
@@ -380,19 +380,28 @@
                     </table>
                 </div>
 
-                <!-- Contenedor adicional debajo de la alineación visitante -->
-                <div class="extra-container visitante-extra" id="visitante-dice-result">
-                    <h3>🎲 Resultado de Tirada - Visitante</h3>
-                    <div class="dice-result-content">
-                        <div class="result-display" id="visitante-result-display">
-                            <span class="result-label">Esperando tirada...</span>
-                        </div>
-                        <div class="additional-rolls" id="visitante-additional-rolls" style="display: none;">
-                            <h4>Tiradas Adicionales Requeridas:</h4>
-                            <div class="roll-buttons">
-                                <button class="roll-btn" onclick="performAdditionalRoll('visitante', 'defense')">🛡️ Tirada Defensiva</button>
-                                <button class="roll-btn" onclick="performAdditionalRoll('visitante', 'steal')">🏃 Tirada de Robo</button>
-                                <button class="roll-btn" onclick="performAdditionalRoll('visitante', 'injury')">🩹 Tirada de Lesión</button>
+                <!-- Contenedor dinámico para sistema de dados -->
+                <div id="dice-container-visitante" class="dynamic-dice-container" style="display: block;">
+                    <div class="dice-system">
+                        <h3>🎲 Sistema de Tiradas</h3>
+                        <div class="dice-action-area">
+                            <div class="current-batter-info" id="current-batter-info">
+                                <span class="batter-name">Bateador Actual</span>
+                                <span class="batter-stats">AVG: .000</span>
+                            </div>
+                            <div class="dice-controls">
+                                <button class="dice-roll-btn primary" id="roll-main-dice">
+                                    🎲 Tirar Dados
+                                </button>
+                                <div class="dice-results" id="dice-results-display" style="display: none;">
+                                    <div class="result-item">
+                                        <span class="result-label">Resultado:</span>
+                                        <span class="result-value" id="final-result">-</span>
+                                    </div>
+                                    <div class="result-description" id="result-description">
+                                        Esperando tirada...
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -401,91 +410,20 @@
 
             <!-- Columna central: terreno de juego y sistema de dados -->
             <div class="col col-central">
-                <img src="zelaia.jpg" alt="Terreno de juego de béisbol" class="terreno-img">
-
-                <!-- Controles del juego -->
-                <div class="game-controls">
+                <!-- Botón de iniciar juego encima del estadio -->
+                <div class="start-game-container">
                     <button id="start-game-btn" class="start-game-btn" onclick="startNewGame()">
                         🎮 Iniciar Nuevo Juego
                     </button>
+                </div>
+
+                <img src="zelaia.jpg" alt="Terreno de juego de béisbol" class="terreno-img">
+
+                <!-- Controles del juego (solo botón de reiniciar) -->
+                <div class="game-controls">
                     <button id="reset-game-btn" class="reset-game-btn" onclick="resetGame()" style="display: none;">
                         🔄 Reiniciar Juego
                     </button>
-                </div>
-
-                <!-- Sistema de dados debajo del terreno -->
-                <div class="dice-system">
-                    <!-- Etiquetas de dados -->
-                    <div class="dice-labels">
-                        <div class="dice-label">
-                            <span class="dice-type">VARIABLE</span>
-                            <span class="dice-description">DADO<br>LANZADOR</span>
-                        </div>
-                        <div class="operator-spacer"></div>
-                        <div class="dice-label">
-                            <span class="dice-type">D100</span>
-                            <span class="dice-description">DADO<br>BATEADOR</span>
-                        </div>
-                        <div class="operator-spacer"></div>
-                        <div class="dice-label">
-                            <span class="dice-type">OBT + BONUS</span>
-                            <span class="dice-description">MODIFICADOR</span>
-                        </div>
-                        <div class="operator-spacer"></div>
-                        <div class="dice-label">
-                            <span class="dice-type">RESULTADO</span>
-                            <span class="dice-description">TOTAL</span>
-                        </div>
-                    </div>
-
-                    <!-- Contenedores de dados y cálculo -->
-                    <div class="dice-calculation">
-                        <div class="dice-container">
-                            <div class="dice-result" id="dice-lanzador">
-                                <span class="dice-value">-</span>
-                            </div>
-                            <select class="dice-selector" id="dice-type-selector">
-                                <option value="20">D20</option>
-                                <option value="12" selected>D12</option>
-                                <option value="8">D8</option>
-                                <option value="4">D4</option>
-                                <option value="-4">-D4</option>
-                                <option value="-8">-D8</option>
-                                <option value="-12">-D12</option>
-                                <option value="-20">-D20</option>
-                            </select>
-                            <button class="dice-roll-btn" data-dice="variable">🎲</button>
-                        </div>
-
-                        <div class="operator">+</div>
-
-                        <div class="dice-container">
-                            <div class="dice-result" id="dice-bateador">
-                                <span class="dice-value">-</span>
-                            </div>
-                            <button class="dice-roll-btn" data-dice="d100">🎲</button>
-                        </div>
-
-                        <div class="operator">+</div>
-
-                        <div class="dice-container modifier">
-                            <div class="dice-result" id="obt-value">
-                                <span class="dice-value">OBT</span>
-                            </div>
-                            <div class="malus-display" id="malus-value">
-                                <span class="dice-value">0</span>
-                            </div>
-                        </div>
-
-                        <div class="operator">=</div>
-
-                        <div class="dice-container result">
-                            <div class="dice-result" id="total-result">
-                                <span class="dice-value">-</span>
-                            </div>
-                            <div class="result-status" id="result-status"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -793,19 +731,28 @@
                     </table>
                 </div>
 
-                <!-- Contenedor adicional debajo de la alineación local -->
-                <div class="extra-container local-extra" id="local-dice-result">
-                    <h3>� Resultado de Tirada - Local</h3>
-                    <div class="dice-result-content">
-                        <div class="result-display" id="local-result-display">
-                            <span class="result-label">Esperando tirada...</span>
-                        </div>
-                        <div class="additional-rolls" id="local-additional-rolls" style="display: none;">
-                            <h4>Tiradas Adicionales Requeridas:</h4>
-                            <div class="roll-buttons">
-                                <button class="roll-btn" onclick="performAdditionalRoll('local', 'defense')">🛡️ Tirada Defensiva</button>
-                                <button class="roll-btn" onclick="performAdditionalRoll('local', 'steal')">🏃 Tirada de Robo</button>
-                                <button class="roll-btn" onclick="performAdditionalRoll('local', 'injury')">🩹 Tirada de Lesión</button>
+                <!-- Contenedor dinámico para sistema de dados -->
+                <div id="dice-container-local" class="dynamic-dice-container" style="display: none;">
+                    <div class="dice-system">
+                        <h3>🎲 Sistema de Tiradas</h3>
+                        <div class="dice-action-area">
+                            <div class="current-batter-info" id="current-batter-info-local">
+                                <span class="batter-name">Bateador Actual</span>
+                                <span class="batter-stats">AVG: .000</span>
+                            </div>
+                            <div class="dice-controls">
+                                <button class="dice-roll-btn primary" id="roll-main-dice-local">
+                                    🎲 Tirar Dados
+                                </button>
+                                <div class="dice-results" id="dice-results-display-local" style="display: none;">
+                                    <div class="result-item">
+                                        <span class="result-label">Resultado:</span>
+                                        <span class="result-value" id="final-result-local">-</span>
+                                    </div>
+                                    <div class="result-description" id="result-description-local">
+                                        Esperando tirada...
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

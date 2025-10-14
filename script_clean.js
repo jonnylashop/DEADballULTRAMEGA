@@ -126,11 +126,6 @@ function nextBatter() {
 
     // Actualizar la visualización
     updateGameDisplay();
-
-    // Actualizar posición del sistema de dados si el juego está activo
-    if (gameState.isGameActive) {
-        updateDiceSystemPosition();
-    }
 }
 
 // ===== FUNCIONES DE ACTUALIZACIÓN VISUAL DEL ESTADO =====
@@ -351,9 +346,6 @@ function startNewGame() {
     // Gestionar botones
     toggleGameControls();
 
-    // Mostrar el sistema de dados en la posición correcta
-    updateDiceSystemPosition();
-
     console.log('🎮 ¡Nuevo juego iniciado! Batea el equipo visitante.');
 }
 
@@ -428,108 +420,6 @@ function initializeGame() {
 
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', initializeGame);
-
-// ===== SISTEMA DE DADOS DINÁMICO =====
-
-/*
-  FUNCIONES DE CONTROL DEL SISTEMA DE DADOS MÓVIL
-  El sistema se mueve entre columnas según el turno al bate
-*/
-
-function updateDiceSystemPosition() {
-    const visitanteContainer = document.getElementById('dice-container-visitante');
-    const localContainer = document.getElementById('dice-container-local');
-
-    if (gameState.isTopHalf) {
-        // Visitante batea - mostrar en columna izquierda
-        visitanteContainer.style.display = 'block';
-        localContainer.style.display = 'none';
-        updateBatterInfo('visitante');
-    } else {
-        // Local batea - mostrar en columna derecha  
-        visitanteContainer.style.display = 'none';
-        localContainer.style.display = 'block';
-        updateBatterInfo('local');
-    }
-}
-
-function updateBatterInfo(team) {
-    const batter = getCurrentBatter();
-    const infoElement = team === 'visitante' ?
-        document.getElementById('current-batter-info') :
-        document.getElementById('current-batter-info-local');
-
-    if (batter && infoElement) {
-        const nameSpan = infoElement.querySelector('.batter-name');
-        const statsSpan = infoElement.querySelector('.batter-stats');
-
-        nameSpan.textContent = batter.name || 'Jugador';
-        statsSpan.textContent = `AVG: ${batter.battingAvg || '.000'} | OBP: ${batter.onBasePct || '.000'}`;
-    }
-}
-
-function rollDice() {
-    const team = gameState.isTopHalf ? 'visitante' : 'local';
-    const resultsDisplay = team === 'visitante' ?
-        document.getElementById('dice-results-display') :
-        document.getElementById('dice-results-display-local');
-    const finalResult = team === 'visitante' ?
-        document.getElementById('final-result') :
-        document.getElementById('final-result-local');
-    const description = team === 'visitante' ?
-        document.getElementById('result-description') :
-        document.getElementById('result-description-local');
-
-    // Simular tirada de dados (D20 + D100)
-    const d20 = Math.floor(Math.random() * 20) + 1;
-    const d100 = Math.floor(Math.random() * 100) + 1;
-    const total = d20 + d100;
-
-    // Mostrar resultados
-    resultsDisplay.style.display = 'block';
-    finalResult.textContent = total;
-
-    // Determinar resultado de la jugada
-    let resultText = '';
-    if (total <= 30) {
-        resultText = 'Out (foul, strikeout, groundout)';
-    } else if (total <= 60) {
-        resultText = 'Hit sencillo';
-    } else if (total <= 80) {
-        resultText = 'Hit doble';
-    } else if (total <= 95) {
-        resultText = 'Hit triple';
-    } else {
-        resultText = 'Home run!';
-    }
-
-    description.textContent = `D20: ${d20} + D100: ${d100} = ${total} → ${resultText}`;
-
-    // Después de la tirada, avanzar al siguiente bateador
-    setTimeout(() => {
-        nextBatter();
-        updateDiceSystemPosition();
-
-        // Ocultar resultados después de un momento
-        setTimeout(() => {
-            resultsDisplay.style.display = 'none';
-        }, 3000);
-    }, 2000);
-}
-
-// Event listeners para los botones de dados
-document.addEventListener('DOMContentLoaded', function() {
-    const rollButtonVisitante = document.getElementById('roll-main-dice');
-    const rollButtonLocal = document.getElementById('roll-main-dice-local');
-
-    if (rollButtonVisitante) {
-        rollButtonVisitante.addEventListener('click', rollDice);
-    }
-
-    if (rollButtonLocal) {
-        rollButtonLocal.addEventListener('click', rollDice);
-    }
-});
 
 // Actualizar la función startNewGame para usar toggleGameControls
 if (typeof startNewGame === 'function') {

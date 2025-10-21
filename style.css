@@ -412,24 +412,6 @@
     accent-color: #16a34a;
 }
 
-
-/* Checkbox compacto dentro del resultado */
-
-.result-checkbox-inline {
-    margin-top: 0.5rem;
-    padding: 0.4rem 0.6rem;
-    background: linear-gradient(135deg, #1e293b, #0f172a);
-    border-radius: 6px;
-    border: 2px solid #16a34a;
-    box-shadow: 0 2px 6px rgba(22, 163, 74, 0.2);
-    transition: all 0.2s ease;
-}
-
-.result-checkbox-inline:hover {
-    border-color: #22c55e;
-    box-shadow: 0 3px 8px rgba(22, 163, 74, 0.3);
-}
-
 .checkbox-compact {
     display: flex;
     align-items: center;

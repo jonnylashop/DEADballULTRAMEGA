@@ -579,6 +579,10 @@ function changeInning() {
             return;
         }
     }
+
+    // Actualizar toda la visualización después del cambio de inning
+    updateGameDisplay();
+    updateDiceSystemPosition();
 }
 
 function endGame() {
@@ -717,38 +721,28 @@ function updateResultDescription(team, total, pitcherValue, batterValue) {
 
 function showResultConfirmation(team) {
     const confirmation = document.getElementById(`result-confirmation${team === 'local' ? '-local' : ''}`);
-    const checkboxInline = document.getElementById(`result-checkbox-inline${team === 'local' ? '-local' : ''}`);
 
     if (confirmation) {
         confirmation.style.display = 'block';
-    }
-    if (checkboxInline) {
-        checkboxInline.style.display = 'block';
     }
 }
 
 function hideResultConfirmation(team) {
     const confirmation = document.getElementById(`result-confirmation${team === 'local' ? '-local' : ''}`);
-    const checkboxInline = document.getElementById(`result-checkbox-inline${team === 'local' ? '-local' : ''}`);
 
     if (confirmation) {
         confirmation.style.display = 'none';
-    }
-    if (checkboxInline) {
-        checkboxInline.style.display = 'none';
     }
 }
 
 function confirmResult(team) {
     const total = parseInt(document.getElementById(`final-result${team === 'local' ? '-local' : ''}`).textContent);
-    const advanceRunner = document.getElementById(`advance-runner${team === 'local' ? '-local' : ''}`).checked;
 
     console.log(`🎯 Resultado confirmado para ${team}:`);
     console.log(`   Total: ${total}`);
-    console.log(`   Avanzar corredor: ${advanceRunner}`);
 
     // Aquí comenzará la lógica en cascada
-    processGameResult(team, total, advanceRunner);
+    processGameResult(team, total, true); // Por defecto siempre avanzar corredor
 
     // Ocultar confirmación después de procesar
     hideResultConfirmation(team);

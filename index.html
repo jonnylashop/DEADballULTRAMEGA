@@ -383,23 +383,64 @@
                 <!-- Contenedor dinámico para sistema de dados -->
                 <div id="dice-container-visitante" class="dynamic-dice-container" style="display: block;">
                     <div class="dice-system">
-                        <h3>🎲 Sistema de Tiradas</h3>
                         <div class="dice-action-area">
                             <div class="current-batter-info" id="current-batter-info">
                                 <span class="batter-name">Bateador Actual</span>
                                 <span class="batter-stats">AVG: .000</span>
                             </div>
                             <div class="dice-controls">
-                                <button class="dice-roll-btn primary" id="roll-main-dice">
-                                    🎲 Tirar Dados
-                                </button>
-                                <div class="dice-results" id="dice-results-display" style="display: none;">
-                                    <div class="result-item">
-                                        <span class="result-label">Resultado:</span>
-                                        <span class="result-value" id="final-result">-</span>
+                                <!-- Dados visuales lado a lado -->
+                                <div class="dice-display">
+                                    <div class="dice-item">
+                                        <div class="dice-label">LANZADOR</div>
+                                        <div class="dice-visual" id="pitcher-dice">
+                                            <select class="dice-type-selector" id="pitcher-dice-type" onchange="updatePitcherDiceRange('visitante')">
+                                                <option value="20">D20</option>
+                                                <option value="12" selected>D12</option>
+                                                <option value="8">D8</option>
+                                                <option value="4">D4</option>
+                                                <option value="-4">-D4</option>
+                                                <option value="-8">-D8</option>
+                                                <option value="-12">-D12</option>
+                                                <option value="-20">-D20</option>
+                                            </select>
+                                            <input type="number" class="dice-value-input" id="pitcher-dice-value" placeholder="-" min="-20" max="20">
+                                            <div class="mini-dice" onclick="rollPitcherDice('visitante')" title="Tirar dado del lanzador">🎲</div>
+                                        </div>
                                     </div>
+                                    <div class="dice-operator">+</div>
+                                    <div class="dice-item">
+                                        <div class="dice-label">BATEADOR</div>
+                                        <div class="dice-visual" id="batter-dice">
+                                            <span class="dice-type">D100</span>
+                                            <input type="number" class="dice-value-input" id="batter-dice-value" placeholder="-" min="1" max="100">
+                                            <div class="mini-dice" onclick="rollBatterDice('visitante')" title="Tirar dado del bateador">🎲</div>
+                                        </div>
+                                    </div>
+                                    <div class="dice-operator">=</div>
+                                    <div class="dice-item result">
+                                        <div class="dice-label">RESULTADO</div>
+                                        <div class="dice-visual result" id="total-result">
+                                            <span class="dice-value" id="final-result">-</span>
+                                            <div class="result-checkbox-inline" id="result-checkbox-inline" style="display: none;">
+                                                <label class="checkbox-compact">
+                                                    <input type="checkbox" id="advance-runner" checked>
+                                                    <span>�</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="result-section">
                                     <div class="result-description" id="result-description">
                                         Esperando tirada...
+                                    </div>
+
+                                    <div class="result-confirmation" id="result-confirmation" style="display: none;">
+                                        <button class="confirm-result-btn" onclick="confirmResult('visitante')" id="confirm-btn">
+                                            ✓ Confirmar Resultado
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -734,23 +775,64 @@
                 <!-- Contenedor dinámico para sistema de dados -->
                 <div id="dice-container-local" class="dynamic-dice-container" style="display: none;">
                     <div class="dice-system">
-                        <h3>🎲 Sistema de Tiradas</h3>
                         <div class="dice-action-area">
                             <div class="current-batter-info" id="current-batter-info-local">
                                 <span class="batter-name">Bateador Actual</span>
                                 <span class="batter-stats">AVG: .000</span>
                             </div>
                             <div class="dice-controls">
-                                <button class="dice-roll-btn primary" id="roll-main-dice-local">
-                                    🎲 Tirar Dados
-                                </button>
-                                <div class="dice-results" id="dice-results-display-local" style="display: none;">
-                                    <div class="result-item">
-                                        <span class="result-label">Resultado:</span>
-                                        <span class="result-value" id="final-result-local">-</span>
+                                <!-- Dados visuales lado a lado -->
+                                <div class="dice-display">
+                                    <div class="dice-item">
+                                        <div class="dice-label">LANZADOR</div>
+                                        <div class="dice-visual" id="pitcher-dice-local">
+                                            <select class="dice-type-selector" id="pitcher-dice-type-local" onchange="updatePitcherDiceRange('local')">
+                                                <option value="20">D20</option>
+                                                <option value="12" selected>D12</option>
+                                                <option value="8">D8</option>
+                                                <option value="4">D4</option>
+                                                <option value="-4">-D4</option>
+                                                <option value="-8">-D8</option>
+                                                <option value="-12">-D12</option>
+                                                <option value="-20">-D20</option>
+                                            </select>
+                                            <input type="number" class="dice-value-input" id="pitcher-dice-value-local" placeholder="-" min="-20" max="20">
+                                            <div class="mini-dice" onclick="rollPitcherDice('local')" title="Tirar dado del lanzador">🎲</div>
+                                        </div>
                                     </div>
+                                    <div class="dice-operator">+</div>
+                                    <div class="dice-item">
+                                        <div class="dice-label">BATEADOR</div>
+                                        <div class="dice-visual" id="batter-dice-local">
+                                            <span class="dice-type">D100</span>
+                                            <input type="number" class="dice-value-input" id="batter-dice-value-local" placeholder="-" min="1" max="100">
+                                            <div class="mini-dice" onclick="rollBatterDice('local')" title="Tirar dado del bateador">🎲</div>
+                                        </div>
+                                    </div>
+                                    <div class="dice-operator">=</div>
+                                    <div class="dice-item result">
+                                        <div class="dice-label">RESULTADO</div>
+                                        <div class="dice-visual result" id="total-result-local">
+                                            <span class="dice-value" id="final-result-local">-</span>
+                                            <div class="result-checkbox-inline" id="result-checkbox-inline-local" style="display: none;">
+                                                <label class="checkbox-compact">
+
+                                                    <span>�</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="result-section">
                                     <div class="result-description" id="result-description-local">
                                         Esperando tirada...
+                                    </div>
+
+                                    <div class="result-confirmation" id="result-confirmation-local" style="display: none;">
+                                        <button class="confirm-result-btn" onclick="confirmResult('local')" id="confirm-btn-local">
+                                            ✓ Confirmar Resultado
+                                        </button>
                                     </div>
                                 </div>
                             </div>

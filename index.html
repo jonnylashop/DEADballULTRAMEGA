@@ -460,6 +460,29 @@
                         🔄 Reiniciar Juego
                     </button>
                 </div>
+
+                <!-- Sistema de Cascada de Resolución -->
+                <div class="cascade-system" id="cascade-system" style="display: block;">
+                    <div class="cascade-header">
+                        <h3>🎲 Resolución de Jugada</h3>
+                        <div class="cascade-status">
+                            <span id="cascade-current-action">Esperando resultado...</span>
+                        </div>
+                    </div>
+
+                    <div class="cascade-flow" id="cascade-flow">
+                        <!-- Aquí se generarán las casillas de cascada dinámicamente -->
+                        <div class="cascade-step" id="cascade-step-1">
+                            <div class="cascade-result">
+                                <div class="result-label">Resultado Inicial</div>
+                                <div class="result-value" id="initial-result">-</div>
+                            </div>
+                            <div class="cascade-dropdown" id="cascade-dropdown-1" style="display: none;">
+                                <!-- Opciones se cargarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Columna derecha: Equipo local -->
@@ -928,17 +951,8 @@
 </tbody>
 </table>
 </div>
-<!-- Estructura de dos columnas laterales para los equipos -->
-<div class="dashboard">
-    <!-- Columna izquierda: Equipo visitante -->
-    <div class="col col-visitante">
-        <div class="team-header">
-            <h2>🛫 Equipo Visitante</h2>
-            <button class="config-btn" onclick="openTeamConfig('visitante')">⚙️</button>
-        </div>
-
-        <!-- Tabla de roster del equipo visitante -->
-        <div class="roster-container">
+<!-- Modal de configuración de equipos -->
+    <div class="modal-overlay" id="team-config-modal">
             <table class="roster-table" id="roster-visitante">
                 <thead>
                     <tr>

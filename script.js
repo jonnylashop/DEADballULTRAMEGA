@@ -773,6 +773,9 @@ function processGameResult(team, total, advanceRunner) {
 
     console.log(`   Tipo de resultado: ${resultType}`);
 
+    // Inicializar sistema de cascada para resolución
+    initializeCascade(total, resultType);
+
     if (isOut) {
         gameState.outs++;
         console.log(`   Outs: ${gameState.outs}`);
@@ -785,9 +788,9 @@ function processGameResult(team, total, advanceRunner) {
             nextBatter();
         }
     } else {
-        console.log('   ⚾ Hit registrado');
-        // TODO: Implementar lógica de hits y movimiento de corredores
-        nextBatter();
+        console.log('   ⚾ Hit registrado - cascada activada');
+        // La cascada manejará el resto de la resolución
+        // nextBatter(); // Se llamará después de resolver la cascada
     }
 
     // Actualizar visualización
@@ -1183,4 +1186,124 @@ function generateTraitTags(traits) {
         const traitClass = `trait-${trait.toLowerCase()}`;
         return `<span class="trait-tag ${traitClass}">${trait}</span>`;
     }).join(' ');
+}
+
+// ===== SISTEMA DE CASCADA DE RESOLUCIÓN =====
+
+/*
+  FUNCIONES PARA EL SISTEMA DE CASCADA
+  Maneja la resolución paso a paso de jugadas complejas
+*/
+
+// Mostrar el sistema de cascada
+function showCascadeSystem() {
+    const cascadeSystem = document.getElementById('cascade-system');
+    if (cascadeSystem) {
+        cascadeSystem.style.display = 'block';
+        console.log('📋 Sistema de cascada mostrado');
+    }
+}
+
+// Ocultar el sistema de cascada
+function hideCascadeSystem() {
+    const cascadeSystem = document.getElementById('cascade-system');
+    if (cascadeSystem) {
+        cascadeSystem.style.display = 'none';
+        console.log('📋 Sistema de cascada oculto');
+    }
+}
+
+// Inicializar cascada con resultado inicial
+function initializeCascade(result, resultType) {
+    showCascadeSystem();
+
+    // Actualizar estado de la cascada
+    const cascadeStatus = document.getElementById('cascade-current-action');
+    if (cascadeStatus) {
+        cascadeStatus.textContent = `Resolviendo: ${resultType}`;
+    }
+
+    // Mostrar resultado inicial
+    const initialResult = document.getElementById('initial-result');
+    if (initialResult) {
+        initialResult.textContent = result;
+    }
+
+    console.log(`🎲 Cascada inicializada: ${result} → ${resultType}`);
+
+    // Aquí se determinará si necesita más resolución
+    checkForAdditionalResolution(resultType);
+}
+
+// Verificar si el resultado necesita resolución adicional
+function checkForAdditionalResolution(resultType) {
+    const needsResolution = ['single', 'double', 'triple', 'homerun'];
+
+    if (needsResolution.includes(resultType)) {
+        console.log(`⚡ ${resultType} requiere resolución adicional`);
+        // TODO: Mostrar opciones en dropdown y preparar dados flotantes
+        showCascadeDropdown(1, resultType);
+    } else {
+        console.log(`✅ ${resultType} no requiere resolución adicional`);
+        // Auto-ocultar después de un momento
+        setTimeout(() => {
+            hideCascadeSystem();
+        }, 3000);
+    }
+}
+
+// Mostrar dropdown de opciones de cascada
+function showCascadeDropdown(stepNumber, resultType) {
+    const dropdown = document.getElementById(`cascade-dropdown-${stepNumber}`);
+    if (dropdown) {
+        // Generar opciones según el tipo de resultado
+        const options = generateCascadeOptions(resultType);
+        dropdown.innerHTML = options;
+        dropdown.style.display = 'block';
+        dropdown.classList.add('show');
+
+        console.log(`🔽 Dropdown mostrado para paso ${stepNumber}: ${resultType}`);
+    }
+}
+
+// Generar opciones de cascada según el tipo de resultado
+function generateCascadeOptions(resultType) {
+    let options = '<div class="cascade-options">';
+
+    switch (resultType) {
+        case 'single':
+            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'advance-runner\')">🏃 Avanzar corredores</div>';
+            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'steal-attempt\')">🥷 Intento de robo</div>';
+            break;
+        case 'double':
+            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'advance-two\')">🏃‍♂️🏃‍♀️ Avanzar 2 bases</div>';
+            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'error-check\')">❌ Verificar error</div>';
+            break;
+        case 'triple':
+            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'advance-three\')">🏃‍♂️🏃‍♀️🏃 Avanzar 3 bases</div>';
+            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'injury-check\')">🚑 Verificar lesión</div>';
+            break;
+        case 'homerun':
+            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'score-all\')">🏠 Anotar todas las carreras</div>';
+            break;
+        default:
+            options += '<div class="cascade-option">Sin opciones adicionales</div>';
+    }
+
+    options += '</div>';
+    return options;
+}
+
+// Resolver opción seleccionada de cascada
+function resolveCascadeOption(option) {
+    console.log(`🎯 Opción seleccionada: ${option}`);
+
+    // Aquí es donde aparecería el dado flotante
+    // TODO: Implementar dado flotante en el Paso 2
+
+    // Por ahora, simulamos la resolución
+    setTimeout(() => {
+        console.log(`✅ Opción ${option} resuelta`);
+        hideCascadeSystem();
+    }, 2000);
 }

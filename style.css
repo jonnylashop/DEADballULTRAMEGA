@@ -1,40 +1,60 @@
 .col-central {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    /* Cambiado para permitir que los elementos ocupen todo el ancho */
-    justify-content: flex-start;
+    flex: 1 1 56%;
+    /* 56% del ancho total - COLUMNA CENTRAL MÁS DOMINANTE */
+    display: block;
     background: transparent;
-    padding: 0 !important;
-    /* Importante: anular el padding heredado de .col */
+    padding: 0;
     margin: 0;
-    /* Sin margen para eliminar cualquier espacio */
-    gap: 0;
-    /* Eliminado el gap para pegar los elementos */
-    max-width: calc(100vw - 740px - 4rem);
+    min-width: 390px;
+    /* Mínimo ajustado para 56% */
     overflow-x: hidden;
+    overflow-y: visible;
+    /* Permitir desbordamiento vertical hacia arriba para los desplegables */
     box-sizing: border-box;
     position: relative;
-    /* Necesario para posicionar el botón sobre el estadio */
+    text-align: center;
+}
+
+
+/* Espaciado estático para elementos de la columna central */
+
+.col-central>.marcador-container {
+    margin-bottom: 2px;
+}
+
+.col-central>.start-game-container {
+    margin-bottom: 2px;
+}
+
+.col-central>.terreno-img {
+    margin-bottom: 2px;
+    margin-top: 0px;
+    /* Sin margen superior - imagen pegada arriba */
+}
+
+.col-central>.game-controls {
+    margin-bottom: 2px;
+}
+
+.col-central>.cascade-system {
+    margin-top: 0;
 }
 
 .terreno-img {
     width: 100%;
-    /* Ocupa todo el ancho disponible */
+    /* Ancho completo del contenedor expandido */
     max-width: 100%;
     height: auto;
     /* Altura automática para mantener proporciones */
     object-fit: contain;
-    border-radius: 20px;
-    /* Mismo radio que las columnas laterales para alineación visual */
+    border-radius: 15px;
+    /* Radio moderado */
     box-shadow: 0 2px 8px #0003;
-    /* Misma sombra que las columnas laterales */
     margin: 0 !important;
-    /* Importante: sin márgenes en absoluto */
+    /* Sin márgenes */
     padding: 0 !important;
-    /* Importante: sin padding */
-    border: 2px solid #374151;
+    /* Sin padding */
+    border: 1px solid #374151;
     /* Borde sutil para definir mejor los límites */
     display: block;
     /* Asegurar que es un elemento de bloque */
@@ -540,7 +560,9 @@
 html,
 body {
     height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: visible;
+    /* Permitir desbordamiento vertical para dropdowns */
     margin: 0;
     padding: 0;
     /* Eliminar cualquier espacio por defecto */
@@ -591,14 +613,20 @@ body {
 
 .dashboard {
     display: flex;
-    justify-content: space-between;
+    justify-content: stretch;
+    /* STRETCH para ocupar todo el ancho disponible */
     align-items: stretch;
     height: 100vh;
+    width: 100vw;
+    /* Forzar ancho completo */
     box-sizing: border-box;
     padding: 0;
     margin: 0;
     gap: 0;
-    /* Eliminar cualquier espacio entre columnas */
+    /* Sin gap - el estadio toca las columnas laterales */
+    overflow-x: hidden;
+    overflow-y: visible;
+    /* Sin scroll horizontal, pero permitir desbordamiento vertical para dropdowns */
 }
 
 
@@ -607,12 +635,16 @@ body {
 .col {
     background: #1a2332;
     border-radius: 20px;
-    padding: 2rem 1.5rem;
-    width: 370px;
+    padding: 0rem 0.5rem;
+    flex: 0 0 22%;
+    /* 22% del ancho total cada columna lateral */
+    max-width: none;
+    /* SIN límite máximo para pantallas completas */
+    min-width: 250px;
+    /* Mínimo ajustado para 22% */
     box-shadow: 0 2px 8px #0003;
     display: flex;
     flex-direction: column;
-    /* AJUSTADO: altura automática para acomodar 11 jugadores */
     min-height: 100vh;
 }
 
@@ -1605,7 +1637,7 @@ body {
     border-radius: 6px;
     padding: 0.5rem 1rem;
     margin: 0.5rem 0 0 0;
-    /* Solo margen superior, sin margen inferior para pegar al sistema de dados */
+    /* Sin margen inferior para pegar directamente al sistema de cascada */
     text-align: center;
     font-size: 0.9rem;
     font-weight: 500;
@@ -1727,4 +1759,284 @@ body {
 
 .marcador-button-container .reset-game-btn:hover {
     background: #b91c1c;
+}
+
+
+/* ===== SISTEMA DE CASCADA DE RESOLUCIÓN ===== */
+
+.cascade-system {
+    margin-top: 0;
+    padding: 0.6rem;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 6px;
+    border: 1px solid #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    min-height: 120px;
+    position: relative;
+    /* Posición relativa para que los desplegables se posicionen correctamente */
+    z-index: 1000;
+    /* Z-index alto para el contenedor */
+    overflow: visible;
+    /* Permitir desbordamiento hacia arriba de los desplegables */
+    /* Sin margen superior - pega directamente a la línea gris del estado */
+}
+
+.cascade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid #334155;
+}
+
+.cascade-header h3 {
+    color: #60a5fa;
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.cascade-status {
+    background: #374151;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border-left: 2px solid #10b981;
+}
+
+.cascade-status span {
+    color: #d1fae5;
+    font-size: 0.7rem;
+    font-weight: 400;
+}
+
+.cascade-flow {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-end;
+    overflow-x: hidden;
+    padding: 4rem 0 0.3rem 0;
+    /* Espacio arriba para los dropdowns */
+    position: relative;
+}
+
+.cascade-step {
+    position: relative;
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1001;
+    /* Z-index alto para cada paso de cascada */
+}
+
+.cascade-result {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(22, 163, 74, 0.2);
+    border: 1px solid #22c55e;
+    transition: all 0.2s ease;
+    min-width: 80px;
+}
+
+.cascade-result:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(22, 163, 74, 0.3);
+}
+
+.result-label {
+    color: #dcfce7;
+    font-size: 0.6rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    margin-bottom: 0.2rem;
+}
+
+.result-value {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.cascade-dropdown {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 4px;
+    padding: 0.4rem;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+    min-width: 140px;
+    max-width: 200px;
+    /* Ancho máximo para que no se extienda demasiado */
+    z-index: 999999;
+    /* Z-index súper alto para estar por encima de todo */
+    max-height: none;
+    /* SIN límite de altura - muestra todas las opciones */
+    overflow-y: visible;
+    /* SIN scroll - se desborda hacia arriba completamente */
+    white-space: nowrap;
+    /* Evita que el texto se rompa en varias líneas */
+}
+
+.dropdown-option {
+    padding: 0.4rem 0.6rem;
+    margin: 0.1rem 0;
+    background: #334155;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+}
+
+.dropdown-option:hover {
+    background: #3b82f6;
+    border-color: #60a5fa;
+    transform: translateX(2px);
+    color: white;
+}
+
+.cascade-dropdown::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #475569;
+}
+
+
+/* Animación para el desplegable hacia arriba */
+
+.cascade-dropdown.show {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+        visibility: hidden;
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        visibility: visible;
+    }
+}
+
+.cascade-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.cascade-option {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    padding: 0.3rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-weight: 400;
+    font-size: 0.7rem;
+    border: 1px solid transparent;
+}
+
+.cascade-option:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border-color: #60a5fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+
+/* Para pantallas muy grandes (asegurar proporciones 23-54-23) */
+
+@media (min-width: 1400px) {
+    .col {
+        flex: 0 0 23%;
+        /* Forzar 23% en pantallas grandes */
+        max-width: none;
+        /* Sin límites */
+    }
+    .col-central {
+        flex: 1 1 54%;
+        /* Forzar 54% en pantallas grandes */
+    }
+}
+
+
+/* Para pantallas medianas (tablets) */
+
+@media (max-width: 1200px) {
+    .col {
+        flex: 0 0 24%;
+        /* Columnas laterales 24% para pantallas medianas */
+        min-width: 250px;
+        padding: 1.5rem 1rem;
+    }
+    .col-central {
+        flex: 1 1 52%;
+        /* Columna central 52% para pantallas medianas */
+        min-width: 330px;
+    }
+}
+
+
+/* Para pantallas pequeñas (móviles grandes) */
+
+@media (max-width: 900px) {
+    .dashboard {
+        gap: 0;
+    }
+    .col {
+        flex: 0 0 23%;
+        min-width: 190px;
+        padding: 1rem 0.8rem;
+    }
+    .col-central {
+        flex: 1 1 54%;
+        min-width: 280px;
+    }
+    .terreno-img {
+        border-radius: 15px;
+        /* Reducir radio en pantallas pequeñas */
+    }
+}
+
+
+/* Para pantallas muy pequeñas (móviles) */
+
+@media (max-width: 700px) {
+    .dashboard {
+        overflow-x: scroll;
+        /* Permitir scroll horizontal */
+        min-width: 700px;
+        /* Mantener tamaño mínimo */
+    }
+    .col {
+        flex: 0 0 200px;
+        /* Ancho fijo mínimo */
+        min-width: 200px;
+    }
+    .col-central {
+        flex: 0 0 300px;
+        /* Ancho fijo para la central */
+        min-width: 300px;
+    }
 }

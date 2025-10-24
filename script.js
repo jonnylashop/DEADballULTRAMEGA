@@ -49,7 +49,22 @@ const gameState = {
     // ESTADO DEL JUEGO
     isGameActive: false, // true cuando el juego está en progreso
     gameComplete: false, // true cuando el juego ha terminado (9+ innings)
-    winner: null // 'visitante', 'local' o null si está empatado/en progreso
+    winner: null, // 'visitante', 'local' o null si está empatado/en progreso
+
+    // RESULTADO DE LA TIRADA ACTUAL
+    currentDiceRoll: null, // Almacena el resultado total de la tirada actual (MSS + Event)
+
+    // TODO: IMPLEMENTAR MÁS TARDE - HISTORIAL DE BATEADORES
+    // batterHistory: [] // Array que contendrá el registro de cada bateador:
+    // {
+    //     batter: {name, position, stats...},
+    //     diceRoll: number,
+    //     result: string,
+    //     inning: number,
+    //     isTopHalf: boolean,
+    //     timestamp: Date,
+    //     outcome: string (hit, out, walk, etc.)
+    // }
 };
 
 // ===== FUNCIONES DE NAVEGACIÓN DE JUGADORES =====
@@ -127,13 +142,15 @@ function nextBatter() {
     console.log(`🏃 Siguiente bateador: ${getCurrentBatter()?.name || 'Desconocido'}`);
     console.log(`📊 Índice de bateador: ${getCurrentBatterIndex() + 1}/9`);
 
-    // Actualizar la visualización
-    updateGameDisplay();
+    // NO ACTUALIZAR VISUALIZACIÓN - Puede interferir con dados visibles
+    // updateGameDisplay(); // COMENTADO - Mantener dados visibles
 
-    // Actualizar posición del sistema de dados si el juego está activo
-    if (gameState.isGameActive) {
-        updateDiceSystemPosition();
-    }
+    // NO ACTUALIZAR POSICIÓN - Puede interferir con dados visibles  
+    // if (gameState.isGameActive) {
+    //     updateDiceSystemPosition();
+    // }
+
+    console.log(`✅ Bateador avanzado sin resetear dados`);
 }
 
 // ===== FUNCIONES DE ACTUALIZACIÓN VISUAL DEL ESTADO =====
@@ -325,6 +342,72 @@ function updateBasesDisplay() {
   EXPLICACIÓN: Resetea todo el estado del juego y actualiza la visualización
 */
 function startNewGame() {
+    console.log('🎮 Iniciando nuevo juego...');
+
+    // RESETEO SELECTIVO - Solo elementos específicos de dados, NO todo el DOM
+    console.log('🧹 Reseteo selectivo de elementos de dados...');
+
+    // 1. RESETEAR SOLO cascada y confirmaciones (no dados históricos)
+    resetCascadeSystemComplete();
+
+    // 2. OCULTAR solo elementos específicos de dados recientes
+    const knownDiceIds = [
+        'dice-results-display',
+        'dice-results-display-local'
+    ];
+
+    knownDiceIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = 'none';
+            console.log(`✅ Elemento de dados específico ocultado: ${id}`);
+        }
+    });
+
+    // 3. RESETEAR campos de dados del lanzador y bateador
+    const diceInputIds = [
+        'pitcher-dice-value',
+        'batter-dice-value',
+        'pitcher-dice-value-local',
+        'batter-dice-value-local'
+    ];
+
+    diceInputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.value = '';
+            console.log(`✅ Campo de dados reseteado: ${id}`);
+        }
+    });
+
+    // 4. RESETEAR selectores de tipo de dados
+    const diceTypeIds = [
+        'pitcher-dice-type',
+        'pitcher-dice-type-local'
+    ];
+
+    diceTypeIds.forEach(id => {
+        const select = document.getElementById(id);
+        if (select) {
+            select.selectedIndex = 0; // Volver al primer valor
+            console.log(`✅ Selector de dados reseteado: ${id}`);
+        }
+    });
+
+    // 5. RESETEAR descripciones de resultados de dados
+    const resultDescriptionIds = [
+        'dice-result-description',
+        'dice-result-description-local'
+    ];
+
+    resultDescriptionIds.forEach(id => {
+        const description = document.getElementById(id);
+        if (description) {
+            description.textContent = 'Esperando tirada...';
+            console.log(`✅ Descripción de resultado reseteada: ${id}`);
+        }
+    });
+
     // Resetear el estado del juego a valores iniciales
     gameState.currentInning = 1;
     gameState.isTopHalf = true; // Siempre empieza bateando el visitante
@@ -351,6 +434,10 @@ function startNewGame() {
     gameState.hits = { visitante: 0, local: 0 };
     gameState.errors = { visitante: 0, local: 0 };
 
+    // RESETEAR ESTADO DE DADOS
+    gameState.currentDiceRoll = null;
+    gameState.lastRollDetails = null;
+
     // Activar el juego
     gameState.isGameActive = true;
     gameState.gameComplete = false;
@@ -365,7 +452,7 @@ function startNewGame() {
     // Mostrar el sistema de dados en la posición correcta
     updateDiceSystemPosition();
 
-    console.log('🎮 ¡Nuevo juego iniciado! Batea el equipo visitante.');
+    console.log('🎮 ¡Nuevo juego iniciado correctamente!');
     console.log(`🏃 Primer bateador: ${getCurrentBatter()?.name || 'Desconocido'}`);
 }
 
@@ -507,6 +594,9 @@ function rollDice() {
     const d100 = Math.floor(Math.random() * 100) + 1;
     const total = d20 + d100;
 
+    // Almacenar resultado en gameState para usarlo en resaltado de dropdowns
+    gameState.currentDiceRoll = total;
+
     // Mostrar resultados inmediatamente
     resultsDisplay.style.display = 'block';
     finalResult.textContent = total;
@@ -530,34 +620,36 @@ function rollDice() {
 
     description.textContent = `D20: ${d20} + D100: ${d100} = ${total} → ${resultText}`;
 
-    // Procesar automáticamente el resultado después de mostrar
-    setTimeout(() => {
-        if (advanceOuts) {
-            gameState.outs++;
-            console.log(`Out registrado. Outs: ${gameState.outs}`);
+    // Inicializar sistema de cascada con la tirada actual
+    let resultType = '';
+    if (total === 1) {
+        resultType = 'oddity';
+    } else if (total >= 2 && total <= 5) {
+        resultType = 'critical-hit';
+    } else if (total >= 6 && total <= 10) {
+        resultType = 'ordinary-hit';
+    } else if (total >= 11 && total <= 15) {
+        resultType = 'walk';
+    } else if (total >= 16 && total <= 20) {
+        resultType = 'possible-error';
+    } else if (total >= 21 && total <= 49) {
+        resultType = 'productive-out-1';
+    } else if (total >= 50 && total <= 69) {
+        resultType = 'productive-out-2';
+    } else if (total >= 70 && total <= 98) {
+        resultType = 'out';
+    } else if (total === 99) {
+        resultType = 'oddity';
+    } else if (total >= 100) {
+        resultType = 'out';
+    }
 
-            // Si son 3 outs, cambiar de inning
-            if (gameState.outs >= 3) {
-                changeInning();
-            } else {
-                // Solo avanzar al siguiente bateador
-                nextBatter();
-            }
-        } else {
-            // Es hit - avanzar bateador sin cambiar outs
-            nextBatter();
-        }
+    // Activar sistema de cascada inmediatamente
+    initializeCascade(total, resultType);
 
-        // Actualizar toda la visualización
-        updateGameDisplay();
-        updateDiceSystemPosition();
-
-        // Ocultar resultados después de un momento
-        setTimeout(() => {
-            resultsDisplay.style.display = 'none';
-        }, 3000);
-
-    }, 2000); // Dar tiempo para leer el resultado
+    // NO procesar automáticamente - esperar confirmación manual
+    console.log(`🎲 Tirada completada: ${total} → ${resultType}`);
+    console.log(`📋 Esperando confirmación manual...`);
 }
 
 function changeInning() {
@@ -580,9 +672,11 @@ function changeInning() {
         }
     }
 
-    // Actualizar toda la visualización después del cambio de inning
-    updateGameDisplay();
-    updateDiceSystemPosition();
+    // NO ACTUALIZAR VISUALIZACIÓN - Puede interferir con dados visibles
+    // updateGameDisplay(); // COMENTADO - Mantener dados visibles  
+    // updateDiceSystemPosition(); // COMENTADO - Mantener dados visibles
+
+    console.log(`✅ Inning cambiado sin resetear dados`);
 }
 
 function endGame() {
@@ -690,6 +784,10 @@ function calculateTotal(team) {
 
     const total = pitcherValue + batterValue;
 
+    // ¡IMPORTANTE! Guardar el total en gameState para que funcione la cascada
+    gameState.currentDiceRoll = total;
+    console.log(`🎲 Total calculado y guardado en gameState: ${total}`);
+
     const resultElement = document.getElementById(`final-result${team === 'local' ? '-local' : ''}`);
     resultElement.textContent = total;
 
@@ -747,8 +845,10 @@ function confirmResult(team) {
     // Ocultar confirmación después de procesar
     hideResultConfirmation(team);
 
-    // Limpiar dados para la próxima tirada
-    clearDiceValues(team);
+    // NO LIMPIAR DADOS - Mantener visibles para referencia
+    // clearDiceValues(team); // COMENTADO - Los dados permanecen visibles
+
+    console.log(`✅ Resultado confirmado sin limpiar dados`);
 }
 
 function processGameResult(team, total, advanceRunner) {
@@ -758,17 +858,40 @@ function processGameResult(team, total, advanceRunner) {
     let resultType = '';
     let isOut = false;
 
-    if (total <= 30) {
-        resultType = 'out';
-        isOut = true;
-    } else if (total <= 60) {
-        resultType = 'single';
-    } else if (total <= 80) {
-        resultType = 'double';
-    } else if (total <= 95) {
-        resultType = 'triple';
-    } else {
-        resultType = 'homerun';
+    // Determinar resultado basado en la tabla real de Swing Result
+    if (total === 1) {
+        resultType = 'oddity';
+    } else if (total >= 2 && total <= 5) {
+        resultType = 'critical-hit';
+    } else if (total >= 6) {
+        // Aquí necesitaríamos saber BT (Batting Trait) del jugador
+        // Por ahora usaremos valores aproximados: BT = 10 para jugador promedio
+        const estimatedBT = 10;
+        const estimatedOBT = 15; // OBT típicamente BT + 5
+
+        if (total <= estimatedBT) {
+            resultType = 'ordinary-hit';
+        } else if (total <= estimatedOBT) {
+            resultType = 'walk';
+        } else if (total <= estimatedOBT + 5) {
+            resultType = 'possible-error';
+        } else if (total >= estimatedOBT + 6 && total <= 49) {
+            resultType = 'productive-out-1';
+            isOut = true;
+        } else if (total >= 50 && total <= 69) {
+            resultType = 'productive-out-2';
+            isOut = true;
+        } else if (total >= 70) {
+            if (total === 99) {
+                resultType = 'oddity';
+            } else if (total >= 100) {
+                resultType = 'out'; // Posible triple play
+                isOut = true;
+            } else {
+                resultType = 'out';
+                isOut = true;
+            }
+        }
     }
 
     console.log(`   Tipo de resultado: ${resultType}`);
@@ -867,6 +990,13 @@ function updateDiceSystemPosition() {
     const visitanteContainer = document.getElementById('dice-container-visitante');
     const localContainer = document.getElementById('dice-container-local');
 
+    // PRESERVAR resultados de dados antes de cambiar visibilidad
+    const visitanteResults = document.getElementById('dice-results-display');
+    const localResults = document.getElementById('dice-results-display-local');
+
+    const visitanteWasVisible = visitanteResults && visitanteResults.style.display === 'block';
+    const localWasVisible = localResults && localResults.style.display === 'block';
+
     if (gameState.isTopHalf) {
         // Visitante batea - mostrar en columna izquierda
         visitanteContainer.style.display = 'block';
@@ -877,6 +1007,16 @@ function updateDiceSystemPosition() {
         visitanteContainer.style.display = 'none';
         localContainer.style.display = 'block';
         updateBatterInfo('local');
+    }
+
+    // RESTAURAR resultados que estaban visibles
+    if (visitanteWasVisible && visitanteResults) {
+        visitanteResults.style.display = 'block';
+        console.log(`🔄 Manteniendo dados visitante visibles`);
+    }
+    if (localWasVisible && localResults) {
+        localResults.style.display = 'block';
+        console.log(`🔄 Manteniendo dados local visibles`);
     }
 }
 
@@ -932,16 +1072,18 @@ function rollDice() {
 
     description.textContent = `D20: ${d20} + D100: ${d100} = ${total} → ${resultText}`;
 
-    // Después de la tirada, avanzar al siguiente bateador
-    setTimeout(() => {
-        nextBatter();
-        updateDiceSystemPosition();
+    // MOSTRAR INMEDIATAMENTE EL BOTÓN "SIGUIENTE BATEADOR"
+    const confirmation = document.getElementById('cascade-confirmation');
+    const confirmationText = document.getElementById('confirmation-text');
+    if (confirmation && confirmationText) {
+        confirmationText.textContent = 'Dados tirados. ¿Continuar al siguiente bateador?';
+        confirmation.style.display = 'block';
+        console.log(`🎯 Botón "Siguiente Bateador" mostrado inmediatamente`);
+    }
 
-        // Ocultar resultados después de un momento
-        setTimeout(() => {
-            resultsDisplay.style.display = 'none';
-        }, 3000);
-    }, 2000);
+    // NO HACER NADA AUTOMÁTICAMENTE - Solo mostrar el botón y esperar
+    // El usuario debe presionar "Siguiente Bateador" para continuar
+    console.log(`✅ Dados mostrados. Esperando confirmación del usuario...`);
 }
 
 // Event listeners para los botones de dados
@@ -1195,21 +1337,38 @@ function generateTraitTags(traits) {
   Maneja la resolución paso a paso de jugadas complejas
 */
 
-// Mostrar el sistema de cascada
+// Mostrar el sistema de cascada (contenedor siempre visible)
 function showCascadeSystem() {
-    const cascadeSystem = document.getElementById('cascade-system');
-    if (cascadeSystem) {
-        cascadeSystem.style.display = 'block';
-        console.log('📋 Sistema de cascada mostrado');
-    }
+    // El contenedor ya está siempre visible por CSS
+    // Solo activamos la visualización de contenido
+    console.log('📋 Sistema de cascada activado (contenedor siempre visible)');
 }
 
-// Ocultar el sistema de cascada
+// Ocultar solo los dropdowns (contenedor siempre visible)
 function hideCascadeSystem() {
     const cascadeSystem = document.getElementById('cascade-system');
     if (cascadeSystem) {
-        cascadeSystem.style.display = 'none';
-        console.log('📋 Sistema de cascada oculto');
+        // NO ocultar el contenedor - solo los dropdowns
+        // cascadeSystem.style.display = 'none'; // REMOVIDO
+
+        // Ocultar y resetear todos los dropdowns con position fixed
+        const dropdowns = cascadeSystem.querySelectorAll('.cascade-dropdown');
+        dropdowns.forEach(dropdown => {
+            dropdown.style.display = 'none';
+            dropdown.classList.remove('show');
+            // Resetear posicionamiento fixed
+            dropdown.style.left = '';
+            dropdown.style.top = '';
+            dropdown.style.transform = '';
+        });
+
+        // Actualizar estado a esperando
+        const cascadeStatus = document.getElementById('cascade-current-action');
+        if (cascadeStatus) {
+            cascadeStatus.textContent = 'Sistema activo - Esperando tirada...';
+        }
+
+        console.log('📋 Dropdowns ocultos y reseteados (contenedor permanece visible)');
     }
 }
 
@@ -1217,10 +1376,21 @@ function hideCascadeSystem() {
 function initializeCascade(result, resultType) {
     showCascadeSystem();
 
-    // Actualizar estado de la cascada
+    // Actualizar estado de la cascada con nombres más legibles
     const cascadeStatus = document.getElementById('cascade-current-action');
     if (cascadeStatus) {
-        cascadeStatus.textContent = `Resolviendo: ${resultType}`;
+        const typeNames = {
+            'oddity': 'Oddity - Evento especial',
+            'critical-hit': 'Critical Hit - Golpe crítico',
+            'ordinary-hit': 'Ordinary Hit - Golpe ordinario',
+            'walk': 'Walk - Base por bolas',
+            'possible-error': 'Possible Error - Posible error',
+            'productive-out-1': 'Productive Out - Out productivo',
+            'productive-out-2': 'Productive Out - Elección del fildeador',
+            'out': 'Out - Eliminación'
+        };
+        const displayName = typeNames[resultType] || resultType;
+        cascadeStatus.textContent = `Resolviendo: ${displayName}`;
     }
 
     // Mostrar resultado inicial
@@ -1237,61 +1407,285 @@ function initializeCascade(result, resultType) {
 
 // Verificar si el resultado necesita resolución adicional
 function checkForAdditionalResolution(resultType) {
-    const needsResolution = ['single', 'double', 'triple', 'homerun'];
+    // Todos los tipos de la tabla de Swing Result necesitan mostrar el dropdown
+    const allResultTypes = [
+        'oddity', 'critical-hit', 'ordinary-hit', 'walk', 'possible-error',
+        'productive-out-1', 'productive-out-2', 'out'
+    ];
 
-    if (needsResolution.includes(resultType)) {
-        console.log(`⚡ ${resultType} requiere resolución adicional`);
-        // TODO: Mostrar opciones en dropdown y preparar dados flotantes
+    if (allResultTypes.includes(resultType) || resultType) {
+        console.log(`⚡ ${resultType} - Mostrando tabla de Swing Result`);
         showCascadeDropdown(1, resultType);
     } else {
-        console.log(`✅ ${resultType} no requiere resolución adicional`);
-        // Auto-ocultar después de un momento
-        setTimeout(() => {
-            hideCascadeSystem();
-        }, 3000);
+        console.log(`✅ ${resultType} - Tipo no reconocido, manteniendo visible`);
+        // NO ocultar automáticamente - esperar confirmación manual
     }
 }
 
 // Mostrar dropdown de opciones de cascada
 function showCascadeDropdown(stepNumber, resultType) {
+    console.log(`🔍 Intentando mostrar dropdown ${stepNumber} con tipo: ${resultType}`);
+
     const dropdown = document.getElementById(`cascade-dropdown-${stepNumber}`);
+    console.log(`🔍 Dropdown encontrado:`, dropdown);
+
     if (dropdown) {
-        // Generar opciones según el tipo de resultado
-        const options = generateCascadeOptions(resultType);
+        // Generar opciones según el tipo de resultado usando la nueva cascada simplificada
+        const options = generateSimpleCascade(gameState.currentDiceRoll);
+        console.log(`🔍 Opciones generadas:`, options.substring(0, 100) + '...');
+
         dropdown.innerHTML = options;
+
+        // Posicionamiento fixed para que aparezca por encima de TODO
+        positionFixedDropdown(dropdown, stepNumber);
+
         dropdown.style.display = 'block';
         dropdown.classList.add('show');
 
         console.log(`🔽 Dropdown mostrado para paso ${stepNumber}: ${resultType}`);
+        console.log(`🔍 Estilos del dropdown:`, dropdown.style.cssText);
+    } else {
+        console.error(`❌ No se encontró dropdown con ID: cascade-dropdown-${stepNumber}`);
     }
 }
 
-// Generar opciones de cascada según el tipo de resultado
-function generateCascadeOptions(resultType) {
-    let options = '<div class="cascade-options">';
+// Posicionar dropdown con position fixed por encima de todas las capas
+function positionFixedDropdown(dropdown, stepNumber) {
+    const step = document.getElementById(`cascade-step-${stepNumber}`);
+    if (step) {
+        const rect = step.getBoundingClientRect();
 
-    switch (resultType) {
-        case 'single':
-            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'advance-runner\')">🏃 Avanzar corredores</div>';
-            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'steal-attempt\')">🥷 Intento de robo</div>';
-            break;
-        case 'double':
-            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'advance-two\')">🏃‍♂️🏃‍♀️ Avanzar 2 bases</div>';
-            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'error-check\')">❌ Verificar error</div>';
-            break;
-        case 'triple':
-            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'advance-three\')">🏃‍♂️🏃‍♀️🏃 Avanzar 3 bases</div>';
-            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'injury-check\')">🚑 Verificar lesión</div>';
-            break;
-        case 'homerun':
-            options += '<div class="cascade-option" onclick="resolveCascadeOption(\'score-all\')">🏠 Anotar todas las carreras</div>';
-            break;
-        default:
-            options += '<div class="cascade-option">Sin opciones adicionales</div>';
+        // Posicionar encima del resultado inicial con más espacio para la tabla
+        let targetTop = rect.top - 420; // Más arriba para mostrar toda la tabla
+
+        // Asegurar que no salga de la pantalla por arriba
+        const minTop = 10;
+        if (targetTop < minTop) {
+            targetTop = minTop;
+        }
+
+        // Calcular posición fija en la pantalla
+        dropdown.style.left = `${rect.left + (rect.width / 2)}px`;
+        dropdown.style.top = `${targetTop}px`;
+        dropdown.style.transform = 'translateX(-50%)';
+
+        console.log(`📍 Dropdown posicionado sin tapar el número: left=${dropdown.style.left}, top=${dropdown.style.top}`);
+    }
+} // Determinar qué fila de la tabla debe resaltarse basado en la tirada y datos del bateador
+function getHighlightedRowIndex(diceRoll) {
+    if (!diceRoll) return -1; // No resaltar si no hay tirada
+
+    console.log(`🎯 Calculando resaltado para tirada: ${diceRoll}`);
+
+    // Obtener datos del bateador actual
+    const currentBatter = getCurrentBatter();
+    if (!currentBatter) {
+        console.warn('❌ No hay bateador actual, usando valores por defecto');
+        return getHighlightedRowIndexDefault(diceRoll);
     }
 
-    options += '</div>';
-    return options;
+    console.log(`🏏 Datos del bateador:`, currentBatter);
+
+    // Extraer BT y OBT del bateador
+    const rawBT = currentBatter.battingAvg || 0.250;
+    const rawOBT = currentBatter.onBasePct || 0.320;
+
+    console.log(`📊 Raw BT: ${rawBT}, Raw OBT: ${rawOBT}`);
+
+    // CONVERSIÓN MEJORADA: Coger los dos primeros números desde la izquierda
+    let bt, obt;
+
+    // Convertir a string para poder manipular
+    const btString = rawBT.toString();
+    const obtString = rawOBT.toString();
+
+    // Extraer los dos primeros dígitos significativos
+    if (rawBT >= 1) {
+        // Si es >= 1, tomar los dos primeros dígitos: 25 → 25, 347 → 34
+        bt = Math.floor(rawBT / Math.pow(10, Math.floor(Math.log10(rawBT)) - 1));
+        if (bt > 99) bt = Math.floor(bt / 10); // Si sale 347 → 34
+    } else {
+        // Si es decimal, extraer después del punto: 0.347 → 34, 0.280 → 28
+        const afterDecimal = btString.split('.')[1] || '00';
+        bt = parseInt(afterDecimal.substring(0, 2).padEnd(2, '0'));
+    }
+
+    if (rawOBT >= 1) {
+        // Si es >= 1, tomar los dos primeros dígitos
+        obt = Math.floor(rawOBT / Math.pow(10, Math.floor(Math.log10(rawOBT)) - 1));
+        if (obt > 99) obt = Math.floor(obt / 10);
+    } else {
+        // Si es decimal, extraer después del punto: 0.412 → 41
+        const afterDecimal = obtString.split('.')[1] || '00';
+        obt = parseInt(afterDecimal.substring(0, 2).padEnd(2, '0'));
+    }
+
+    console.log(`🏏 Bateador: ${currentBatter.name}`);
+    console.log(`📊 BT calculado: ${bt} (de ${rawBT}), OBT calculado: ${obt} (de ${rawOBT})`);
+    console.log(`🎯 Rangos variables serán: 6-${bt}, ${bt + 1}-${obt}, ${obt + 1}-${obt + 5}, ${obt + 6}-49`); // LÓGICA SEGÚN TU EXPLICACIÓN:
+
+    // RANGOS FIJOS (no dependen de stats)
+    if (diceRoll === 1) {
+        console.log(`✅ Tirada ${diceRoll} → Oddity (fijo)`);
+        return 0;
+    } else if (diceRoll >= 2 && diceRoll <= 5) {
+        console.log(`✅ Tirada ${diceRoll} → Critical Hit (fijo)`);
+        return 1;
+    } else if (diceRoll >= 50 && diceRoll <= 69) {
+        console.log(`✅ Tirada ${diceRoll} → Productive Out 50-69 (fijo)`);
+        return 6;
+    } else if (diceRoll >= 70 && diceRoll <= 98) {
+        console.log(`✅ Tirada ${diceRoll} → Out 70-98 (fijo)`);
+        return 7;
+    } else if (diceRoll === 99) {
+        console.log(`✅ Tirada ${diceRoll} → Oddity 99 (fijo)`);
+        return 8;
+    } else if (diceRoll >= 100) {
+        console.log(`✅ Tirada ${diceRoll} → Out 100+ (fijo)`);
+        return 9;
+    }
+
+    // RANGOS VARIABLES (dependen de BT y OBT)
+    else if (diceRoll >= 6 && diceRoll <= bt) {
+        console.log(`✅ Tirada ${diceRoll} → Hit Ordinario [6-${bt}] (variable)`);
+        return 2;
+    } else if (diceRoll >= (bt + 1) && diceRoll <= obt) {
+        console.log(`✅ Tirada ${diceRoll} → Base por Bolas [${bt + 1}-${obt}] (variable)`);
+        return 3;
+    } else if (diceRoll >= (obt + 1) && diceRoll <= (obt + 5)) {
+        console.log(`✅ Tirada ${diceRoll} → Posible Error [${obt + 1}-${obt + 5}] (variable)`);
+        return 4;
+    } else if (diceRoll >= (obt + 6) && diceRoll <= 49) {
+        console.log(`✅ Tirada ${diceRoll} → Out Productivo [${obt + 6}-49] (variable)`);
+        return 5;
+    }
+
+    console.log(`❌ Tirada ${diceRoll} no encaja en ningún rango`);
+    return -1;
+}
+
+// Función de respaldo con valores por defecto si no hay bateador
+function getHighlightedRowIndexDefault(diceRoll) {
+    const defaultBT = 10;
+    const defaultOBT = 15;
+
+    if (diceRoll === 1) return 0;
+    else if (diceRoll >= 2 && diceRoll <= 5) return 1;
+    else if (diceRoll >= 6 && diceRoll <= defaultBT) return 2;
+    else if (diceRoll >= (defaultBT + 1) && diceRoll <= defaultOBT) return 3;
+    else if (diceRoll >= (defaultOBT + 1) && diceRoll <= (defaultOBT + 5)) return 4;
+    else if (diceRoll >= (defaultOBT + 6) && diceRoll <= 49) return 5;
+    else if (diceRoll >= 50 && diceRoll <= 69) return 6;
+    else if (diceRoll >= 70 && diceRoll <= 98) return 7;
+    else if (diceRoll === 99) return 8;
+    else if (diceRoll >= 100) return 9;
+
+    return -1;
+}
+
+// NUEVA CASCADA SIMPLIFICADA - FUNCIONA SIEMPRE
+function generateSimpleCascade(diceRoll) {
+    console.log(`🆕 NUEVA CASCADA SIMPLIFICADA - Tirada: ${diceRoll}`);
+
+    if (!diceRoll) {
+        console.warn('❌ No hay tirada de dados');
+        return '<div>No hay tirada</div>';
+    }
+
+    // OBTENER DATOS DEL BATEADOR ACTUAL PARA RANGOS DINÁMICOS
+    const currentBatter = getCurrentBatter();
+    let bt = 25,
+        obt = 32; // Valores por defecto
+
+    if (currentBatter) {
+        const rawBT = currentBatter.battingAvg || 0.250;
+        const rawOBT = currentBatter.onBasePct || 0.320;
+
+        // Usar la misma lógica de conversión que en getHighlightedRowIndex
+        if (rawBT >= 1) {
+            bt = Math.floor(rawBT / Math.pow(10, Math.floor(Math.log10(rawBT)) - 1));
+            if (bt > 99) bt = Math.floor(bt / 10);
+        } else {
+            const afterDecimal = rawBT.toString().split('.')[1] || '00';
+            bt = parseInt(afterDecimal.substring(0, 2).padEnd(2, '0'));
+        }
+
+        if (rawOBT >= 1) {
+            obt = Math.floor(rawOBT / Math.pow(10, Math.floor(Math.log10(rawOBT)) - 1));
+            if (obt > 99) obt = Math.floor(obt / 10);
+        } else {
+            const afterDecimal = rawOBT.toString().split('.')[1] || '00';
+            obt = parseInt(afterDecimal.substring(0, 2).padEnd(2, '0'));
+        }
+
+        console.log(`🎯 Cascada usando BT: ${bt}, OBT: ${obt} para ${currentBatter.name}`);
+    }
+
+    // Rangos dinámicos basados en el bateador actual
+    const swingResults = [
+        { range: "1", event: "Oddity", result: "Roll 2d10 on Oddities table", highlighted: diceRoll === 1 },
+        { range: "2-5", event: "Critical Hit", result: "Roll d20 on Hit table. Increase hit by one level", highlighted: diceRoll >= 2 && diceRoll <= 5 },
+        { range: `6-${bt}`, event: "Ordinary Hit", result: "Roll d20 on Hit Table", highlighted: diceRoll >= 6 && diceRoll <= bt },
+        { range: `${bt + 1}-${obt}`, event: "Walk", result: "Batter advances to first", highlighted: diceRoll >= (bt + 1) && diceRoll <= obt },
+        { range: `${obt + 1}-${obt + 5}`, event: "Possible Error", result: "Roll d12 on Defense Table", highlighted: diceRoll >= (obt + 1) && diceRoll <= (obt + 5) },
+        { range: `${obt + 6}-49`, event: "Productive Out", result: "Runners advance, batter may be safe", highlighted: diceRoll >= (obt + 6) && diceRoll <= 49 },
+        { range: "50-69", event: "Productive Out", result: "Limited runner advancement", highlighted: diceRoll >= 50 && diceRoll <= 69 },
+        { range: "70-98", event: "Out", result: "Standard out, limited advancement", highlighted: diceRoll >= 70 && diceRoll <= 98 },
+        { range: "99", event: "Oddity", result: "Roll 2d10 on Oddities table", highlighted: diceRoll === 99 },
+        { range: "100+", event: "Out", result: "Possible triple play", highlighted: diceRoll >= 100 }
+    ];
+
+    let html = '<div class="simple-cascade-table">';
+    html += `<div class="table-header">📊 SWING RESULT - TIRADA: ${diceRoll} | ${currentBatter ? currentBatter.name : 'Jugador'} (BT:${bt}, OBT:${obt})</div>`;
+
+    swingResults.forEach((row, index) => {
+        const highlightClass = row.highlighted ? 'highlighted-row' : '';
+        const highlightStyle = row.highlighted ?
+            'style="background-color: #ff0000 !important; color: #ffffff !important; border: 3px solid #ffff00 !important; font-weight: bold !important; transform: scale(1.05) !important; box-shadow: 0 0 15px #ffff00 !important;"' :
+            '';
+
+        html += `
+            <div class="cascade-row ${highlightClass}" ${highlightStyle} onclick="selectResult('${row.event}', '${row.result}')">
+                <div class="range-col">${row.range}</div>
+                <div class="event-col">${row.event}</div>
+                <div class="result-col">${row.result}</div>
+            </div>
+        `;
+
+        if (row.highlighted) {
+            console.log(`🎯 RESALTADO: Fila ${index} - ${row.range} - ${row.event}`);
+        }
+    });
+
+    html += '</div>';
+    return html;
+}
+
+// Función para seleccionar resultado
+function selectResult(event, result) {
+    console.log(`✅ Resultado seleccionado: ${event} - ${result}`);
+
+    // Mostrar confirmación
+    const confirmation = document.getElementById('cascade-confirmation');
+    if (confirmation) {
+        confirmation.style.display = 'block';
+        confirmation.innerHTML = `
+            <div style="background: #1e293b; color: white; padding: 1rem; border-radius: 8px; border: 2px solid #059669;">
+                <h3>🎯 Resultado: ${event}</h3>
+                <p>${result}</p>
+                <button onclick="confirmAndNextBatter()" style="background: #059669; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; margin-right: 0.5rem;">✅ Confirmar y Siguiente Bateador</button>
+                <button onclick="cancelSelection()" style="background: #dc2626; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;">❌ Cancelar</button>
+            </div>
+        `;
+    }
+}
+
+// Función para cancelar selección
+function cancelSelection() {
+    const confirmation = document.getElementById('cascade-confirmation');
+    if (confirmation) {
+        confirmation.style.display = 'none';
+    }
 }
 
 // Resolver opción seleccionada de cascada
@@ -1301,9 +1695,301 @@ function resolveCascadeOption(option) {
     // Aquí es donde aparecería el dado flotante
     // TODO: Implementar dado flotante en el Paso 2
 
-    // Por ahora, simulamos la resolución
-    setTimeout(() => {
-        console.log(`✅ Opción ${option} resuelta`);
-        hideCascadeSystem();
-    }, 2000);
+    // Por ahora, solo registrar la selección
+    console.log(`✅ Opción ${option} registrada`);
+
+    // Mostrar botón de confirmación para siguiente bateador
+    showNextBatterConfirmation(option);
+}
+
+// Mostrar el botón de confirmación para avanzar al siguiente bateador
+function showNextBatterConfirmation(selectedOption) {
+    const confirmation = document.getElementById('cascade-confirmation');
+    const confirmationText = document.getElementById('confirmation-text');
+
+    if (confirmation && confirmationText) {
+        // Personalizar el mensaje según la opción seleccionada
+        const optionMessages = {
+            'roll-oddity': 'Oddity procesado. ¿Continuar al siguiente bateador?',
+            'roll-hit-table-critical': 'Critical Hit resuelto. ¿Continuar al siguiente bateador?',
+            'roll-hit-table': 'Hit procesado. ¿Continuar al siguiente bateador?',
+            'batter-walk': 'Base por bolas completada. ¿Continuar al siguiente bateador?',
+            'roll-defense': 'Verificación defensiva completada. ¿Continuar al siguiente bateador?',
+            'productive-out-1': 'Out productivo resuelto. ¿Continuar al siguiente bateador?',
+            'productive-out-2': 'Out productivo resuelto. ¿Continuar al siguiente bateador?',
+            'normal-out': 'Out completado. ¿Continuar al siguiente bateador?',
+            'triple-play-out': 'Triple play procesado. ¿Continuar al siguiente bateador?'
+        };
+
+        const message = optionMessages[selectedOption] || 'Jugada resuelta. ¿Continuar al siguiente bateador?';
+        confirmationText.textContent = message;
+
+        confirmation.style.display = 'block';
+
+        console.log(`🎯 Botón de confirmación mostrado: ${message}`);
+    }
+}
+
+// Confirmar jugada y avanzar al siguiente bateador
+function confirmAndNextBatter() {
+    console.log(`🔄 Confirmando jugada y avanzando al siguiente bateador...`);
+
+    // Determinar si fue out para procesar outs/innings
+    const currentRoll = gameState.currentDiceRoll;
+    let wasOut = false;
+
+    if (currentRoll) {
+        // Basado en los rangos de la tabla
+        if ((currentRoll >= 21 && currentRoll <= 49) ||
+            (currentRoll >= 50 && currentRoll <= 69) ||
+            (currentRoll >= 70 && currentRoll <= 98) ||
+            (currentRoll >= 100)) {
+            wasOut = true;
+        }
+    }
+
+    // Procesar outs si corresponde
+    if (wasOut) {
+        gameState.outs++;
+        console.log(`📊 Out registrado. Total outs: ${gameState.outs}`);
+
+        if (gameState.outs >= 3) {
+            console.log(`🔄 Cambio de inning`);
+            changeInning();
+        } else {
+            console.log(`➡️ Avanzar al siguiente bateador`);
+            nextBatter();
+        }
+    } else {
+        console.log(`➡️ Hit/Walk - Avanzar al siguiente bateador`);
+        nextBatter();
+    }
+
+    // LIMPIAR TIRADA ACTUAL (NO RESETEO COMPLETO)
+    console.log(`🧹 LIMPIANDO tirada actual - CONSERVANDO datos del juego...`);
+
+    // TODO: Más tarde - GUARDAR la tirada actual en un registro/historial de bateadores
+    // const baterRecord = {
+    //     batter: getCurrentBatter(),
+    //     diceRoll: gameState.currentDiceRoll,
+    //     result: selectedOption,
+    //     inning: gameState.currentInning,
+    //     timestamp: Date.now()
+    // };
+    // gameState.batterHistory.push(baterRecord); // IMPLEMENTAR MÁS TARDE
+
+    // 1. OCULTAR VISUALMENTE los dados (pero mantener datos)
+    hideCurrentDiceResults();
+
+    // 2. LIMPIAR campos de dados del lanzador y bateador (preparar para siguiente turno)
+    console.log(`🧹 Limpiando campos de dados para siguiente bateador...`);
+
+    const diceInputIds = [
+        'pitcher-dice-value',
+        'batter-dice-value',
+        'pitcher-dice-value-local',
+        'batter-dice-value-local'
+    ];
+
+    diceInputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.value = '';
+            console.log(`✅ Campo de dados limpiado: ${id}`);
+        }
+    });
+
+    // 3. LIMPIAR totales mostrados (el número grande que se ve)
+    const finalResultIds = [
+        'final-result',
+        'final-result-local'
+    ];
+
+    finalResultIds.forEach(id => {
+        const resultElement = document.getElementById(id);
+        if (resultElement) {
+            resultElement.textContent = '-';
+            console.log(`✅ Total limpiado: ${id}`);
+        }
+    });
+
+    // 4. RESETEAR descripciones de resultados (preparar para nueva tirada)
+    const resultDescriptionIds = [
+        'dice-result-description',
+        'dice-result-description-local'
+    ];
+
+    resultDescriptionIds.forEach(id => {
+        const description = document.getElementById(id);
+        if (description) {
+            description.textContent = 'Esperando tirada...';
+            console.log(`✅ Descripción limpiada: ${id}`);
+        }
+    });
+
+    // 4. LIMPIAR la cascada visual (pero conservar el estado del juego)
+    resetCascadeSystemComplete();
+
+    // 5. LIMPIAR variables de la tirada actual (preparar para siguiente bateador)
+    gameState.currentDiceRoll = null;
+    gameState.lastRollDetails = null;
+
+    // 6. ACTUALIZAR display (mantiene marcador, innings, etc.)
+    updateGameDisplay();
+    updateDiceSystemPosition();
+}
+
+// FUNCIÓN MEJORADA - Solo oculta dados específicos, NO elementos del DOM principal
+function hideAllDiceEverywhere() {
+    console.log(`🧹 Reseteo selectivo de dados (NO elementos principales)`);
+
+    // 1. Lista específica de IDs de dados (solo estos)
+    const specificDiceIds = [
+        'dice-results-display',
+        'dice-results-display-local',
+        'dice-container-visitante',
+        'dice-container-local'
+    ];
+
+    specificDiceIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.style.display = 'none';
+            console.log(`✅ Ocultado ID específico: ${id}`);
+        }
+    });
+
+    // 2. Solo contenedores dinámicos de dados (con clase específica)
+    const dynamicDiceContainers = document.querySelectorAll('.dynamic-dice-container');
+    dynamicDiceContainers.forEach(container => {
+        container.style.display = 'none';
+        console.log(`✅ Contenedor dinámico ocultado:`, container.id);
+    });
+
+    // 3. NO TOCAR elementos principales del DOM (evitar pantalla en blanco)
+    // NO buscar por texto - puede ocultar elementos importantes
+
+    console.log(`🎉 Reseteo selectivo completado (DOM principal intacto)`);
+}
+
+// Resetear completamente el sistema de cascada
+function resetCascadeSystem() {
+    // Ocultar confirmación
+    const confirmation = document.getElementById('cascade-confirmation');
+    if (confirmation) {
+        confirmation.style.display = 'none';
+    }
+
+    // Ocultar dropdown
+    hideCascadeSystem();
+
+    // Resetear resultado inicial
+    const initialResult = document.getElementById('initial-result');
+    if (initialResult) {
+        initialResult.textContent = '-';
+    }
+
+    // Resetear estado
+    const cascadeStatus = document.getElementById('cascade-current-action');
+    if (cascadeStatus) {
+        cascadeStatus.textContent = 'Sistema activo - Esperando tirada...';
+    }
+
+    // NO ocultar resultados de dados - deben permanecer visibles hasta el reset
+    // Las tiradas permanecen visibles para referencia
+
+    // Limpiar tirada actual
+    gameState.currentDiceRoll = null;
+
+    console.log(`🔄 Sistema de cascada completamente reseteado`);
+}
+
+// Reseteo COMPLETO del sistema para "Siguiente Bateador"
+function resetCascadeSystemComplete() {
+    console.log(`🧹 Iniciando reseteo completo del sistema...`);
+
+    // 1. OCULTAR Y RESETEAR CONFIRMACIÓN
+    const confirmation = document.getElementById('cascade-confirmation');
+    if (confirmation) {
+        confirmation.style.display = 'none';
+        console.log(`✅ Confirmación ocultada`);
+    }
+
+    // 2. OCULTAR Y RESETEAR DROPDOWN/CASCADA
+    hideCascadeSystem();
+    console.log(`✅ Sistema de cascada ocultado`);
+
+    // 3. RESETEAR RESULTADO INICIAL
+    const initialResult = document.getElementById('initial-result');
+    if (initialResult) {
+        initialResult.textContent = '-';
+        console.log(`✅ Resultado inicial reseteado`);
+    }
+
+    // 4. RESETEAR ESTADO DE CASCADA
+    const cascadeStatus = document.getElementById('cascade-current-action');
+    if (cascadeStatus) {
+        cascadeStatus.textContent = 'Sistema activo - Esperando tirada...';
+        console.log(`✅ Estado de cascada reseteado`);
+    }
+
+    // 5. LIMPIAR CONTENIDO DE OPCIONES DE CASCADA
+    const cascadeOptions = document.getElementById('cascade-options');
+    if (cascadeOptions) {
+        cascadeOptions.innerHTML = '';
+        console.log(`✅ Opciones de cascada limpiadas`);
+    }
+
+    // 6. RESETEAR VARIABLES GLOBALES RELACIONADAS
+    if (window.currentCascadeLevel) {
+        window.currentCascadeLevel = 0;
+        console.log(`✅ Nivel de cascada reseteado`);
+    }
+
+    // 7. OCULTAR CUALQUIER TABLA DE SWING RESULT
+    const swingTables = document.querySelectorAll('.swing-result-table');
+    swingTables.forEach(table => {
+        if (table.parentElement) {
+            table.parentElement.style.display = 'none';
+        }
+    });
+    console.log(`✅ Tablas de swing result ocultadas`);
+
+    // 8. LIMPIAR CUALQUIER DROPDOWN ACTIVO
+    const cascadeDropdown = document.getElementById('cascade-dropdown');
+    if (cascadeDropdown) {
+        cascadeDropdown.style.display = 'none';
+        cascadeDropdown.innerHTML = '';
+        console.log(`✅ Dropdown de cascada limpiado`);
+    }
+
+    console.log(`🎉 Reseteo completo finalizado`);
+}
+
+// LIMPIAR SOLO LA TIRADA ACTUAL (para siguiente bateador) - CONSERVA DATOS DEL JUEGO
+function hideCurrentDiceResults() {
+    console.log(`🧹 Ocultando tirada actual (conservando datos del juego)...`);
+
+    const team = gameState.isTopHalf ? 'visitante' : 'local';
+
+    // Buscar elementos de dados del equipo actual solamente
+    const resultsDisplay = document.getElementById(`dice-results-display${team === 'local' ? '-local' : ''}`);
+    if (resultsDisplay) {
+        resultsDisplay.style.display = 'none';
+        console.log(`✅ Resultados de dados ocultados para ${team}`);
+    }
+
+    // Buscar contenedores dinámicos de dados MÁS RECIENTES solamente
+    const dynamicContainers = document.querySelectorAll('.dynamic-dice-container');
+    let hiddenCount = 0;
+    dynamicContainers.forEach(container => {
+        // Solo ocultar los 2 más recientes (no todo el historial)
+        if (hiddenCount < 2 && container.style.display !== 'none') {
+            container.style.display = 'none';
+            hiddenCount++;
+            console.log(`✅ Contenedor dinámico reciente ocultado`);
+        }
+    });
+
+    console.log(`🎯 Tirada actual limpiada (datos del juego conservados)`);
 }

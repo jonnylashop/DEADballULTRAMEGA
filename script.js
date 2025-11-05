@@ -48,6 +48,9 @@ const gameState = {
 
     // ESTADO DEL JUEGO
     isGameActive: false, // true cuando el juego está en progreso
+
+    // SISTEMA DE INTENCIONES DEL BATEADOR
+    currentIntention: null, // 'normal', 'steal', 'bunt', 'hitrun' o null
     gameComplete: false, // true cuando el juego ha terminado (9+ innings)
     winner: null, // 'visitante', 'local' o null si está empatado/en progreso
 
@@ -168,6 +171,18 @@ function updateGameDisplay() {
     highlightCurrentBatter(); // Resalta al bateador actual en las alineaciones
     updateGameInfo(); // Actualiza información del juego (outs, strikes/balls)
     updateBasesDisplay(); // Actualiza visualización de corredores en bases
+    
+    // NUEVO: Actualizar validación de opciones de intención cuando hay cambios en el estado
+    if (gameState.isGameActive) {
+        const intentionContainer = document.getElementById('intention-container-visitante');
+        const isIntentionSelectorVisible = intentionContainer && 
+            intentionContainer.style.display !== 'none' &&
+            intentionContainer.style.visibility !== 'hidden';
+        
+        if (isIntentionSelectorVisible) {
+            updateIntentionSelector();
+        }
+    }
 }
 
 /*
@@ -344,131 +359,250 @@ function updateBasesDisplay() {
 function startNewGame() {
     console.log('🎮 Iniciando nuevo juego...');
 
-    // RESETEO SELECTIVO - Solo elementos específicos de dados, NO todo el DOM
-    console.log('🧹 Reseteo selectivo de elementos de dados...');
+    try {
+        // RESETEO SELECTIVO - Solo elementos específicos de dados, NO todo el DOM
+        console.log('🧹 Reseteo selectivo de elementos de dados...');
 
-    // 1. RESETEAR SOLO cascada y confirmaciones (no dados históricos)
-    resetCascadeSystemComplete();
+        // 1. RESETEAR SOLO cascada y confirmaciones (no dados históricos)
+        console.log('⏳ Llamando resetCascadeSystemComplete()...');
+        resetCascadeSystemComplete();
+        console.log('✅ resetCascadeSystemComplete() completado');
 
-    // 2. OCULTAR solo elementos específicos de dados recientes
-    const knownDiceIds = [
-        'dice-results-display',
-        'dice-results-display-local'
-    ];
+        // 2. OCULTAR solo elementos específicos de dados recientes
+        const knownDiceIds = [
+            'dice-results-display',
+            'dice-results-display-local'
+        ];
 
-    knownDiceIds.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.style.display = 'none';
-            console.log(`✅ Elemento de dados específico ocultado: ${id}`);
-        }
-    });
+        knownDiceIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = 'none';
+                console.log(`✅ Elemento de dados específico ocultado: ${id}`);
+            }
+        });
 
-    // 3. RESETEAR campos de dados del lanzador y bateador
-    const diceInputIds = [
-        'pitcher-dice-value',
-        'batter-dice-value',
-        'pitcher-dice-value-local',
-        'batter-dice-value-local'
-    ];
+        // 3. RESETEAR campos de dados del lanzador y bateador
+        const diceInputIds = [
+            'pitcher-dice-value',
+            'batter-dice-value',
+            'pitcher-dice-value-local',
+            'batter-dice-value-local'
+        ];
 
-    diceInputIds.forEach(id => {
-        const input = document.getElementById(id);
-        if (input) {
-            input.value = '';
-            console.log(`✅ Campo de dados reseteado: ${id}`);
-        }
-    });
+        diceInputIds.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = '';
+                console.log(`✅ Campo de dados reseteado: ${id}`);
+            }
+        });
 
-    // 4. RESETEAR selectores de tipo de dados
-    const diceTypeIds = [
-        'pitcher-dice-type',
-        'pitcher-dice-type-local'
-    ];
+        // 4. RESETEAR selectores de tipo de dados
+        const diceTypeIds = [
+            'pitcher-dice-type',
+            'pitcher-dice-type-local'
+        ];
 
-    diceTypeIds.forEach(id => {
-        const select = document.getElementById(id);
-        if (select) {
-            select.selectedIndex = 0; // Volver al primer valor
-            console.log(`✅ Selector de dados reseteado: ${id}`);
-        }
-    });
+        diceTypeIds.forEach(id => {
+            const select = document.getElementById(id);
+            if (select) {
+                select.selectedIndex = 0; // Volver al primer valor
+                console.log(`✅ Selector de dados reseteado: ${id}`);
+            }
+        });
 
-    // 5. RESETEAR descripciones de resultados de dados
-    const resultDescriptionIds = [
-        'dice-result-description',
-        'dice-result-description-local'
-    ];
+        // 5. RESETEAR descripciones de resultados de dados
+        const resultDescriptionIds = [
+            'dice-result-description',
+            'dice-result-description-local'
+        ];
 
-    resultDescriptionIds.forEach(id => {
-        const description = document.getElementById(id);
-        if (description) {
-            description.textContent = 'Esperando tirada...';
-            console.log(`✅ Descripción de resultado reseteada: ${id}`);
-        }
-    });
+        resultDescriptionIds.forEach(id => {
+            const description = document.getElementById(id);
+            if (description) {
+                description.textContent = 'Esperando tirada...';
+                console.log(`✅ Descripción de resultado reseteada: ${id}`);
+            }
+        });
 
-    // Resetear el estado del juego a valores iniciales
-    gameState.currentInning = 1;
-    gameState.isTopHalf = true; // Siempre empieza bateando el visitante
-    gameState.visitanteBatterIndex = 0; // Primer bateador del visitante
-    gameState.localBatterIndex = 0; // Primer bateador del local (para cuando les toque)
+        // Resetear el estado del juego a valores iniciales
+        console.log('⏳ Reseteando gameState...');
+        gameState.currentInning = 1;
+        gameState.isTopHalf = true; // Siempre empieza bateando el visitante
+        gameState.visitanteBatterIndex = 0; // Primer bateador del visitante
+        gameState.localBatterIndex = 0; // Primer bateador del local (para cuando les toque)
 
-    // Resetear count
-    gameState.outs = 0;
-    gameState.strikes = 0;
-    gameState.balls = 0;
+        // Resetear count
+        gameState.outs = 0;
+        gameState.strikes = 0;
+        gameState.balls = 0;
 
-    // Limpiar bases
-    gameState.bases = { first: null, second: null, third: null };
+        // Limpiar bases
+        gameState.bases = { first: null, second: null, third: null };
 
-    // Resetear marcador
-    gameState.score = {
-        visitante: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        local: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        totalVisitante: 0,
-        totalLocal: 0
-    };
+        // Resetear marcador
+        gameState.score = {
+            visitante: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            local: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            totalVisitante: 0,
+            totalLocal: 0
+        };
 
-    // Resetear estadísticas
-    gameState.hits = { visitante: 0, local: 0 };
-    gameState.errors = { visitante: 0, local: 0 };
+        // Resetear estadísticas
+        gameState.hits = { visitante: 0, local: 0 };
+        gameState.errors = { visitante: 0, local: 0 };
 
-    // RESETEAR ESTADO DE DADOS
-    gameState.currentDiceRoll = null;
-    gameState.lastRollDetails = null;
+        // RESETEAR ESTADO DE DADOS
+        gameState.currentDiceRoll = null;
+        gameState.lastRollDetails = null;
 
-    // Activar el juego
-    gameState.isGameActive = true;
-    gameState.gameComplete = false;
-    gameState.winner = null;
+        // Activar el juego
+        console.log('⏳ Activando el juego...');
+        gameState.isGameActive = true;
+        gameState.gameComplete = false;
+        gameState.winner = null;
+        console.log('✅ gameState.isGameActive = ' + gameState.isGameActive);
 
-    // Actualizar visualización
-    updateGameDisplay();
+        // Actualizar visualización
+        console.log('⏳ Llamando updateGameDisplay()...');
+        updateGameDisplay();
+        console.log('✅ updateGameDisplay() completado');
 
-    // Gestionar botones
-    toggleGameControls();
+        // Inicializar sistema de tokens visuales en el diamante
+        console.log('⏳ Inicializando sistema de tokens del diamante...');
+        updateDiamondDisplay();
+        console.log('✅ Sistema de tokens del diamante inicializado');
 
-    // Mostrar el sistema de dados en la posición correcta
-    updateDiceSystemPosition();
+        // Gestionar botones
+        console.log('⏳ Llamando toggleGameControls()...');
+        toggleGameControls();
+        console.log('✅ toggleGameControls() completado');
 
-    console.log('🎮 ¡Nuevo juego iniciado correctamente!');
-    console.log(`🏃 Primer bateador: ${getCurrentBatter()?.name || 'Desconocido'}`);
+        // Mostrar el sistema de dados en la posición correcta
+        console.log('⏳ Llamando updateDiceSystemPosition()...');
+        updateDiceSystemPosition();
+        console.log('✅ updateDiceSystemPosition() completado');
+
+        console.log('🎮 ¡Nuevo juego iniciado correctamente!');
+
+        // Obtener bateador actual
+        console.log('⏳ Obteniendo primer bateador...');
+        const currentBatter = getCurrentBatter();
+        console.log(`🏃 Primer bateador: ${currentBatter?.name || 'Desconocido'}`);
+
+        // NO llamar a resetIntentionSelector aquí - el selector ya está visible por defecto
+        console.log('🎯 Selector de intenciones ya visible por defecto');
+
+    } catch (error) {
+        console.error('❌ ERROR en startNewGame():', error);
+        console.error('Error stack:', error.stack);
+        alert('Error al iniciar el juego: ' + error.message);
+    }
 }
 
 /*
   FUNCIÓN: resetGame()
   PROPÓSITO: Reinicia completamente el juego actual
-  EXPLICACIÓN: Equivale a startNewGame() pero con confirmación del usuario
+  EXPLICACIÓN: Vuelve al estado inicial (juego inactivo) para que el usuario pueda hacer clic en "Iniciar Nuevo Juego"
 */
 function resetGame() {
     if (!confirm('¿Estás seguro de que quieres reiniciar el juego? Se perderán todos los datos del partido actual.')) {
         return;
     }
 
-    // Usar la misma lógica que startNewGame
-    startNewGame();
-    console.log('🔄 Juego reiniciado.');
+    console.log('🔄 Reiniciando juego a estado inicial...');
+
+    // PASO 1: Resetear estado del juego a valores iniciales (INACTIVO)
+    gameState.isGameActive = false; // ¡IMPORTANTE! Volver a estado inactivo
+    gameState.currentInning = 1;
+    gameState.isTopHalf = true;
+    gameState.visitanteBatterIndex = 0;
+    gameState.localBatterIndex = 0;
+    gameState.outs = 0;
+    gameState.currentDiceRoll = null;
+    gameState.lastRollDetails = null;
+    gameState.currentIntention = null;
+
+    // PASO 2: Resetear marcador
+    gameState.score = {
+        visitanteRuns: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        localRuns: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        totalVisitante: 0,
+        totalLocal: 0
+    };
+
+    // PASO 3: Limpiar interfaz de dados
+    resetCascadeSystemComplete();
+
+    // PASO 4: Ocultar todos los contenedores de dados y selector de intenciones
+    const visitanteContainer = document.getElementById('dice-container-visitante');
+    const localContainer = document.getElementById('dice-container-local');
+    const intentionContainer = document.getElementById('intention-container-visitante');
+
+    if (visitanteContainer) visitanteContainer.style.display = 'none';
+    if (localContainer) localContainer.style.display = 'none';
+    if (intentionContainer) intentionContainer.style.display = 'none';
+
+    // PASO 5: Limpiar campos de entrada
+    const diceInputIds = [
+        'pitcher-dice-value', 'batter-dice-value',
+        'pitcher-dice-value-local', 'batter-dice-value-local'
+    ];
+
+    diceInputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.value = '';
+    });
+
+    // PASO 6: Actualizar display y mostrar botón "Iniciar Nuevo Juego"
+    updateGameDisplay();
+
+    console.log('🔍 Estado antes de toggleGameControls:', {
+        isGameActive: gameState.isGameActive,
+        startBtnExists: !!document.getElementById('start-game-btn'),
+        resetBtnExists: !!document.getElementById('reset-game-btn')
+    });
+
+    toggleGameControls(); // Esto mostrará el botón "Iniciar Nuevo Juego" porque isGameActive = false
+
+    // Verificar que el botón esté visible después de toggleGameControls
+    const startBtn = document.getElementById('start-game-btn');
+    console.log('🔍 Estado después de toggleGameControls:', {
+        startBtnDisplay: startBtn ? startBtn.style.display : 'No encontrado',
+        startBtnVisible: startBtn ? window.getComputedStyle(startBtn).display : 'No encontrado'
+    });
+
+    // FORZAR visibilidad del botón Iniciar Juego de manera agresiva
+    if (startBtn) {
+        startBtn.style.cssText = 'display: inline-block !important; visibility: visible !important; opacity: 1 !important;';
+
+        // También forzar el contenedor padre
+        const startContainer = startBtn.parentElement;
+        if (startContainer) {
+            startContainer.style.cssText = `
+                position: absolute !important; 
+                top: 50% !important; 
+                left: 50% !important; 
+                transform: translate(-50%, -50%) !important; 
+                z-index: 100 !important; 
+                display: flex !important; 
+                justify-content: center !important; 
+                align-items: center !important; 
+                width: auto !important; 
+                height: auto !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+            `;
+            console.log('🔨 Contenedor padre del botón FORZADO visible');
+        }
+
+        console.log('🔨 Botón Iniciar Juego FORZADO visible');
+    } else {
+        console.error('❌ CRÍTICO: No se encontró el botón start-game-btn');
+    }
+
+    console.log('🔄 Juego reiniciado a estado inicial. Presiona "Iniciar Nuevo Juego" para empezar.');
 }
 
 /*
@@ -481,26 +615,54 @@ function toggleGameControls() {
     const resetBtn = document.getElementById('reset-game-btn');
     const marcadorButtonContainer = document.querySelector('.marcador-button-container');
     const gameControls = document.querySelector('.game-controls');
+    const startContainer = document.querySelector('.start-game-container');
+
+    console.log('🎮 toggleGameControls ejecutado:', {
+        isGameActive: gameState.isGameActive,
+        startBtn: !!startBtn,
+        resetBtn: !!resetBtn,
+        marcadorContainer: !!marcadorButtonContainer,
+        gameControls: !!gameControls,
+        startContainer: !!startContainer
+    });
 
     if (gameState.isGameActive) {
         // Juego activo: ocultar iniciar, mover reiniciar al marcador
-        if (startBtn) startBtn.style.display = 'none';
+        if (startBtn) {
+            startBtn.style.display = 'none';
+            console.log('✅ Botón Iniciar ocultado (juego activo)');
+        }
+        if (startContainer) {
+            startContainer.classList.remove('game-inactive');
+            console.log('✅ Contenedor de inicio: clase game-inactive removida');
+        }
         if (resetBtn && marcadorButtonContainer) {
             // Mover el botón al marcador si no está ya allí
             if (!marcadorButtonContainer.contains(resetBtn)) {
                 marcadorButtonContainer.appendChild(resetBtn);
             }
             resetBtn.style.display = 'inline-block';
+            console.log('✅ Botón Reiniciar movido al marcador y mostrado');
         }
     } else {
         // Juego inactivo: mostrar iniciar, mover reiniciar de vuelta a controles
-        if (startBtn) startBtn.style.display = 'inline-block';
+        if (startBtn) {
+            startBtn.style.display = 'inline-block';
+            console.log('✅ Botón Iniciar mostrado (juego inactivo)');
+        } else {
+            console.error('❌ No se encontró el botón Iniciar');
+        }
+        if (startContainer) {
+            startContainer.classList.add('game-inactive');
+            console.log('✅ Contenedor de inicio: clase game-inactive agregada');
+        }
         if (resetBtn && gameControls) {
             // Mover el botón de vuelta a los controles si no está ya allí
             if (!gameControls.contains(resetBtn)) {
                 gameControls.appendChild(resetBtn);
             }
             resetBtn.style.display = 'none';
+            console.log('✅ Botón Reiniciar ocultado (juego inactivo)');
         }
 
         // Ocultar sistema de dados cuando el juego está inactivo
@@ -508,6 +670,7 @@ function toggleGameControls() {
         const localContainer = document.getElementById('dice-container-local');
         if (visitanteContainer) visitanteContainer.style.display = 'none';
         if (localContainer) localContainer.style.display = 'none';
+        console.log('✅ Contenedores de dados ocultados (juego inactivo)');
     }
 }
 
@@ -531,6 +694,534 @@ function initializeGame() {
     console.log('📋 Para comenzar: 1) Configura los equipos, 2) Presiona "Iniciar Nuevo Juego"');
 }
 
+// ===== SISTEMA DE TOKENS VISUALES EN EL DIAMANTE =====
+/*
+  PROPÓSITO: Mostrar corredores como tokens animados sobre la imagen del diamante
+  FUNCIONALIDAD: 
+    - Crear/eliminar tokens dinámicamente según gameState.bases
+    - Animar movimientos entre bases con CSS transitions
+    - Sincronizar estado visual con estado del juego
+    - Manejar anotación de carreras con animaciones especiales
+  
+  ESTRUCTURA:
+    - basePositions: Coordenadas CSS de cada base en porcentajes
+    - createRunnerToken(): Crear nuevo token para corredor
+    - moveRunner(): Animar movimiento entre bases
+    - updateDiamondDisplay(): Sincronizar tokens con gameState.bases
+    - scoreRun(): Animación especial para carreras anotadas
+*/
+
+// Coordenadas de las bases en el diamante (porcentajes para responsive)
+const basePositions = {
+    home: { x: '50%', y: '40%' },    // Home plate - ajustado por usuario
+    first: { x: '39%', y: '51%' },   // Primera base - ajustado por usuario
+    second: { x: '52%', y: '62%' },  // Segunda base - ajustado por usuario
+    third: { x: '61%', y: '51%' }    // Tercera base - ajustado por usuario
+};
+
+/**
+ * Crea un token visual para un corredor en el diamante
+ * @param {Object} player - Objeto jugador con propiedades name, id, team
+ * @param {string} base - Base donde colocar el token ('first', 'second', 'third', 'home')
+ * @returns {HTMLElement} - Elemento DOM del token creado
+ */
+function createRunnerToken(player, base) {
+    console.log(`🏃 Creando token para ${player.name} en ${base}`);
+    
+    const token = document.createElement('div');
+    token.className = `runner-token team-${player.team} entering`;
+    token.dataset.playerId = player.id;
+    token.dataset.currentBase = base;
+    
+    // Crear contenido del token (nombre abreviado o número)
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'runner-name';
+    nameSpan.textContent = player.name.split(' ').map(n => n[0]).join('') || player.number || '?';
+    token.appendChild(nameSpan);
+    
+    // Posicionar en la base especificada
+    const position = basePositions[base];
+    token.style.left = position.x;
+    token.style.top = position.y;
+    
+    // Añadir tooltip con información completa
+    token.title = `${player.name} (${player.team}) - ${base} base`;
+    
+    // Añadir al contenedor de tokens
+    const container = document.getElementById('runners-container');
+    if (container) {
+        container.appendChild(token);
+    } else {
+        console.error('❌ No se encontró el contenedor de runners');
+    }
+    
+    // Remover clase de entrada después de la animación
+    setTimeout(() => {
+        token.classList.remove('entering');
+    }, 800);
+    
+    return token;
+}
+
+/**
+ * Mueve un token de corredor de una base a otra con animación
+ * @param {string} playerId - ID del jugador a mover
+ * @param {string} fromBase - Base de origen
+ * @param {string} toBase - Base de destino  
+ * @param {Function} callback - Función a ejecutar cuando termine la animación
+ */
+function moveRunner(playerId, fromBase, toBase, callback = null) {
+    console.log(`🏃‍♂️ Moviendo jugador ${playerId} de ${fromBase} a ${toBase}`);
+    
+    const token = document.querySelector(`[data-player-id="${playerId}"]`);
+    if (!token) {
+        console.error(`❌ No se encontró token para jugador ${playerId}`);
+        return;
+    }
+    
+    // Actualizar posición de destino
+    const toPosition = basePositions[toBase];
+    token.style.left = toPosition.x;
+    token.style.top = toPosition.y;
+    token.dataset.currentBase = toBase;
+    
+    // Actualizar tooltip
+    const playerName = token.querySelector('.runner-name').textContent;
+    token.title = `${playerName} - ${toBase} base`;
+    
+    // Ejecutar callback después de la animación (1.5s según CSS)
+    if (callback) {
+        setTimeout(callback, 1500);
+    }
+}
+
+/**
+ * Maneja la anotación de una carrera con animación especial
+ * @param {string} playerId - ID del jugador que anota
+ * @param {Function} callback - Función a ejecutar cuando termine la animación
+ */
+function scoreRun(playerId, callback = null) {
+    console.log(`⚾ ¡Carrera anotada! Jugador ${playerId}`);
+    
+    const token = document.querySelector(`[data-player-id="${playerId}"]`);
+    if (!token) {
+        console.error(`❌ No se encontró token para jugador ${playerId}`);
+        return;
+    }
+    
+    // Mover a home plate y añadir animación de carrera
+    const homePosition = basePositions.home;
+    token.style.left = homePosition.x;
+    token.style.top = homePosition.y;
+    token.classList.add('scoring');
+    
+    // Remover token después de la animación (2s)
+    setTimeout(() => {
+        if (token.parentNode) {
+            token.parentNode.removeChild(token);
+        }
+        console.log(`✅ Token de ${playerId} removido después de anotar`);
+        
+        if (callback) {
+            callback();
+        }
+    }, 2000);
+}
+
+/**
+ * Elimina un token de corredor del diamante
+ * @param {string} playerId - ID del jugador cuyo token eliminar
+ */
+function removeRunnerToken(playerId) {
+    console.log(`🗑️ Eliminando token de jugador ${playerId}`);
+    
+    const token = document.querySelector(`[data-player-id="${playerId}"]`);
+    if (token && token.parentNode) {
+        token.parentNode.removeChild(token);
+        console.log(`✅ Token de ${playerId} eliminado`);
+    }
+}
+
+/**
+ * Actualiza la visualización del diamante para reflejar gameState.bases
+ * Sincroniza los tokens visibles con el estado actual del juego
+ */
+function updateDiamondDisplay() {
+    console.log('💎 Actualizando visualización del diamante...');
+    
+    const container = document.getElementById('runners-container');
+    if (!container) {
+        console.warn('⚠️ No se encontró contenedor de runners - sistema de tokens deshabilitado');
+        return;
+    }
+    
+    // Limpiar tokens existentes
+    container.innerHTML = '';
+    console.log('🧹 Tokens existentes limpiados');
+    
+    // Crear tokens para corredores actuales
+    ['first', 'second', 'third'].forEach(base => {
+        const runner = gameState.bases[base];
+        if (runner) {
+            console.log(`👤 Creando token para ${runner.name} en ${base}`);
+            createRunnerToken(runner, base);
+        }
+    });
+    
+    console.log('✅ Visualización del diamante actualizada');
+}
+
+/**
+ * Añade un corredor a una base específica (tanto en gameState como visualmente)
+ * @param {Object} player - Objeto jugador
+ * @param {string} base - Base de destino ('first', 'second', 'third')
+ */
+function addRunnerToBase(player, base) {
+    console.log(`➕ Añadiendo ${player.name} a ${base} base`);
+    
+    // Actualizar gameState
+    gameState.bases[base] = player;
+    
+    // Crear token visual
+    createRunnerToken(player, base);
+    
+    console.log(`✅ ${player.name} añadido a ${base} base`);
+}
+
+/**
+ * Mueve un corredor entre bases (actualiza gameState y anima visualmente)
+ * @param {string} fromBase - Base de origen
+ * @param {string} toBase - Base de destino
+ * @param {Function} callback - Función a ejecutar cuando termine
+ */
+function moveRunnerBetweenBases(fromBase, toBase, callback = null) {
+    const runner = gameState.bases[fromBase];
+    if (!runner) {
+        console.warn(`⚠️ No hay corredor en ${fromBase} para mover`);
+        return;
+    }
+    
+    console.log(`🔄 Moviendo ${runner.name} de ${fromBase} a ${toBase}`);
+    
+    // Si es carrera anotada (toBase = 'home')
+    if (toBase === 'home') {
+        // Actualizar gameState primero
+        gameState.bases[fromBase] = null;
+        
+        // Animar carrera anotada
+        scoreRun(runner.id, () => {
+            // Sumar carrera al marcador
+            const currentTeam = getCurrentBattingTeam();
+            const currentInning = gameState.currentInning - 1; // Array indexing
+            gameState.score[currentTeam][currentInning]++;
+            gameState.score[`total${currentTeam.charAt(0).toUpperCase() + currentTeam.slice(1)}`]++;
+            
+            // Actualizar marcador visual
+            updateGameDisplay();
+            
+            console.log(`⚾ ¡Carrera anotada por ${runner.name}!`);
+            
+            if (callback) callback();
+        });
+    } else {
+        // Movimiento normal entre bases
+        gameState.bases[toBase] = runner;
+        gameState.bases[fromBase] = null;
+        
+        moveRunner(runner.id, fromBase, toBase, callback);
+    }
+}
+
+/**
+ * Función de prueba para demostrar el sistema de tokens
+ * TEMPORAL - Para testing y demostración
+ */
+function testTokenSystem() {
+    console.log('🧪 Ejecutando prueba del sistema de tokens...');
+    
+    // Jugador de prueba
+    const testPlayer = {
+        id: 'test-player-1',
+        name: 'Juan Pérez',
+        team: 'visitante',
+        number: '7'
+    };
+    
+    // Limpiar y reiniciar
+    updateDiamondDisplay();
+    
+    // Secuencia de prueba
+    setTimeout(() => {
+        console.log('📍 Paso 1: Añadir corredor a primera base');
+        addRunnerToBase(testPlayer, 'first');
+    }, 1000);
+    
+    setTimeout(() => {
+        console.log('📍 Paso 2: Mover a segunda base');
+        moveRunnerBetweenBases('first', 'second');
+    }, 3000);
+    
+    setTimeout(() => {
+        console.log('📍 Paso 3: Mover a tercera base');
+        moveRunnerBetweenBases('second', 'third');
+    }, 5000);
+    
+    setTimeout(() => {
+        console.log('📍 Paso 4: Anotar carrera');
+        moveRunnerBetweenBases('third', 'home');
+    }, 7000);
+}
+
+/**
+ * Activa/desactiva el modo debug para posicionar bases
+ * Hace visibles los marcadores de base para ajustar coordenadas
+ */
+function toggleBasePositionDebug() {
+    const tokensLayer = document.querySelector('.diamond-tokens-layer');
+    
+    if (!tokensLayer) {
+        console.error('❌ No se encontró la capa de tokens');
+        return;
+    }
+    
+    const isDebugActive = tokensLayer.classList.contains('debug-mode');
+    
+    if (isDebugActive) {
+        // Desactivar debug
+        tokensLayer.classList.remove('debug-mode');
+        console.log('🔍 Modo debug de bases DESACTIVADO');
+        alert('🔍 Modo debug DESACTIVADO\nLos marcadores de base ahora están ocultos.');
+    } else {
+        // Activar debug
+        tokensLayer.classList.add('debug-mode');
+        console.log('🔍 Modo debug de bases ACTIVADO');
+        alert('🔍 Modo debug ACTIVADO\n\nAhora puedes ver los marcadores rojos de las bases.\nUsa la consola del navegador (F12) para ajustar las coordenadas.\n\nEjemplo:\nadjustBasePosition("first", "75%", "65%");');
+    }
+}
+
+/**
+ * Ajusta la posición de una base específica
+ * @param {string} baseName - 'home', 'first', 'second', 'third'
+ * @param {string} x - Coordenada X en porcentaje (ej: "75%")
+ * @param {string} y - Coordenada Y en porcentaje (ej: "65%")
+ */
+function adjustBasePosition(baseName, x, y) {
+    console.log(`🎯 Ajustando ${baseName} base a posición: ${x}, ${y}`);
+    
+    // Actualizar el objeto de coordenadas
+    if (basePositions[baseName]) {
+        basePositions[baseName].x = x;
+        basePositions[baseName].y = y;
+        
+        // Actualizar marcador visual inmediatamente
+        const marker = document.querySelector(`[data-base="${baseName}"]`);
+        if (marker) {
+            marker.style.left = x;
+            marker.style.top = y;
+        }
+        
+        // Actualizar tokens existentes en esa base
+        const tokens = document.querySelectorAll(`[data-current-base="${baseName}"]`);
+        tokens.forEach(token => {
+            token.style.left = x;
+            token.style.top = y;
+        });
+        
+        console.log(`✅ ${baseName} base reposicionada a ${x}, ${y}`);
+        
+        // Mostrar coordenadas actuales de todas las bases
+        console.log('📍 Coordenadas actuales de las bases:');
+        console.log('basePositions =', JSON.stringify(basePositions, null, 2));
+        
+    } else {
+        console.error(`❌ Base "${baseName}" no encontrada`);
+        console.log('Bases válidas: home, first, second, third');
+    }
+}
+
+// ===== SISTEMA DE VALIDACIÓN DE OPCIONES SEGÚN SITUACIÓN DE BASES =====
+/*
+  PROPÓSITO: Validar qué opciones de intención están disponibles según la situación actual
+  FUNCIONALIDAD:
+    - Validar si hay corredores para robo de bases
+    - Validar si hay corredores para hit & run  
+    - Deshabilitar botones de opciones no disponibles
+    - Mostrar indicadores visuales de disponibilidad
+  
+  INTEGRACIÓN: Llamado cada vez que cambia el estado de las bases
+*/
+
+/**
+ * Valida qué opciones de intención están disponibles según gameState.bases
+ * @returns {Object} - Objeto con disponibilidad de cada opción
+ */
+function validateIntentionOptions() {
+    console.log('🔍 Validando opciones de intención disponibles...');
+    console.log('🔍 gameState.bases actual:', gameState.bases);
+    
+    const hasRunnersOnBase = gameState.bases.first !== null || 
+                           gameState.bases.second !== null || 
+                           gameState.bases.third !== null;
+    
+    console.log('🔍 ¿Hay corredores en base?', hasRunnersOnBase);
+    
+    // Detectar opciones específicas de robo disponibles
+    const availableStealOptions = detectAvailableRunners();
+    const canSteal = availableStealOptions.length > 0;
+    
+    console.log('🔍 Opciones de robo detectadas:', availableStealOptions);
+    console.log('🔍 ¿Puede robar?', canSteal);
+    
+    // Hit & Run requiere al menos un corredor en base
+    const canHitAndRun = hasRunnersOnBase;
+    
+    // Bunt siempre está disponible
+    const canBunt = true;
+    
+    // Batear normal siempre está disponible  
+    const canBatNormal = true;
+    
+    const validation = {
+        normal: { available: canBatNormal, reason: '' },
+        steal: { 
+            available: canSteal, 
+            reason: canSteal ? '' : 'No hay corredores en bases para robar',
+            availableOptions: availableStealOptions.length,
+            details: availableStealOptions.map(opt => opt.displayName)
+        },
+        bunt: { available: canBunt, reason: '' },
+        hitrun: { 
+            available: canHitAndRun, 
+            reason: canHitAndRun ? '' : 'Necesitas corredores en bases para Hit & Run'
+        }
+    };
+    
+    console.log('📋 Resultado de validación:', validation);
+    return validation;
+}
+
+/**
+ * Actualiza la interfaz del selector de intenciones según la validación
+ * @param {Object} validation - Resultado de validateIntentionOptions()
+ */
+function updateIntentionSelector(validation = null) {
+    console.log('🎯 Actualizando selector de intenciones...');
+    
+    if (!validation) {
+        validation = validateIntentionOptions();
+    }
+    
+    // Actualizar cada botón según su disponibilidad
+    Object.keys(validation).forEach(intention => {
+        const button = document.getElementById(`intention-${intention}`);
+        const isAvailable = validation[intention].available;
+        
+        if (button) {
+            if (isAvailable) {
+                // Opción disponible
+                button.disabled = false;
+                button.classList.remove('disabled', 'option-unavailable');
+                button.classList.add('option-available');
+                button.title = '';
+                console.log(`✅ ${intention}: Disponible`);
+            } else {
+                // Opción no disponible
+                button.disabled = true;
+                button.classList.add('disabled', 'option-unavailable');
+                button.classList.remove('option-available');
+                button.title = validation[intention].reason;
+                console.log(`❌ ${intention}: ${validation[intention].reason}`);
+            }
+        }
+    });
+    
+    // Actualizar indicadores visuales especiales
+    updateIntentionIndicators(validation);
+    
+    console.log('✅ Selector de intenciones actualizado');
+}
+
+/**
+ * Añade indicadores visuales adicionales a las opciones
+ * @param {Object} validation - Resultado de validación
+ */
+function updateIntentionIndicators(validation) {
+    // Añadir contador de opciones de robo disponibles
+    const stealButton = document.getElementById('intention-steal');
+    if (stealButton && validation.steal.available) {
+        const optionsCount = validation.steal.availableOptions;
+        const existingBadge = stealButton.querySelector('.options-badge');
+        
+        if (existingBadge) {
+            existingBadge.textContent = optionsCount;
+        } else {
+            const badge = document.createElement('span');
+            badge.className = 'options-badge badge bg-warning text-dark position-absolute top-0 end-0';
+            badge.style.cssText = 'font-size: 0.7rem; transform: translate(25%, -25%);';
+            badge.textContent = optionsCount;
+            badge.title = `${optionsCount} opciones disponibles: ${validation.steal.details.join(', ')}`;
+            
+            stealButton.style.position = 'relative';
+            stealButton.appendChild(badge);
+        }
+    } else if (stealButton) {
+        // Remover badge si no hay opciones
+        const existingBadge = stealButton.querySelector('.options-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+    }
+}
+
+/**
+ * Función mejorada para mostrar el selector de intenciones con validación
+ */
+function showIntentionSelectorWithValidation() {
+    console.log('🎯 Mostrando selector de intenciones con validación...');
+    
+    // Primero mostrar el selector normal
+    showIntentionSelector();
+    
+    // Luego validar y actualizar opciones
+    setTimeout(() => {
+        updateIntentionSelector();
+    }, 100); // Pequeño delay para asegurar que el DOM está listo
+}
+
+/**
+ * Función de prueba para el sistema de validación
+ * TEMPORAL - Para testing y demostración
+ */
+function testValidationSystem() {
+    console.log('🧪 Ejecutando prueba del sistema de validación...');
+    
+    // Limpiar bases para empezar
+    gameState.bases = { first: null, second: null, third: null };
+    updateIntentionSelector();
+    console.log('📍 Paso 1: Sin corredores - robo y hit&run deshabilitados');
+    
+    setTimeout(() => {
+        // Añadir corredor en primera
+        gameState.bases.first = { id: 'test1', name: 'Juan Pérez', team: 'visitante' };
+        updateIntentionSelector();
+        console.log('📍 Paso 2: Corredor en 1ª - robo (1 opción) y hit&run habilitados');
+    }, 2000);
+    
+    setTimeout(() => {
+        // Añadir corredor en segunda también
+        gameState.bases.second = { id: 'test2', name: 'María García', team: 'visitante' };
+        updateIntentionSelector();
+        console.log('📍 Paso 3: Corredores en 1ª y 2ª - robo (3 opciones) incluyendo doble robo');
+    }, 4000);
+    
+    setTimeout(() => {
+        // Limpiar para volver al estado inicial
+        gameState.bases = { first: null, second: null, third: null };
+        updateIntentionSelector();
+        console.log('📍 Paso 4: Vuelta al estado inicial');
+    }, 6000);
+}
+
 // ===== SISTEMA DE DADOS AUTOMÁTICO =====
 
 /*
@@ -541,12 +1232,26 @@ function initializeGame() {
 function updateDiceSystemPosition() {
     const visitanteContainer = document.getElementById('dice-container-visitante');
     const localContainer = document.getElementById('dice-container-local');
+    const intentionContainer = document.getElementById('intention-container-visitante');
 
     if (!visitanteContainer || !localContainer) return;
 
+    // IMPORTANTE: Si el selector de intenciones está visible, NO tocar el contenedor de dados del visitante
+    const intentionVisible = intentionContainer &&
+        intentionContainer.style.display !== 'none' &&
+        intentionContainer.style.visibility !== 'hidden';
+
+    console.log('🎯 updateDiceSystemPosition - Selector visible:', intentionVisible);
+
     if (gameState.isTopHalf) {
         // Visitante batea - mostrar en columna izquierda
-        visitanteContainer.style.display = 'block';
+        // PERO solo si el selector de intenciones NO está visible
+        if (!intentionVisible) {
+            visitanteContainer.style.display = 'block';
+            console.log('✅ Contenedor visitante mostrado (sin selector activo)');
+        } else {
+            console.log('🎯 Selector activo - NO modificando contenedor visitante');
+        }
         localContainer.style.display = 'none';
         updateBatterInfo('visitante');
     } else {
@@ -989,6 +1694,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateDiceSystemPosition() {
     const visitanteContainer = document.getElementById('dice-container-visitante');
     const localContainer = document.getElementById('dice-container-local');
+    const intentionContainer = document.getElementById('intention-container-visitante');
 
     // PRESERVAR resultados de dados antes de cambiar visibilidad
     const visitanteResults = document.getElementById('dice-results-display');
@@ -997,9 +1703,22 @@ function updateDiceSystemPosition() {
     const visitanteWasVisible = visitanteResults && visitanteResults.style.display === 'block';
     const localWasVisible = localResults && localResults.style.display === 'block';
 
+    // IMPORTANTE: Si el selector de intenciones está visible, NO tocar el contenedor de dados del visitante
+    const intentionVisible = intentionContainer &&
+        intentionContainer.style.display !== 'none' &&
+        intentionContainer.style.visibility !== 'hidden';
+
+    console.log('🎯 updateDiceSystemPosition [SEGUNDA] - Selector visible:', intentionVisible);
+
     if (gameState.isTopHalf) {
         // Visitante batea - mostrar en columna izquierda
-        visitanteContainer.style.display = 'block';
+        // PERO solo si el selector de intenciones NO está visible
+        if (!intentionVisible) {
+            visitanteContainer.style.display = 'block';
+            console.log('✅ Contenedor visitante mostrado [SEGUNDA] (sin selector activo)');
+        } else {
+            console.log('🎯 Selector activo [SEGUNDA] - NO modificando contenedor visitante');
+        }
         localContainer.style.display = 'none';
         updateBatterInfo('visitante');
     } else {
@@ -1837,6 +2556,10 @@ function confirmAndNextBatter() {
     // 6. ACTUALIZAR display (mantiene marcador, innings, etc.)
     updateGameDisplay();
     updateDiceSystemPosition();
+
+    // 7. MOSTRAR SELECTOR DE INTENCIONES para el próximo bateador
+    console.log('🎯 Mostrando selector de intenciones para el próximo bateador...');
+    resetIntentionSelector();
 }
 
 // FUNCIÓN MEJORADA - Solo oculta dados específicos, NO elementos del DOM principal
@@ -1979,8 +2702,8 @@ function hideCurrentDiceResults() {
         console.log(`✅ Resultados de dados ocultados para ${team}`);
     }
 
-    // Buscar contenedores dinámicos de dados MÁS RECIENTES solamente
-    const dynamicContainers = document.querySelectorAll('.dynamic-dice-container');
+    // Buscar contenedores dinámicos de dados MÁS RECIENTES solamente (EXCLUIR SELECTOR DE INTENCIONES)
+    const dynamicContainers = document.querySelectorAll('.dynamic-dice-container:not(.intention-selector)');
     let hiddenCount = 0;
     dynamicContainers.forEach(container => {
         // Solo ocultar los 2 más recientes (no todo el historial)
@@ -1992,4 +2715,882 @@ function hideCurrentDiceResults() {
     });
 
     console.log(`🎯 Tirada actual limpiada (datos del juego conservados)`);
+
+    // Mostrar selector de intenciones para el siguiente bateador
+    // (Solo si no es un reinicio completo)
+    setTimeout(() => {
+        resetIntentionSelector();
+        console.log('🎯 Selector de intenciones mostrado para siguiente bateador');
+    }, 200);
+}
+
+// ===== SISTEMA DE SELECCIÓN DE INTENCIONES =====
+
+/**
+ * Maneja la selección de intención del bateador
+ * @param {string} intention - La intención seleccionada ('normal', 'steal', 'bunt', 'hitrun')
+ */
+function selectIntention(intention) {
+    console.log(`🎯 Intención seleccionada: ${intention}`);
+
+    // Guardar la intención en el gameState para uso futuro
+    gameState.currentIntention = intention;
+
+    switch (intention) {
+        case 'normal':
+            // Batear Normal: Mostrar sistema de dados
+            console.log('⚾ Activando sistema de bateo normal...');
+            showDiceSystem();
+            break;
+
+        case 'steal':
+            console.log('🏃‍♂️ Intención de robar base seleccionada');
+            showStealBaseSystem();
+            break;
+
+        case 'bunt':
+            console.log('🤏 Intención de toque/bunt seleccionada');
+            alert('🤏 Sistema de toque/bunt - Por implementar');
+            break;
+
+        case 'hitrun':
+            console.log('⚡ Intención de hit & run seleccionada');
+            alert('⚡ Sistema de hit & run - Por implementar');
+            break;
+
+        default:
+            console.error(`❌ Intención desconocida: ${intention}`);
+    }
+}
+
+/**
+ * Función simple para mostrar el sistema de dados y ocultar el selector
+ */
+function showDiceSystem() {
+    console.log('🎲 [FORZADO] Mostrando sistema de dados...');
+
+    const intentionContainer = document.getElementById('intention-container-visitante');
+    const diceContainer = document.getElementById('dice-container-visitante');
+
+    console.log('   - intentionContainer encontrado:', !!intentionContainer);
+    console.log('   - diceContainer encontrado:', !!diceContainer);
+
+    // PASO 1: Ocultar selector de manera agresiva
+    if (intentionContainer) {
+        intentionContainer.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important;';
+        console.log('✅ Selector FORZADAMENTE ocultado');
+    }
+
+    // PASO 2: Mostrar dados de manera súper agresiva
+    if (diceContainer) {
+        // Remover cualquier estilo inline que pueda estar ocultando
+        diceContainer.removeAttribute('style');
+
+        // Aplicar estilos forzados
+        diceContainer.style.cssText = `
+            display: block !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+            position: relative !important; 
+            z-index: 10 !important;
+            background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%) !important;
+            border-radius: 20px !important;
+            border: 3px solid #374151 !important;
+            margin-top: 1rem !important;
+            padding: 1.5rem !important;
+        `;
+
+        // Forzar visibilidad de contenido interno
+        const diceSystem = diceContainer.querySelector('.dice-system');
+        if (diceSystem) {
+            diceSystem.style.cssText = 'display: block !important; opacity: 1 !important; visibility: visible !important;';
+            console.log('✅ Sistema de dados interno FORZADO visible');
+        }
+
+        // Forzar visibilidad de todos los elementos hijos
+        const allChildren = diceContainer.querySelectorAll('*');
+        allChildren.forEach(child => {
+            if (child.style.display === 'none') {
+                child.style.display = '';
+            }
+        });
+
+        console.log('✅ Sistema de dados FORZADAMENTE mostrado');
+        console.log('   - Display final:', diceContainer.style.display);
+        console.log('   - Opacity final:', diceContainer.style.opacity);
+        console.log('   - Visibility final:', diceContainer.style.visibility);
+
+        // Verificar que realmente esté visible
+        setTimeout(() => {
+            const computedStyle = window.getComputedStyle(diceContainer);
+            console.log('🔍 Estilo computado final:', {
+                display: computedStyle.display,
+                opacity: computedStyle.opacity,
+                visibility: computedStyle.visibility
+            });
+        }, 100);
+
+    } else {
+        console.error('❌ No se encontró dice-container-visitante');
+        // Buscar contenedores similares
+        const similarContainers = document.querySelectorAll('[id*="dice"]');
+        console.log('🔍 Contenedores con "dice" encontrados:', similarContainers.length);
+        similarContainers.forEach((container, index) => {
+            console.log(`   - ${index}: ${container.id} (display: ${container.style.display})`);
+        });
+    }
+}
+
+/**
+ * Activa el sistema de dados normal (el que ya existía)
+ */
+function showNormalDiceSystem() {
+    console.log('🎲 Activando sistema de dados normal...');
+
+    const diceContainer = document.getElementById('dice-container-visitante');
+
+    if (!diceContainer) {
+        console.error('❌ No se encontró el contenedor de dados');
+        return;
+    }
+
+    // Asegurarse de que el contenedor de dados esté visible
+    diceContainer.style.display = 'block';
+    diceContainer.style.opacity = '0';
+    diceContainer.style.transform = 'translateY(20px)';
+    diceContainer.style.transition = 'all 0.5s ease-out';
+
+    // Animar la entrada del sistema de dados
+    setTimeout(() => {
+        diceContainer.style.opacity = '1';
+        diceContainer.style.transform = 'translateY(0)';
+    }, 100);
+
+    // Cargar el sistema de dados normal si no está cargado
+    if (!diceContainer.innerHTML.trim()) {
+        console.log('🔄 Cargando sistema de dados normal...');
+        // Aquí podríamos llamar a la función que ya existe para cargar el sistema de dados
+        // Por ahora, asumamos que ya está cargado en el HTML
+    }
+
+    console.log('✅ Sistema de dados normal activado');
+}
+
+/**
+ * Resetea el selector de intenciones (para volver a mostrar las opciones)
+ */
+/**
+ * Función simple para mostrar el selector de intenciones y ocultar dados
+ */
+function showIntentionSelector() {
+    console.log('🎯 [FORZADO] Mostrando selector de intenciones...');
+
+    const intentionContainer = document.getElementById('intention-container-visitante');
+    const diceContainer = document.getElementById('dice-container-visitante');
+
+    // PASO 1: Ocultar dados de manera agresiva
+    if (diceContainer) {
+        diceContainer.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important;';
+        console.log('✅ Sistema de dados FORZADAMENTE ocultado');
+    }
+
+    // PASO 2: Mostrar selector de manera súper agresiva
+    if (intentionContainer) {
+        // Remover cualquier estilo inline que pueda estar ocultando
+        intentionContainer.removeAttribute('style');
+
+        // Aplicar estilos forzados
+        intentionContainer.style.cssText = `
+            display: block !important; 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+            position: relative !important; 
+            z-index: 15 !important;
+        `;
+
+        // Forzar visibilidad de todos los botones internos
+        const buttons = intentionContainer.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.style.cssText = 'display: block !important; opacity: 1 !important; visibility: visible !important;';
+        });
+
+        console.log('✅ Selector de intenciones FORZADAMENTE mostrado');
+
+        // Verificar que realmente esté visible
+        setTimeout(() => {
+            const computedStyle = window.getComputedStyle(intentionContainer);
+            console.log('🔍 Estilo computado del selector:', {
+                display: computedStyle.display,
+                opacity: computedStyle.opacity,
+                visibility: computedStyle.visibility
+            });
+        }, 100);
+
+    } else {
+        console.error('❌ No se encontró intention-container-visitante');
+
+        // Buscar contenedores similares
+        const similarContainers = document.querySelectorAll('[id*="intention"]');
+        console.log('🔍 Contenedores con "intention" encontrados:', similarContainers.length);
+        similarContainers.forEach((container, index) => {
+            console.log(`   - ${index}: ${container.id} (display: ${container.style.display})`);
+        });
+    }
+
+    // Limpiar la intención del gameState
+    gameState.currentIntention = null;
+    console.log('🧹 Estado de intención limpiado');
+    
+    // NUEVO: Validar y actualizar opciones disponibles
+    setTimeout(() => {
+        updateIntentionSelector();
+        console.log('🎯 Validación de opciones aplicada');
+    }, 150); // Delay para asegurar que el DOM está completamente renderizado
+}
+
+/**
+ * Resetea el selector de intenciones (alias para compatibilidad)
+ */
+function resetIntentionSelector() {
+    console.log('🔄 Reseteando selector de intenciones...');
+    showIntentionSelector();
+    console.log('✅ Selector de intenciones reseteado');
+}
+
+// ===== SISTEMA DE ROBO DE BASES =====
+
+/**
+ * Sistema principal de robo de bases
+ * Detecta corredores en bases y presenta opciones de robo
+ */
+function showStealBaseSystem() {
+    console.log('🏃‍♂️ Iniciando sistema de robo de bases...');
+
+    // Ocultar selector de intenciones
+    const intentionContainer = document.getElementById('intention-container-visitante');
+    if (intentionContainer) {
+        intentionContainer.style.display = 'none';
+        console.log('✅ Selector de intenciones ocultado');
+    }
+
+    // Detectar corredores disponibles para robar
+    const availableRunners = detectAvailableRunners();
+
+    if (availableRunners.length === 0) {
+        // No hay corredores en base
+        alert('🚫 No hay corredores en base para intentar robo');
+        showIntentionSelector(); // Volver al selector
+        return;
+    }
+
+    // Mostrar interfaz de selección de robo
+    showStealSelectionInterface(availableRunners);
+}
+
+/**
+ * Detecta qué corredores están disponibles para robar bases
+ * Implementa las 4 tablas de robo: 1B, 2B, 3B (S+), Doble robo
+ */
+function detectAvailableRunners() {
+    const runners = [];
+
+    console.log('🔍 Detectando corredores en bases:', gameState.bases);
+
+    // TABLA 1: Corredor en primera base → segunda base
+    if (gameState.bases.first !== null) {
+        runners.push({
+            runner: gameState.bases.first,
+            fromBase: 'first',
+            toBase: 'second',
+            stealType: 'first_to_second',
+            displayName: '1ª → 2ª Base',
+            icon: '🥇➡️🥈',
+            table: 'Tabla 1: Robo de 2ª'
+        });
+        console.log('✅ Corredor en 1ª base (Tabla 1: Robo de 2ª)');
+    }
+
+    // TABLA 2: Corredor en segunda base → tercera base
+    if (gameState.bases.second !== null) {
+        runners.push({
+            runner: gameState.bases.second,
+            fromBase: 'second',
+            toBase: 'third',
+            stealType: 'second_to_third',
+            displayName: '2ª → 3ª Base',
+            icon: '🥈➡️🥉',
+            table: 'Tabla 2: Robo de 3ª'
+        });
+        console.log('✅ Corredor en 2ª base (Tabla 2: Robo de 3ª)');
+    }
+
+    // TABLA 3: Corredor en tercera base → home (solo con trait S+)
+    if (gameState.bases.third !== null) {
+        const thirdBaseRunner = gameState.bases.third;
+        // TODO: Verificar trait S+ cuando implementemos traits
+        const hasSPlusTrait = thirdBaseRunner.traits?.includes('S+') || false;
+
+        if (hasSPlusTrait) {
+            runners.push({
+                runner: thirdBaseRunner,
+                fromBase: 'third',
+                toBase: 'home',
+                stealType: 'third_to_home',
+                displayName: '3ª → Home (S+)',
+                icon: '🥉➡️🏠',
+                table: 'Tabla 3: Robo de Home',
+                requiresTrait: 'S+'
+            });
+            console.log('✅ Corredor en 3ª base con S+ (Tabla 3: Robo de Home)');
+        } else {
+            console.log('⚠️ Corredor en 3ª base SIN trait S+ - no puede robar home');
+        }
+    }
+
+    // TABLA 4: Doble robo (corredores en 1ª y 2ª simultáneamente)
+    if (gameState.bases.first !== null && gameState.bases.second !== null) {
+        runners.push({
+            runner: null, // Múltiples corredores
+            runners: [gameState.bases.first, gameState.bases.second],
+            fromBase: 'first_and_second',
+            toBase: 'second_and_third',
+            stealType: 'double_steal',
+            displayName: 'Doble Robo (1ª→2ª, 2ª→3ª)',
+            icon: '🥇🥈➡️🥈🥉',
+            table: 'Tabla 4: Doble Robo'
+        });
+        console.log('✅ Doble robo disponible (Tabla 4)');
+    }
+
+    console.log(`🏃‍♂️ Total opciones de robo: ${runners.length}`);
+    return runners;
+}
+
+/**
+ * Muestra la interfaz de selección de robo con los corredores disponibles
+ */
+function showStealSelectionInterface(availableRunners) {
+    console.log('🎯 Mostrando interfaz de selección de robo...');
+
+    // Obtener o crear contenedor para el sistema de robo
+    const diceContainer = document.getElementById('dice-container-visitante');
+
+    if (!diceContainer) {
+        console.error('❌ No se encontró contenedor de dados');
+        return;
+    }
+
+    // Crear HTML para la interfaz de robo
+    const stealHTML = createStealInterfaceHTML(availableRunners);
+
+    // Reemplazar contenido del contenedor de dados
+    diceContainer.innerHTML = stealHTML;
+
+    // Mostrar el contenedor
+    diceContainer.style.cssText = `
+        display: block !important; 
+        opacity: 1 !important; 
+        visibility: visible !important; 
+        position: relative !important; 
+        z-index: 10 !important;
+    `;
+
+    console.log('✅ Interfaz de robo de bases mostrada');
+}
+
+/**
+ * Crea el HTML para la interfaz de selección de robo
+ */
+function createStealInterfaceHTML(availableRunners) {
+    let runnersHTML = '';
+
+    availableRunners.forEach((runner, index) => {
+        // Información del corredor/corredores
+        let runnerInfo = '';
+        if (runner.stealType === 'double_steal') {
+            runnerInfo = `
+                <div class="steal-runners">
+                    <small>1ª Base: ${runner.runners[0]?.name || 'Desconocido'}</small><br>
+                    <small>2ª Base: ${runner.runners[1]?.name || 'Desconocido'}</small>
+                </div>
+            `;
+        } else {
+            runnerInfo = `<small>Corredor: ${runner.runner?.name || 'Desconocido'}</small>`;
+        }
+
+        // Indicador de trait requerido
+        const traitIndicator = runner.requiresTrait ?
+            `<span class="trait-required">⭐ Requiere ${runner.requiresTrait}</span>` : '';
+
+        runnersHTML += `
+            <div class="steal-option" onclick="selectStealAttempt('${runner.fromBase}', '${runner.toBase}', ${index})">
+                <div class="steal-option-header">
+                    <div class="steal-icon">${runner.icon}</div>
+                    <div class="steal-table-info">
+                        <small class="steal-table-name">${runner.table}</small>
+                    </div>
+                </div>
+                <div class="steal-description">
+                    <strong>${runner.displayName}</strong>
+                    ${runnerInfo}
+                    ${traitIndicator}
+                </div>
+            </div>
+        `;
+    });
+
+    return `
+        <div class="steal-base-system">
+            <div class="steal-header">
+                <h3>🏃‍♂️ Selecciona el Tipo de Robo</h3>
+                <p>Elige qué corredor(es) intentará(n) robar base:</p>
+                <small class="text-muted">Cada opción usa una tabla de robo diferente</small>
+            </div>
+            
+            <div class="steal-runners-grid">
+                ${runnersHTML}
+            </div>
+            
+            <div class="steal-actions">
+                <button class="btn btn-secondary" onclick="cancelStealAttempt()">
+                    ↩️ Cancelar
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Maneja la selección de un intento de robo específico
+ */
+function selectStealAttempt(fromBase, toBase, runnerIndex) {
+    console.log(`🎯 Intento de robo seleccionado: ${fromBase} → ${toBase}`);
+
+    const availableRunners = detectAvailableRunners();
+    const selectedSteal = availableRunners[runnerIndex];
+
+    // Guardar información del robo en el gameState
+    gameState.currentStealAttempt = {
+        fromBase: fromBase,
+        toBase: toBase,
+        runnerIndex: runnerIndex,
+        stealType: selectedSteal.stealType,
+        table: selectedSteal.table,
+        runner: selectedSteal.runner,
+        runners: selectedSteal.runners // Para doble robo
+    };
+
+    console.log('💾 Información del robo guardada:', gameState.currentStealAttempt);
+
+    // Mostrar sistema de dados para el robo
+    showStealDiceSystem(selectedSteal);
+}
+
+/**
+ * Cancela el intento de robo y vuelve al selector de intenciones
+ */
+function cancelStealAttempt() {
+    console.log('❌ Intento de robo cancelado');
+
+    // Limpiar información del robo
+    gameState.currentStealAttempt = null;
+
+    // Volver al selector de intenciones
+    showIntentionSelector();
+}
+
+/**
+ * Función temporal para probar el sistema de robo con corredores ficticios
+ */
+function testStealSystem() {
+    console.log('🧪 Configurando corredores de prueba para el sistema de robo...');
+
+    // Agregar corredores ficticios para probar
+    gameState.bases.first = { name: 'Corredor 1ª', traits: [] };
+    gameState.bases.second = { name: 'Corredor 2ª', traits: [] };
+    gameState.bases.third = { name: 'Corredor 3ª S+', traits: ['S+'] };
+
+    console.log('✅ Corredores de prueba configurados:', gameState.bases);
+
+    // Mostrar el sistema de robo
+    showStealBaseSystem();
+}
+
+/**
+ * Obtiene la información del dado según el tipo de robo
+ * TABLA 1: d8, TABLA 2: d8-1, TABLA 3: d8-1, TABLA 4: d8
+ */
+function getDiceInfoForStealType(stealType) {
+    switch (stealType) {
+        case 'first_to_second':
+            return {
+                description: 'd8',
+                range: '1-8',
+                min: 1,
+                max: 8,
+                modifier: null
+            };
+
+        case 'second_to_third':
+            return {
+                description: 'd8-1',
+                range: '1-8 (luego -1)',
+                min: 1,
+                max: 8,
+                modifier: '-1 al resultado'
+            };
+
+        case 'third_to_home':
+            return {
+                description: 'd8-1 (S+ requerido)',
+                range: '1-8 (luego -1)',
+                min: 1,
+                max: 8,
+                modifier: '-1 al resultado, Solo con trait S+'
+            };
+
+        case 'double_steal':
+            return {
+                description: 'd8 (Doble Robo)',
+                range: '1-8',
+                min: 1,
+                max: 8,
+                modifier: 'Afecta ambos corredores'
+            };
+
+        default:
+            return {
+                description: 'd8',
+                range: '1-8',
+                min: 1,
+                max: 8,
+                modifier: null
+            };
+    }
+}
+
+/**
+ * Maneja la tirada del dado para el intento de robo
+ * Similar al sistema de dados normal pero con lógica específica de robo
+ */
+function rollStealAttempt() {
+    console.log('🎲 Ejecutando tirada de robo...');
+
+    const diceInput = document.getElementById('steal-dice-value');
+    const resultArea = document.getElementById('steal-result-area');
+    const resultText = document.getElementById('steal-result-text');
+
+    if (!diceInput || !resultArea || !resultText) {
+        console.error('❌ No se encontraron elementos de la interfaz');
+        return;
+    }
+
+    const diceValue = parseInt(diceInput.value);
+    const stealInfo = gameState.currentStealAttempt;
+    const diceInfo = getDiceInfoForStealType(stealInfo.stealType);
+
+    if (!diceValue || diceValue < diceInfo.min || diceValue > diceInfo.max) {
+        alert(`⚠️ Por favor ingresa un valor de dado válido (${diceInfo.range})`);
+        return;
+    }
+
+    // Aplicar modificador para d8-1 en segunda a tercera Y tercera a home
+    let finalValue = diceValue;
+    if (stealInfo.stealType === 'second_to_third' || stealInfo.stealType === 'third_to_home') {
+        finalValue = Math.max(0, diceValue - 1); // d8-1, mínimo 0
+        console.log(`🔧 Aplicando modificador d8-1: ${diceValue} - 1 = ${finalValue}`);
+    }
+
+    console.log(`🎲 Valor del dado: ${diceValue}, Valor final: ${finalValue}`);
+
+    // Evaluar resultado del robo (por ahora sistema básico)
+    const isSuccessful = evaluateStealResult(finalValue, stealInfo.stealType);
+
+    // Mostrar resultado
+    resultArea.style.display = 'block';
+
+    if (isSuccessful) {
+        resultText.innerHTML = `
+            <div class="alert alert-success">
+                <strong>✅ ROBO EXITOSO!</strong><br>
+                ${getSuccessMessage(stealInfo)}
+                <br><small>Dado: ${diceValue}${(stealInfo.stealType === 'second_to_third' || stealInfo.stealType === 'third_to_home') ? ` - 1 = ${finalValue}` : ` = ${finalValue}`}</small>
+            </div>
+        `;
+        
+        console.log('✅ Robo exitoso');
+        
+    } else {
+        resultText.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>❌ ROBO FALLIDO!</strong><br>
+                ${getFailureMessage(stealInfo)}
+                <br><small>Dado: ${diceValue}${(stealInfo.stealType === 'second_to_third' || stealInfo.stealType === 'third_to_home') ? ` - 1 = ${finalValue}` : ` = ${finalValue}`}</small>
+            </div>
+        `;
+        
+        console.log('❌ Robo fallido');
+    }
+    
+    // Agregar botón para continuar
+    resultText.innerHTML += `
+        <div class="steal-continue">
+            <button class="btn btn-primary" onclick="finishStealAttempt(${isSuccessful})">
+                ⚾ Continuar Juego
+            </button>
+        </div>
+    `;
+}
+
+/**
+ * Evalúa si el robo fue exitoso basado en el valor del dado
+ * Por ahora sistema básico, después implementaremos las tablas reales
+ */
+function evaluateStealResult(finalValue, stealType) {
+    // Sistema básico temporal: valores bajos = exitoso
+    switch (stealType) {
+        case 'first_to_second':
+            return finalValue <= 4; // 1-4 exitoso en d8
+        case 'second_to_third':
+            return finalValue <= 3; // 0-3 exitoso en d8-1
+        case 'third_to_home':
+            return finalValue <= 2; // 0-2 exitoso en d8-1 (más difícil que segunda a tercera)
+        case 'double_steal':
+            return finalValue <= 4; // 1-4 exitoso en d8
+        default:
+            return finalValue <= 4;
+    }
+}
+
+/**
+ * Genera mensaje de éxito según el tipo de robo
+ */
+function getSuccessMessage(stealInfo) {
+    switch (stealInfo.stealType) {
+        case 'first_to_second':
+            return `El corredor ${stealInfo.runner.name} llega seguro a segunda base.`;
+        case 'second_to_third':
+            return `El corredor ${stealInfo.runner.name} llega seguro a tercera base.`;
+        case 'third_to_home':
+            return `¡CARRERA! ${stealInfo.runner.name} anota desde tercera base.`;
+        case 'double_steal':
+            return `¡Doble robo exitoso! Ambos corredores avanzan una base.`;
+        default:
+            return `Robo exitoso.`;
+    }
+}
+
+/**
+ * Genera mensaje de fallo según el tipo de robo
+ */
+function getFailureMessage(stealInfo) {
+    switch (stealInfo.stealType) {
+        case 'first_to_second':
+            return `${stealInfo.runner.name} es eliminado intentando robar segunda base.`;
+        case 'second_to_third':
+            return `${stealInfo.runner.name} es eliminado intentando robar tercera base.`;
+        case 'third_to_home':
+            return `${stealInfo.runner.name} es eliminado intentando robar home.`;
+        case 'double_steal':
+            return `Doble robo fallido. Ambos corredores son eliminados.`;
+        default:
+            return `Robo fallido. El corredor es eliminado.`;
+    }
+}
+
+/**
+ * Finaliza el intento de robo y actualiza el estado del juego
+ */
+function finishStealAttempt(wasSuccessful) {
+    console.log(`🏁 Finalizando robo. Exitoso: ${wasSuccessful}`);
+    
+    const stealInfo = gameState.currentStealAttempt;
+    
+    if (wasSuccessful) {
+        // ROBO EXITOSO: Actualizar bases
+        handleSuccessfulSteal(stealInfo);
+    } else {
+        // ROBO FALLIDO: Eliminar corredor(es) y agregar out(s)
+        handleFailedSteal(stealInfo);
+    }
+    
+    // Limpiar información del robo
+    gameState.currentStealAttempt = null;
+    
+    // Actualizar display del juego
+    updateGameDisplay();
+    
+    // Volver al selector de intenciones para continuar el juego
+    console.log('🔄 Volviendo al selector de intenciones...');
+    showIntentionSelector();
+}
+
+/**
+ * Maneja un robo exitoso actualizando las posiciones de los corredores
+ */
+function handleSuccessfulSteal(stealInfo) {
+    console.log('✅ Procesando robo exitoso...');
+    
+    switch (stealInfo.stealType) {
+        case 'first_to_second':
+            gameState.bases.first = null;
+            gameState.bases.second = stealInfo.runner;
+            console.log(`📍 ${stealInfo.runner.name} movido a segunda base`);
+            break;
+            
+        case 'second_to_third':
+            gameState.bases.second = null;
+            gameState.bases.third = stealInfo.runner;
+            console.log(`📍 ${stealInfo.runner.name} movido a tercera base`);
+            break;
+            
+        case 'third_to_home':
+            gameState.bases.third = null;
+            // TODO: Anotar carrera en el marcador
+            console.log(`🏠 ¡CARRERA! ${stealInfo.runner.name} anota desde tercera base`);
+            break;
+            
+        case 'double_steal':
+            // Mover ambos corredores
+            const runnerFrom1st = gameState.bases.first;
+            const runnerFrom2nd = gameState.bases.second;
+            
+            gameState.bases.first = null;
+            gameState.bases.second = runnerFrom1st;
+            gameState.bases.third = runnerFrom2nd;
+            
+            console.log(`📍 Doble robo: ${runnerFrom1st.name} → 2ª, ${runnerFrom2nd.name} → 3ª`);
+            break;
+    }
+}
+
+/**
+ * Maneja un robo fallido eliminando corredores y agregando outs
+ */
+function handleFailedSteal(stealInfo) {
+    console.log('❌ Procesando robo fallido...');
+    
+    switch (stealInfo.stealType) {
+        case 'first_to_second':
+        case 'second_to_third':
+        case 'third_to_home':
+            // Eliminar corredor de la base
+            gameState.bases[stealInfo.fromBase] = null;
+            gameState.outs++;
+            console.log(`❌ ${stealInfo.runner.name} eliminado. Outs: ${gameState.outs}`);
+            break;
+            
+        case 'double_steal':
+            // En doble robo fallido, eliminar ambos corredores
+            gameState.bases.first = null;
+            gameState.bases.second = null;
+            gameState.outs += 2; // Doble eliminación
+            console.log(`❌ Doble eliminación. Outs: ${gameState.outs}`);
+            break;
+    }
+    
+    // Verificar si hay 3 outs para cambiar inning
+    if (gameState.outs >= 3) {
+        console.log('🔄 3 outs alcanzados - cambio de inning necesario');
+        // TODO: Implementar cambio de inning
+    }
+}
+
+/**
+ * Maneja la selección de un intento de robo específico
+ */
+function selectStealAttempt(fromBase, toBase, runnerIndex) {
+    console.log(`🎯 Intento de robo seleccionado: ${fromBase} → ${toBase}`);
+    
+    // Guardar información del robo en el gameState
+    gameState.currentStealAttempt = {
+        fromBase: fromBase,
+        toBase: toBase,
+        runnerIndex: runnerIndex,
+        runner: gameState.bases[fromBase]
+    };
+    
+    console.log('💾 Información del robo guardada:', gameState.currentStealAttempt);
+    
+    // Mostrar sistema de dados para el robo
+    showStealDiceSystem(fromBase, toBase);
+}
+
+/**
+ * Cancela el intento de robo y vuelve al selector de intenciones
+ */
+function cancelStealAttempt() {
+    console.log('❌ Intento de robo cancelado');
+    
+    // Limpiar información del robo
+    gameState.currentStealAttempt = null;
+    
+    // Volver al selector de intenciones
+    showIntentionSelector();
+}
+
+/**
+ * Muestra el sistema de dados específico para robo de bases
+ */
+function showStealDiceSystem(fromBase, toBase) {
+    console.log(`🎲 Mostrando sistema de dados para robo: ${fromBase} → ${toBase}`);
+    
+    const diceContainer = document.getElementById('dice-container-visitante');
+    
+    if (!diceContainer) {
+        console.error('❌ No se encontró contenedor de dados');
+        return;
+    }
+    
+    // Crear HTML para el sistema de dados de robo
+    const stealDiceHTML = createStealDiceHTML(fromBase, toBase);
+    
+    // Reemplazar contenido
+    diceContainer.innerHTML = stealDiceHTML;
+    
+    console.log('✅ Sistema de dados de robo mostrado');
+}
+
+/**
+ * Crea el HTML para el sistema de dados de robo
+ */
+function createStealDiceHTML(fromBase, toBase) {
+    const stealInfo = gameState.currentStealAttempt;
+    const baseNames = {
+        'first': '1ª Base',
+        'second': '2ª Base', 
+        'third': '3ª Base',
+        'home': 'Home'
+    };
+    
+    return `
+        <div class="steal-dice-system">
+            <div class="steal-dice-header">
+                <h3>🏃‍♂️ Intento de Robo: ${baseNames[fromBase]} → ${baseNames[toBase]}</h3>
+                <p><strong>Corredor:</strong> ${stealInfo.runner?.name || 'Desconocido'}</p>
+            </div>
+            
+            <div class="steal-dice-controls">
+                <div class="dice-input-group">
+                    <label for="steal-dice-value">🎲 Resultado del Dado:</label>
+                    <input type="number" id="steal-dice-value" min="1" max="100" placeholder="1-100">
+                </div>
+                
+                <button class="btn btn-primary steal-roll-btn" onclick="rollStealAttempt()">
+                    🎲 Tirar Dado de Robo
+                </button>
+            </div>
+            
+            <div class="steal-result-area" id="steal-result-area" style="display: none;">
+                <h4>📊 Resultado del Robo:</h4>
+                <div id="steal-result-text"></div>
+            </div>
+            
+            <div class="steal-actions">
+                <button class="btn btn-secondary" onclick="cancelStealAttempt()">
+                    ↩️ Cancelar Robo
+                </button>
+            </div>
+        </div>
+    `;
 }

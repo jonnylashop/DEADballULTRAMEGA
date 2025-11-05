@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Botón Iniciar</title>
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        
+        .test-btn:hover {
+            background: #218838;
+        }
+        
+        .debug-output {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>Test del Sistema de Inicio</h1>
+
+        <button class="test-btn" onclick="testFunction()">🧪 Test Función Simple</button>
+        <button class="test-btn" onclick="testGameState()">🎮 Test GameState</button>
+        <button class="test-btn" onclick="testStartNewGame()">🚀 Test startNewGame()</button>
+
+        <div id="debug-output" class="debug-output">
+            Output de debug aparecerá aquí...
+        </div>
+
+        <!-- Copia del botón original -->
+        <div style="margin-top: 30px; border-top: 2px solid #ddd; padding-top: 20px;">
+            <h3>Botón Original (copiado del HTML principal):</h3>
+            <button id="start-game-btn" class="test-btn" onclick="startNewGame()">
+                🎮 Iniciar Nuevo Juego
+            </button>
+        </div>
+    </div>
+
+    <!-- Incluir el script original -->
+    <script src="script.js"></script>
+
+    <script>
+        function log(message) {
+            const output = document.getElementById('debug-output');
+            output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+        }
+
+        function testFunction() {
+            log('✅ Función JavaScript funciona correctamente');
+        }
+
+        function testGameState() {
+            try {
+                log('🔍 Verificando gameState...');
+                log('gameState existe: ' + (typeof gameState !== 'undefined'));
+                if (typeof gameState !== 'undefined') {
+                    log('gameState.isGameActive: ' + gameState.isGameActive);
+                    log('gameState.currentInning: ' + gameState.currentInning);
+                    log('gameState definido correctamente ✅');
+                } else {
+                    log('❌ ERROR: gameState no está definido');
+                }
+            } catch (error) {
+                log('❌ ERROR en testGameState: ' + error.message);
+            }
+        }
+
+        function testStartNewGame() {
+            try {
+                log('🚀 Intentando ejecutar startNewGame()...');
+                log('startNewGame existe: ' + (typeof startNewGame === 'function'));
+
+                if (typeof startNewGame === 'function') {
+                    startNewGame();
+                    log('✅ startNewGame() ejecutado sin errores');
+                    log('gameState.isGameActive después: ' + gameState.isGameActive);
+                } else {
+                    log('❌ ERROR: startNewGame no es una función');
+                }
+            } catch (error) {
+                log('❌ ERROR en startNewGame: ' + error.message);
+                log('Error stack: ' + error.stack);
+            }
+        }
+
+        // Auto-test al cargar la página
+        window.addEventListener('load', function() {
+            log('📄 Página cargada, iniciando auto-test...');
+            testFunction();
+            testGameState();
+        });
+    </script>
+</body>
+
+</html>

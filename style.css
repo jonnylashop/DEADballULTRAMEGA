@@ -113,6 +113,124 @@
     }
 }
 
+
+/* ===== SELECTOR DE INTENCIONES DEL BATEADOR ===== */
+
+.intention-selector {
+    background: linear-gradient(135deg, rgba(76, 29, 149, 0.95) 0%, rgba(124, 58, 237, 0.95) 40%, rgba(168, 85, 247, 0.95) 100%) !important;
+    border: 3px solid rgba(139, 92, 246, 0.8) !important;
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4), 0 4px 10px rgba(124, 58, 237, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    animation: intentionGlow 2s ease-in-out infinite alternate;
+    /* OVERLAY: Capa superpuesta */
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+@keyframes intentionGlow {
+    from {
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4), 0 4px 10px rgba(124, 58, 237, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    to {
+        box-shadow: 0 12px 35px rgba(139, 92, 246, 0.6), 0 6px 15px rgba(124, 58, 237, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+}
+
+
+/* Animaciones para transiciones entre capas */
+
+.intention-selector.fade-out {
+    opacity: 0 !important;
+    transform: scale(0.95) !important;
+    transition: all 0.5s ease-out !important;
+}
+
+.dice-layers-container {
+    position: relative;
+}
+
+#dice-container-visitante {
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+#dice-container-visitante.fade-in {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.intention-btn {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%) !important;
+    border: 2px solid #6b7280 !important;
+    border-radius: 12px !important;
+    color: #f9fafb !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-height: 80px;
+}
+
+.intention-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    color: #ffffff !important;
+}
+
+.intention-btn:focus {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    color: #ffffff !important;
+}
+
+.intention-btn.normal-hit {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+    border-color: #34d399 !important;
+}
+
+.intention-btn.normal-hit:hover,
+.intention-btn.normal-hit:focus {
+    background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+.intention-btn.steal-base {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+    border-color: #f87171 !important;
+}
+
+.intention-btn.steal-base:hover,
+.intention-btn.steal-base:focus {
+    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4) !important;
+}
+
+.intention-btn.bunt {
+    background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%) !important;
+    border-color: #fbbf24 !important;
+}
+
+.intention-btn.bunt:hover,
+.intention-btn.bunt:focus {
+    background: linear-gradient(135deg, #b45309 0%, #d97706 100%) !important;
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4) !important;
+}
+
+.intention-btn.hit-run {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%) !important;
+    border-color: #c084fc !important;
+}
+
+.intention-btn.hit-run:hover,
+.intention-btn.hit-run:focus {
+    background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 100%) !important;
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4) !important;
+}
+
 @keyframes resultGlow {
     0% {
         box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4), 0 2px 6px rgba(22, 163, 74, 0.2);
@@ -1249,6 +1367,191 @@ body {
 }
 
 
+/* Cuando el juego está inactivo, el contenedor debe tener dimensiones */
+
+.start-game-container.game-inactive {
+    width: auto !important;
+    height: auto !important;
+    padding: 1rem !important;
+}
+
+
+/* ===== ESTILOS PARA SISTEMA DE ROBO DE BASES ===== */
+
+.steal-base-system {
+    background: linear-gradient(135deg, #7c2d12 0%, #451a03 100%);
+    border-radius: 20px;
+    border: 3px solid #ea580c;
+    padding: 1.5rem;
+    color: white;
+}
+
+.steal-header h3 {
+    color: #fed7aa;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.steal-runners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.steal-option {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    border: 2px solid #fb923c;
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.steal-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(234, 88, 12, 0.4);
+    border-color: #fed7aa;
+}
+
+.steal-option-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.steal-icon {
+    font-size: 2rem;
+}
+
+.steal-table-name {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+.steal-description strong {
+    color: #fed7aa;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.trait-required {
+    background: #fbbf24;
+    color: #451a03;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.steal-dice-system {
+    background: linear-gradient(135deg, #7c2d12 0%, #451a03 100%);
+    border-radius: 20px;
+    border: 3px solid #ea580c;
+    padding: 1.5rem;
+    color: white;
+}
+
+.steal-dice-header h3 {
+    color: #fed7aa;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.steal-dice-header h4 {
+    color: #fb923c;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.dice-type-info .alert-info {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid #3b82f6;
+    color: #dbeafe;
+}
+
+.steal-dice-controls {
+    margin: 1.5rem 0;
+}
+
+.dice-input-group {
+    margin: 1rem 0;
+}
+
+.dice-input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #fed7aa;
+    font-weight: bold;
+}
+
+.dice-input-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #ea580c;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 1.1rem;
+}
+
+.dice-input-group input:focus {
+    border-color: #fed7aa;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(254, 215, 170, 0.3);
+}
+
+.steal-roll-btn {
+    background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    border: 2px solid #fb923c;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.steal-roll-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(234, 88, 12, 0.4);
+    border-color: #fed7aa;
+}
+
+.steal-result-area {
+    margin: 1.5rem 0;
+}
+
+.steal-result-area h4 {
+    color: #fed7aa;
+    margin-bottom: 1rem;
+}
+
+.steal-continue {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.steal-actions {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.steal-runners-info ul {
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+}
+
+.steal-runners-info li {
+    margin: 0.25rem 0;
+}
+
+
 /*
   CONTENEDOR DE CONTROLES DEL JUEGO
   Botones para iniciar, pausar, reiniciar el juego
@@ -2343,4 +2646,322 @@ body {
     font-size: 0.75rem;
     line-height: 1.3;
     text-align: left;
+}
+
+/* ===== SISTEMA DE TOKENS VISUALES EN EL DIAMANTE ===== */
+/* 
+   PROPÓSITO: Mostrar corredores como tokens animados sobre el diamante
+   FUNCIONAMIENTO: Capa superpuesta sobre la imagen del estadio con posiciones CSS absolutas
+   COORDENADAS: Posiciones de bases definidas como porcentajes para responsive design
+   ANIMACIONES: Transiciones CSS suaves para movimiento entre bases
+*/
+
+.diamond-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    /* Contenedor wrapper para la imagen y tokens */
+}
+
+.diamond-tokens-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* No interferir con clicks en la imagen */
+    z-index: 10;
+    /* Encima de la imagen del estadio */
+}
+
+/* Marcadores de bases (puntos de referencia) */
+.base-marker {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 2px solid #333;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    /* Centrar en las coordenadas */
+    opacity: 0.6;
+    /* Semi-transparente para no distraer */
+    transition: opacity 0.3s ease;
+}
+
+.base-marker:hover {
+    opacity: 1;
+    /* Más visible al hover para debug */
+}
+
+/* COORDENADAS DE LAS BASES EN EL DIAMANTE */
+/* Ajustadas según la imagen zelaia.jpg del diamante de béisbol */
+.base-marker[data-base="home"] {
+    left: 50%;
+    /* Centro horizontal */
+    top: 85%;
+    /* Parte inferior del diamante */
+}
+
+.base-marker[data-base="first"] {
+    left: 75%;
+    /* Lado derecho */
+    top: 65%;
+    /* Parte inferior-media */
+}
+
+.base-marker[data-base="second"] {
+    left: 50%;
+    /* Centro horizontal */
+    top: 35%;
+    /* Parte superior-media */
+}
+
+.base-marker[data-base="third"] {
+    left: 25%;
+    /* Lado izquierdo */
+    top: 65%;
+    /* Parte inferior-media */
+}
+
+/* Contenedor para todos los tokens de corredores */
+.runners-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    /* Espacio completo de la capa de tokens */
+}
+
+/* ESTILOS PARA TOKENS DE CORREDORES */
+.runner-token {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    /* Token circular */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    transform: translate(-50%, -50%);
+    /* Centrar en coordenadas */
+    transition: all 1.5s ease-in-out;
+    /* Animación suave para movimientos */
+    cursor: pointer;
+    pointer-events: auto;
+    /* Permitir interacción con tokens */
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 15;
+    /* Encima de los marcadores de base */
+}
+
+/* Colores por equipo */
+.runner-token.team-visitante {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    /* Azul para visitante */
+}
+
+.runner-token.team-local {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    /* Rojo para local */
+}
+
+/* Efectos hover en tokens */
+.runner-token:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    /* Agrandar al hover */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    /* Traer al frente al hacer hover */
+}
+
+/* Animación especial para carreras anotadas */
+.runner-token.scoring {
+    animation: scoreRun 2s ease-in-out forwards;
+}
+
+@keyframes scoreRun {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.3);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        border-color: #4caf50;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Texto dentro del token (nombre o número del jugador) */
+.runner-token .runner-name {
+    font-size: 9px;
+    line-height: 1;
+    text-align: center;
+    max-width: 28px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* RESPONSIVE: Ajustes para pantallas pequeñas */
+@media (max-width: 768px) {
+    .runner-token {
+        width: 28px;
+        height: 28px;
+        font-size: 9px;
+    }
+    
+    .runner-token .runner-name {
+        font-size: 8px;
+        max-width: 24px;
+    }
+    
+    .base-marker {
+        width: 6px;
+        height: 6px;
+    }
+}
+
+/* MODO DEBUG: Mostrar marcadores de base más visibles */
+.diamond-tokens-layer.debug-mode .base-marker {
+    opacity: 1;
+    background: #ff0000;
+    width: 12px;
+    height: 12px;
+    border: 3px solid white;
+    z-index: 25;
+}
+
+/* Animación de entrada para nuevos tokens */
+.runner-token.entering {
+    animation: tokenEnter 0.8s ease-out forwards;
+}
+
+@keyframes tokenEnter {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* ===== SISTEMA DE VALIDACIÓN DE OPCIONES DE INTENCIÓN ===== */
+/*
+  PROPÓSITO: Estilos para mostrar visualmente opciones disponibles vs no disponibles
+  FUNCIONALIDAD: Estados visual para botones del selector de intenciones
+*/
+
+/* Opciones disponibles - efecto de brillo sutil */
+.intention-btn.option-available {
+    position: relative;
+    border: 2px solid rgba(40, 167, 69, 0.3);
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.2);
+}
+
+.intention-btn.option-available:hover {
+    border-color: rgba(40, 167, 69, 0.6);
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Opciones no disponibles - efecto gris desactivado */
+.intention-btn.option-unavailable {
+    opacity: 0.4;
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #adb5bd !important;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.intention-btn.option-unavailable:hover {
+    opacity: 0.5;
+    transform: none;
+    box-shadow: none;
+}
+
+.intention-btn.option-unavailable::after {
+    content: '🚫';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Badge para mostrar número de opciones disponibles */
+.options-badge {
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Indicador de "Sin corredores" */
+.intention-btn.option-unavailable[data-reason="no-runners"]::before {
+    content: 'Necesitas corredores en bases';
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+.intention-btn.option-unavailable[data-reason="no-runners"]:hover::before {
+    opacity: 1;
+}
+
+/* Animación especial para opciones que se vuelven disponibles */
+.intention-btn.newly-available {
+    animation: becomeAvailable 0.6s ease-out;
+}
+
+@keyframes becomeAvailable {
+    0% {
+        opacity: 0.4;
+        transform: scale(0.95);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Efecto de pulso para opciones con múltiples sub-opciones */
+.intention-btn.has-multiple-options {
+    animation: multipleOptionsPulse 2s ease-in-out infinite;
+}
+
+@keyframes multipleOptionsPulse {
+    0%, 100% {
+        border-color: rgba(40, 167, 69, 0.3);
+    }
+    50% {
+        border-color: rgba(40, 167, 69, 0.6);
+        box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+    }
 }

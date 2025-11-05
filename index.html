@@ -7,7 +7,11 @@
     <!-- Hace que el diseño sea adaptable en móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juego de Béisbol Tiradados</title>
-    <!-- Enlace a los estilos CSS -->
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Enlace a los estilos CSS personalizados -->
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -380,21 +384,69 @@
                     </table>
                 </div>
 
-                <!-- Contenedor dinámico para sistema de dados -->
-                <div id="dice-container-visitante" class="dynamic-dice-container" style="display: block;">
-                    <div class="dice-system">
-                        <div class="dice-action-area">
-                            <div class="current-batter-info" id="current-batter-info">
-                                <span class="batter-name">Bateador Actual</span>
-                                <span class="batter-stats">AVG: .000</span>
+                <!-- CONTENEDOR DE DADOS CON OVERLAY DE INTENCIONES -->
+                <div class="dice-layers-container" style="position: relative;">
+                    <!-- CAPA SUPERIOR: SELECTOR DE INTENCIONES DEL BATEADOR (OVERLAY) -->
+                    <div id="intention-container-visitante" class="dynamic-dice-container intention-selector card shadow-lg mb-4" style="display: block; opacity: 1;">
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <h5 class="card-title text-white mb-1">
+                                    <i class="fas fa-bullseye me-2"></i>🎯 ¿Cuál es tu intención?
+                                </h5>
+                                <p class="card-text text-white-50 mb-0">Selecciona la estrategia del bateador</p>
                             </div>
-                            <div class="dice-controls">
-                                <!-- Dados visuales lado a lado -->
-                                <div class="dice-display">
-                                    <div class="dice-item">
-                                        <div class="dice-label">LANZADOR</div>
-                                        <div class="dice-visual" id="pitcher-dice">
-                                            <select class="dice-type-selector" id="pitcher-dice-type" onchange="updatePitcherDiceRange('visitante')">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <button class="btn intention-btn normal-hit w-100 py-3" onclick="selectIntention('normal')" id="intention-normal">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fs-4 mb-1">⚾</span>
+                                            <span class="fw-bold">Batear Normal</span>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn intention-btn steal-base w-100 py-3" onclick="selectIntention('steal')" id="intention-steal">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fs-4 mb-1">🏃‍♂️</span>
+                                            <span class="fw-bold">Robar Base</span>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn intention-btn bunt w-100 py-3" onclick="selectIntention('bunt')" id="intention-bunt">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fs-4 mb-1">🤏</span>
+                                            <span class="fw-bold">Toque/Bunt</span>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button class="btn intention-btn hit-run w-100 py-3" onclick="selectIntention('hitrun')" id="intention-hitrun">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <span class="fs-4 mb-1">⚡</span>
+                                            <span class="fw-bold">Hit & Run</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CAPA INFERIOR: Contenedor dinámico para sistema de dados -->
+                    <div id="dice-container-visitante" class="dynamic-dice-container" style="display: none;">
+                        <div class="dice-system">
+                            <div class="dice-action-area">
+                                <div class="current-batter-info" id="current-batter-info">
+                                    <span class="batter-name">Bateador Actual</span>
+                                    <span class="batter-stats">AVG: .000</span>
+                                </div>
+                                <div class="dice-controls">
+                                    <!-- Dados visuales lado a lado -->
+                                    <div class="dice-display">
+                                        <div class="dice-item">
+                                            <div class="dice-label">LANZADOR</div>
+                                            <div class="dice-visual" id="pitcher-dice">
+                                                <select class="dice-type-selector" id="pitcher-dice-type" onchange="updatePitcherDiceRange('visitante')">
                                                 <option value="20">D20</option>
                                                 <option value="12" selected>D12</option>
                                                 <option value="8">D8</option>
@@ -404,43 +456,46 @@
                                                 <option value="-12">-D12</option>
                                                 <option value="-20">-D20</option>
                                             </select>
-                                            <input type="number" class="dice-value-input" id="pitcher-dice-value" placeholder="-" min="-20" max="20">
-                                            <div class="mini-dice" onclick="rollPitcherDice('visitante')" title="Tirar dado del lanzador">🎲</div>
+                                                <input type="number" class="dice-value-input" id="pitcher-dice-value" placeholder="-" min="-20" max="20">
+                                                <div class="mini-dice" onclick="rollPitcherDice('visitante')" title="Tirar dado del lanzador">🎲</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="dice-operator">+</div>
-                                    <div class="dice-item">
-                                        <div class="dice-label">BATEADOR</div>
-                                        <div class="dice-visual" id="batter-dice">
-                                            <span class="dice-type">D100</span>
-                                            <input type="number" class="dice-value-input" id="batter-dice-value" placeholder="-" min="1" max="100">
-                                            <div class="mini-dice" onclick="rollBatterDice('visitante')" title="Tirar dado del bateador">🎲</div>
+                                        <div class="dice-operator">+</div>
+                                        <div class="dice-item">
+                                            <div class="dice-label">BATEADOR</div>
+                                            <div class="dice-visual" id="batter-dice">
+                                                <span class="dice-type">D100</span>
+                                                <input type="number" class="dice-value-input" id="batter-dice-value" placeholder="-" min="1" max="100">
+                                                <div class="mini-dice" onclick="rollBatterDice('visitante')" title="Tirar dado del bateador">🎲</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="dice-operator">=</div>
-                                    <div class="dice-item result">
-                                        <div class="dice-label">RESULTADO</div>
-                                        <div class="dice-visual result" id="total-result">
-                                            <span class="dice-value" id="final-result">-</span>
+                                        <div class="dice-operator">=</div>
+                                        <div class="dice-item result">
+                                            <div class="dice-label">RESULTADO</div>
+                                            <div class="dice-visual result" id="total-result">
+                                                <span class="dice-value" id="final-result">-</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div class="result-section">
-                                    <div class="result-description" id="result-description">
-                                        Esperando tirada...
                                     </div>
 
-                                    <div class="result-confirmation" id="result-confirmation" style="display: none;">
-                                        <button class="confirm-result-btn" onclick="confirmResult('visitante')" id="confirm-btn">
+                                    <div class="result-section">
+                                        <div class="result-description" id="result-description">
+                                            Esperando tirada...
+                                        </div>
+
+                                        <div class="result-confirmation" id="result-confirmation" style="display: none;">
+                                            <button class="confirm-result-btn" onclick="confirmResult('visitante')" id="confirm-btn">
                                             ✓ Confirmar Resultado
                                         </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
+                <!-- Cierre del dice-layers-container -->
             </div>
 
             <!-- Columna central: terreno de juego y sistema de dados -->
@@ -452,12 +507,61 @@
                     </button>
                 </div>
 
-                <img src="zelaia.jpg" alt="Terreno de juego de béisbol" class="terreno-img">
+                <!-- ===== SISTEMA DE TOKENS VISUALES EN EL DIAMANTE ===== -->
+                <!-- 
+                    PROPÓSITO: Mostrar visualmente los corredores en las bases sobre el diamante
+                    FUNCIONALIDAD: Tokens se mueven con animaciones entre bases según las jugadas
+                    INTEGRACIÓN: Sincronizado con gameState.bases para mostrar estado actual
+                    RESPONSIVE: Se adapta al tamaño de la imagen del estadio
+                -->
+                <div class="diamond-container">
+                    <img src="zelaia.jpg" alt="Terreno de juego de béisbol" class="terreno-img">
+                    
+                    <!-- Capa superpuesta para tokens de corredores -->
+                    <div class="diamond-tokens-layer">
+                        <!-- Posiciones fijas de las bases para referencia -->
+                        <div class="base-marker" data-base="home" title="Home Plate"></div>
+                        <div class="base-marker" data-base="first" title="Primera Base"></div>
+                        <div class="base-marker" data-base="second" title="Segunda Base"></div>
+                        <div class="base-marker" data-base="third" title="Tercera Base"></div>
+                        
+                        <!-- Los tokens de corredores se añadirán dinámicamente aquí -->
+                        <div id="runners-container" class="runners-container">
+                            <!-- Los tokens de jugadores aparecerán aquí mediante JavaScript -->
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Controles del juego (solo botón de reiniciar) -->
                 <div class="game-controls">
                     <button id="reset-game-btn" class="reset-game-btn" onclick="resetGame()" style="display: none;">
                         🔄 Reiniciar Juego
+                    </button>
+                </div>
+
+                <!-- ===== BOTONES TEMPORALES DE PRUEBA ===== -->
+                <!-- NOTA: Estos botones se pueden remover en la versión final -->
+                <div class="debug-controls" style="text-align: center; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                    <small style="display: block; margin-bottom: 8px; color: #666; font-style: italic;">🧪 Controles de Desarrollo (temporales)</small>
+                    
+                    <button onclick="showIntentionSelector()" style="background: #059669; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
+                        🔧 Mostrar Selector
+                    </button>
+
+                    <button onclick="testStealSystem()" style="background: #dc2626; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
+                        🏃‍♂️ Test Robo
+                    </button>
+
+                    <button onclick="testTokenSystem()" style="background: #7c3aed; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
+                        💎 Test Tokens
+                    </button>
+
+                    <button onclick="testValidationSystem()" style="background: #f59e0b; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
+                        🔒 Test Validación
+                    </button>
+
+                    <button onclick="toggleBasePositionDebug()" style="background: #ef4444; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
+                        🎯 Posicionar Bases
                     </button>
                 </div>
 
@@ -909,7 +1013,10 @@
         </div>
     </div>
 
-    <!-- Enlazamos el archivo de JavaScript -->
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <!-- Enlazamos el archivo de JavaScript personalizado -->
     <script src="script.js"></script>
 </body>
 

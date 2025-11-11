@@ -357,6 +357,7 @@
     text-align: center;
     margin-top: 8px;
     outline: none;
+    appearance: textfield;
     -moz-appearance: textfield;
     /* Firefox */
 }
@@ -2648,7 +2649,10 @@ body {
     text-align: left;
 }
 
+
 /* ===== SISTEMA DE TOKENS VISUALES EN EL DIAMANTE ===== */
+
+
 /* 
    PROPÓSITO: Mostrar corredores como tokens animados sobre el diamante
    FUNCIONAMIENTO: Capa superpuesta sobre la imagen del estadio con posiciones CSS absolutas
@@ -2675,7 +2679,9 @@ body {
     /* Encima de la imagen del estadio */
 }
 
+
 /* Marcadores de bases (puntos de referencia) */
+
 .base-marker {
     position: absolute;
     width: 8px;
@@ -2695,8 +2701,12 @@ body {
     /* Más visible al hover para debug */
 }
 
+
 /* COORDENADAS DE LAS BASES EN EL DIAMANTE */
+
+
 /* Ajustadas según la imagen zelaia.jpg del diamante de béisbol */
+
 .base-marker[data-base="home"] {
     left: 50%;
     /* Centro horizontal */
@@ -2725,7 +2735,9 @@ body {
     /* Parte inferior-media */
 }
 
+
 /* Contenedor para todos los tokens de corredores */
+
 .runners-container {
     position: relative;
     width: 100%;
@@ -2733,7 +2745,9 @@ body {
     /* Espacio completo de la capa de tokens */
 }
 
+
 /* ESTILOS PARA TOKENS DE CORREDORES */
+
 .runner-token {
     position: absolute;
     width: 32px;
@@ -2760,7 +2774,9 @@ body {
     /* Encima de los marcadores de base */
 }
 
+
 /* Colores por equipo */
+
 .runner-token.team-visitante {
     background: linear-gradient(135deg, #1e40af, #3b82f6);
     /* Azul para visitante */
@@ -2771,7 +2787,9 @@ body {
     /* Rojo para local */
 }
 
+
 /* Efectos hover en tokens */
+
 .runner-token:hover {
     transform: translate(-50%, -50%) scale(1.1);
     /* Agrandar al hover */
@@ -2780,7 +2798,9 @@ body {
     /* Traer al frente al hacer hover */
 }
 
+
 /* Animación especial para carreras anotadas */
+
 .runner-token.scoring {
     animation: scoreRun 2s ease-in-out forwards;
 }
@@ -2800,7 +2820,9 @@ body {
     }
 }
 
+
 /* Texto dentro del token (nombre o número del jugador) */
+
 .runner-token .runner-name {
     font-size: 9px;
     line-height: 1;
@@ -2811,26 +2833,28 @@ body {
     white-space: nowrap;
 }
 
+
 /* RESPONSIVE: Ajustes para pantallas pequeñas */
+
 @media (max-width: 768px) {
     .runner-token {
         width: 28px;
         height: 28px;
         font-size: 9px;
     }
-    
     .runner-token .runner-name {
         font-size: 8px;
         max-width: 24px;
     }
-    
     .base-marker {
         width: 6px;
         height: 6px;
     }
 }
 
+
 /* MODO DEBUG: Mostrar marcadores de base más visibles */
+
 .diamond-tokens-layer.debug-mode .base-marker {
     opacity: 1;
     background: #ff0000;
@@ -2840,7 +2864,9 @@ body {
     z-index: 25;
 }
 
+
 /* Animación de entrada para nuevos tokens */
+
 .runner-token.entering {
     animation: tokenEnter 0.8s ease-out forwards;
 }
@@ -2859,13 +2885,18 @@ body {
     }
 }
 
+
 /* ===== SISTEMA DE VALIDACIÓN DE OPCIONES DE INTENCIÓN ===== */
+
+
 /*
   PROPÓSITO: Estilos para mostrar visualmente opciones disponibles vs no disponibles
   FUNCIONALIDAD: Estados visual para botones del selector de intenciones
 */
 
+
 /* Opciones disponibles - efecto de brillo sutil */
+
 .intention-btn.option-available {
     position: relative;
     border: 2px solid rgba(40, 167, 69, 0.3);
@@ -2878,7 +2909,9 @@ body {
     transform: translateY(-2px);
 }
 
+
 /* Opciones no disponibles - efecto gris desactivado */
+
 .intention-btn.option-unavailable {
     opacity: 0.4;
     background: #6c757d !important;
@@ -2903,13 +2936,17 @@ body {
     opacity: 0.8;
 }
 
+
 /* Badge para mostrar número de opciones disponibles */
+
 .options-badge {
     pointer-events: none;
     z-index: 5;
 }
 
+
 /* Indicador de "Sin corredores" */
+
 .intention-btn.option-unavailable[data-reason="no-runners"]::before {
     content: 'Necesitas corredores en bases';
     position: absolute;
@@ -2931,7 +2968,9 @@ body {
     opacity: 1;
 }
 
+
 /* Animación especial para opciones que se vuelven disponibles */
+
 .intention-btn.newly-available {
     animation: becomeAvailable 0.6s ease-out;
 }
@@ -2951,13 +2990,16 @@ body {
     }
 }
 
+
 /* Efecto de pulso para opciones con múltiples sub-opciones */
+
 .intention-btn.has-multiple-options {
     animation: multipleOptionsPulse 2s ease-in-out infinite;
 }
 
 @keyframes multipleOptionsPulse {
-    0%, 100% {
+    0%,
+    100% {
         border-color: rgba(40, 167, 69, 0.3);
     }
     50% {

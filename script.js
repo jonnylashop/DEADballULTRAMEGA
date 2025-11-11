@@ -171,14 +171,14 @@ function updateGameDisplay() {
     highlightCurrentBatter(); // Resalta al bateador actual en las alineaciones
     updateGameInfo(); // Actualiza información del juego (outs, strikes/balls)
     updateBasesDisplay(); // Actualiza visualización de corredores en bases
-    
+
     // NUEVO: Actualizar validación de opciones de intención cuando hay cambios en el estado
     if (gameState.isGameActive) {
         const intentionContainer = document.getElementById('intention-container-visitante');
-        const isIntentionSelectorVisible = intentionContainer && 
+        const isIntentionSelectorVisible = intentionContainer &&
             intentionContainer.style.display !== 'none' &&
             intentionContainer.style.visibility !== 'hidden';
-        
+
         if (isIntentionSelectorVisible) {
             updateIntentionSelector();
         }
@@ -713,10 +713,10 @@ function initializeGame() {
 
 // Coordenadas de las bases en el diamante (porcentajes para responsive)
 const basePositions = {
-    home: { x: '50%', y: '40%' },    // Home plate - ajustado por usuario
-    first: { x: '39%', y: '51%' },   // Primera base - ajustado por usuario
-    second: { x: '52%', y: '62%' },  // Segunda base - ajustado por usuario
-    third: { x: '61%', y: '51%' }    // Tercera base - ajustado por usuario
+    home: { x: '50%', y: '40%' }, // Home plate - ajustado por usuario
+    first: { x: '39%', y: '51%' }, // Primera base - ajustado por usuario
+    second: { x: '52%', y: '62%' }, // Segunda base - ajustado por usuario
+    third: { x: '61%', y: '51%' } // Tercera base - ajustado por usuario
 };
 
 /**
@@ -727,26 +727,26 @@ const basePositions = {
  */
 function createRunnerToken(player, base) {
     console.log(`🏃 Creando token para ${player.name} en ${base}`);
-    
+
     const token = document.createElement('div');
     token.className = `runner-token team-${player.team} entering`;
     token.dataset.playerId = player.id;
     token.dataset.currentBase = base;
-    
+
     // Crear contenido del token (nombre abreviado o número)
     const nameSpan = document.createElement('span');
     nameSpan.className = 'runner-name';
     nameSpan.textContent = player.name.split(' ').map(n => n[0]).join('') || player.number || '?';
     token.appendChild(nameSpan);
-    
+
     // Posicionar en la base especificada
     const position = basePositions[base];
     token.style.left = position.x;
     token.style.top = position.y;
-    
+
     // Añadir tooltip con información completa
     token.title = `${player.name} (${player.team}) - ${base} base`;
-    
+
     // Añadir al contenedor de tokens
     const container = document.getElementById('runners-container');
     if (container) {
@@ -754,12 +754,12 @@ function createRunnerToken(player, base) {
     } else {
         console.error('❌ No se encontró el contenedor de runners');
     }
-    
+
     // Remover clase de entrada después de la animación
     setTimeout(() => {
         token.classList.remove('entering');
     }, 800);
-    
+
     return token;
 }
 
@@ -772,23 +772,23 @@ function createRunnerToken(player, base) {
  */
 function moveRunner(playerId, fromBase, toBase, callback = null) {
     console.log(`🏃‍♂️ Moviendo jugador ${playerId} de ${fromBase} a ${toBase}`);
-    
+
     const token = document.querySelector(`[data-player-id="${playerId}"]`);
     if (!token) {
         console.error(`❌ No se encontró token para jugador ${playerId}`);
         return;
     }
-    
+
     // Actualizar posición de destino
     const toPosition = basePositions[toBase];
     token.style.left = toPosition.x;
     token.style.top = toPosition.y;
     token.dataset.currentBase = toBase;
-    
+
     // Actualizar tooltip
     const playerName = token.querySelector('.runner-name').textContent;
     token.title = `${playerName} - ${toBase} base`;
-    
+
     // Ejecutar callback después de la animación (1.5s según CSS)
     if (callback) {
         setTimeout(callback, 1500);
@@ -802,26 +802,26 @@ function moveRunner(playerId, fromBase, toBase, callback = null) {
  */
 function scoreRun(playerId, callback = null) {
     console.log(`⚾ ¡Carrera anotada! Jugador ${playerId}`);
-    
+
     const token = document.querySelector(`[data-player-id="${playerId}"]`);
     if (!token) {
         console.error(`❌ No se encontró token para jugador ${playerId}`);
         return;
     }
-    
+
     // Mover a home plate y añadir animación de carrera
     const homePosition = basePositions.home;
     token.style.left = homePosition.x;
     token.style.top = homePosition.y;
     token.classList.add('scoring');
-    
+
     // Remover token después de la animación (2s)
     setTimeout(() => {
         if (token.parentNode) {
             token.parentNode.removeChild(token);
         }
         console.log(`✅ Token de ${playerId} removido después de anotar`);
-        
+
         if (callback) {
             callback();
         }
@@ -834,7 +834,7 @@ function scoreRun(playerId, callback = null) {
  */
 function removeRunnerToken(playerId) {
     console.log(`🗑️ Eliminando token de jugador ${playerId}`);
-    
+
     const token = document.querySelector(`[data-player-id="${playerId}"]`);
     if (token && token.parentNode) {
         token.parentNode.removeChild(token);
@@ -848,17 +848,17 @@ function removeRunnerToken(playerId) {
  */
 function updateDiamondDisplay() {
     console.log('💎 Actualizando visualización del diamante...');
-    
+
     const container = document.getElementById('runners-container');
     if (!container) {
         console.warn('⚠️ No se encontró contenedor de runners - sistema de tokens deshabilitado');
         return;
     }
-    
+
     // Limpiar tokens existentes
     container.innerHTML = '';
     console.log('🧹 Tokens existentes limpiados');
-    
+
     // Crear tokens para corredores actuales
     ['first', 'second', 'third'].forEach(base => {
         const runner = gameState.bases[base];
@@ -867,7 +867,7 @@ function updateDiamondDisplay() {
             createRunnerToken(runner, base);
         }
     });
-    
+
     console.log('✅ Visualización del diamante actualizada');
 }
 
@@ -878,13 +878,13 @@ function updateDiamondDisplay() {
  */
 function addRunnerToBase(player, base) {
     console.log(`➕ Añadiendo ${player.name} a ${base} base`);
-    
+
     // Actualizar gameState
     gameState.bases[base] = player;
-    
+
     // Crear token visual
     createRunnerToken(player, base);
-    
+
     console.log(`✅ ${player.name} añadido a ${base} base`);
 }
 
@@ -900,14 +900,14 @@ function moveRunnerBetweenBases(fromBase, toBase, callback = null) {
         console.warn(`⚠️ No hay corredor en ${fromBase} para mover`);
         return;
     }
-    
+
     console.log(`🔄 Moviendo ${runner.name} de ${fromBase} a ${toBase}`);
-    
+
     // Si es carrera anotada (toBase = 'home')
     if (toBase === 'home') {
         // Actualizar gameState primero
         gameState.bases[fromBase] = null;
-        
+
         // Animar carrera anotada
         scoreRun(runner.id, () => {
             // Sumar carrera al marcador
@@ -915,19 +915,19 @@ function moveRunnerBetweenBases(fromBase, toBase, callback = null) {
             const currentInning = gameState.currentInning - 1; // Array indexing
             gameState.score[currentTeam][currentInning]++;
             gameState.score[`total${currentTeam.charAt(0).toUpperCase() + currentTeam.slice(1)}`]++;
-            
+
             // Actualizar marcador visual
             updateGameDisplay();
-            
+
             console.log(`⚾ ¡Carrera anotada por ${runner.name}!`);
-            
+
             if (callback) callback();
         });
     } else {
         // Movimiento normal entre bases
         gameState.bases[toBase] = runner;
         gameState.bases[fromBase] = null;
-        
+
         moveRunner(runner.id, fromBase, toBase, callback);
     }
 }
@@ -938,7 +938,7 @@ function moveRunnerBetweenBases(fromBase, toBase, callback = null) {
  */
 function testTokenSystem() {
     console.log('🧪 Ejecutando prueba del sistema de tokens...');
-    
+
     // Jugador de prueba
     const testPlayer = {
         id: 'test-player-1',
@@ -946,26 +946,26 @@ function testTokenSystem() {
         team: 'visitante',
         number: '7'
     };
-    
+
     // Limpiar y reiniciar
     updateDiamondDisplay();
-    
+
     // Secuencia de prueba
     setTimeout(() => {
         console.log('📍 Paso 1: Añadir corredor a primera base');
         addRunnerToBase(testPlayer, 'first');
     }, 1000);
-    
+
     setTimeout(() => {
         console.log('📍 Paso 2: Mover a segunda base');
         moveRunnerBetweenBases('first', 'second');
     }, 3000);
-    
+
     setTimeout(() => {
         console.log('📍 Paso 3: Mover a tercera base');
         moveRunnerBetweenBases('second', 'third');
     }, 5000);
-    
+
     setTimeout(() => {
         console.log('📍 Paso 4: Anotar carrera');
         moveRunnerBetweenBases('third', 'home');
@@ -978,14 +978,14 @@ function testTokenSystem() {
  */
 function toggleBasePositionDebug() {
     const tokensLayer = document.querySelector('.diamond-tokens-layer');
-    
+
     if (!tokensLayer) {
         console.error('❌ No se encontró la capa de tokens');
         return;
     }
-    
+
     const isDebugActive = tokensLayer.classList.contains('debug-mode');
-    
+
     if (isDebugActive) {
         // Desactivar debug
         tokensLayer.classList.remove('debug-mode');
@@ -1007,32 +1007,32 @@ function toggleBasePositionDebug() {
  */
 function adjustBasePosition(baseName, x, y) {
     console.log(`🎯 Ajustando ${baseName} base a posición: ${x}, ${y}`);
-    
+
     // Actualizar el objeto de coordenadas
     if (basePositions[baseName]) {
         basePositions[baseName].x = x;
         basePositions[baseName].y = y;
-        
+
         // Actualizar marcador visual inmediatamente
         const marker = document.querySelector(`[data-base="${baseName}"]`);
         if (marker) {
             marker.style.left = x;
             marker.style.top = y;
         }
-        
+
         // Actualizar tokens existentes en esa base
         const tokens = document.querySelectorAll(`[data-current-base="${baseName}"]`);
         tokens.forEach(token => {
             token.style.left = x;
             token.style.top = y;
         });
-        
+
         console.log(`✅ ${baseName} base reposicionada a ${x}, ${y}`);
-        
+
         // Mostrar coordenadas actuales de todas las bases
         console.log('📍 Coordenadas actuales de las bases:');
         console.log('basePositions =', JSON.stringify(basePositions, null, 2));
-        
+
     } else {
         console.error(`❌ Base "${baseName}" no encontrada`);
         console.log('Bases válidas: home, first, second, third');
@@ -1058,44 +1058,44 @@ function adjustBasePosition(baseName, x, y) {
 function validateIntentionOptions() {
     console.log('🔍 Validando opciones de intención disponibles...');
     console.log('🔍 gameState.bases actual:', gameState.bases);
-    
-    const hasRunnersOnBase = gameState.bases.first !== null || 
-                           gameState.bases.second !== null || 
-                           gameState.bases.third !== null;
-    
+
+    const hasRunnersOnBase = gameState.bases.first !== null ||
+        gameState.bases.second !== null ||
+        gameState.bases.third !== null;
+
     console.log('🔍 ¿Hay corredores en base?', hasRunnersOnBase);
-    
+
     // Detectar opciones específicas de robo disponibles
     const availableStealOptions = detectAvailableRunners();
     const canSteal = availableStealOptions.length > 0;
-    
+
     console.log('🔍 Opciones de robo detectadas:', availableStealOptions);
     console.log('🔍 ¿Puede robar?', canSteal);
-    
+
     // Hit & Run requiere al menos un corredor en base
     const canHitAndRun = hasRunnersOnBase;
-    
+
     // Bunt siempre está disponible
     const canBunt = true;
-    
+
     // Batear normal siempre está disponible  
     const canBatNormal = true;
-    
+
     const validation = {
         normal: { available: canBatNormal, reason: '' },
-        steal: { 
-            available: canSteal, 
+        steal: {
+            available: canSteal,
             reason: canSteal ? '' : 'No hay corredores en bases para robar',
             availableOptions: availableStealOptions.length,
             details: availableStealOptions.map(opt => opt.displayName)
         },
         bunt: { available: canBunt, reason: '' },
-        hitrun: { 
-            available: canHitAndRun, 
+        hitrun: {
+            available: canHitAndRun,
             reason: canHitAndRun ? '' : 'Necesitas corredores en bases para Hit & Run'
         }
     };
-    
+
     console.log('📋 Resultado de validación:', validation);
     return validation;
 }
@@ -1106,16 +1106,16 @@ function validateIntentionOptions() {
  */
 function updateIntentionSelector(validation = null) {
     console.log('🎯 Actualizando selector de intenciones...');
-    
+
     if (!validation) {
         validation = validateIntentionOptions();
     }
-    
+
     // Actualizar cada botón según su disponibilidad
     Object.keys(validation).forEach(intention => {
         const button = document.getElementById(`intention-${intention}`);
         const isAvailable = validation[intention].available;
-        
+
         if (button) {
             if (isAvailable) {
                 // Opción disponible
@@ -1134,10 +1134,10 @@ function updateIntentionSelector(validation = null) {
             }
         }
     });
-    
+
     // Actualizar indicadores visuales especiales
     updateIntentionIndicators(validation);
-    
+
     console.log('✅ Selector de intenciones actualizado');
 }
 
@@ -1151,7 +1151,7 @@ function updateIntentionIndicators(validation) {
     if (stealButton && validation.steal.available) {
         const optionsCount = validation.steal.availableOptions;
         const existingBadge = stealButton.querySelector('.options-badge');
-        
+
         if (existingBadge) {
             existingBadge.textContent = optionsCount;
         } else {
@@ -1160,7 +1160,7 @@ function updateIntentionIndicators(validation) {
             badge.style.cssText = 'font-size: 0.7rem; transform: translate(25%, -25%);';
             badge.textContent = optionsCount;
             badge.title = `${optionsCount} opciones disponibles: ${validation.steal.details.join(', ')}`;
-            
+
             stealButton.style.position = 'relative';
             stealButton.appendChild(badge);
         }
@@ -1178,10 +1178,10 @@ function updateIntentionIndicators(validation) {
  */
 function showIntentionSelectorWithValidation() {
     console.log('🎯 Mostrando selector de intenciones con validación...');
-    
+
     // Primero mostrar el selector normal
     showIntentionSelector();
-    
+
     // Luego validar y actualizar opciones
     setTimeout(() => {
         updateIntentionSelector();
@@ -1194,26 +1194,26 @@ function showIntentionSelectorWithValidation() {
  */
 function testValidationSystem() {
     console.log('🧪 Ejecutando prueba del sistema de validación...');
-    
+
     // Limpiar bases para empezar
     gameState.bases = { first: null, second: null, third: null };
     updateIntentionSelector();
     console.log('📍 Paso 1: Sin corredores - robo y hit&run deshabilitados');
-    
+
     setTimeout(() => {
         // Añadir corredor en primera
         gameState.bases.first = { id: 'test1', name: 'Juan Pérez', team: 'visitante' };
         updateIntentionSelector();
         console.log('📍 Paso 2: Corredor en 1ª - robo (1 opción) y hit&run habilitados');
     }, 2000);
-    
+
     setTimeout(() => {
         // Añadir corredor en segunda también
         gameState.bases.second = { id: 'test2', name: 'María García', team: 'visitante' };
         updateIntentionSelector();
         console.log('📍 Paso 3: Corredores en 1ª y 2ª - robo (3 opciones) incluyendo doble robo');
     }, 4000);
-    
+
     setTimeout(() => {
         // Limpiar para volver al estado inicial
         gameState.bases = { first: null, second: null, third: null };
@@ -2940,7 +2940,7 @@ function showIntentionSelector() {
     // Limpiar la intención del gameState
     gameState.currentIntention = null;
     console.log('🧹 Estado de intención limpiado');
-    
+
     // NUEVO: Validar y actualizar opciones disponibles
     setTimeout(() => {
         updateIntentionSelector();

@@ -17,6 +17,27 @@
 }
 
 
+/* Resaltar fila del bateador actual */
+
+.current-batter-row {
+    background: linear-gradient(90deg, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.1)) !important;
+    border-left: 4px solid #fbbf24 !important;
+    font-weight: bold !important;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    animation: batterRowPulse 2s ease-in-out infinite;
+}
+
+@keyframes batterRowPulse {
+    0%,
+    100% {
+        box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
+    }
+}
+
+
 /* Espaciado estático para elementos de la columna central */
 
 .col-central>.marcador-container {
@@ -775,8 +796,8 @@ body {
     /* Altura exacta del contenido */
     max-height: calc(100vh - 80px);
     /* Máximo para evitar scroll */
-    overflow-y: hidden;
-    /* Sin scroll interno por defecto */
+    overflow-y: auto;
+    /* Scroll vertical cuando sea necesario */
 }
 
 .col-visitante {
@@ -2886,6 +2907,44 @@ body {
 }
 
 
+/* Animación especial para el bateador actual */
+
+.runner-token.current-batter {
+    animation: batterPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
+    border: 3px solid #fbbf24;
+}
+
+@keyframes batterPulse {
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 0 0 25px rgba(251, 191, 36, 1);
+    }
+}
+
+
+/* Nombre del jugador dentro del token */
+
+.runner-token .player-name {
+    font-size: 10px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px black;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 2px;
+    line-height: 1.1;
+}
+
+
 /* ===== SISTEMA DE VALIDACIÓN DE OPCIONES DE INTENCIÓN ===== */
 
 
@@ -3006,4 +3065,74 @@ body {
         border-color: rgba(40, 167, 69, 0.6);
         box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
     }
+}
+
+
+/* Estilos para el Banquillo */
+
+.bench-container {
+    margin-top: 1rem;
+    background: rgba(30, 30, 50, 0.5);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.bench-table {
+    font-size: 0.85rem;
+}
+
+.bench-table tbody tr {
+    background: rgba(20, 20, 40, 0.6);
+    transition: all 0.3s ease;
+}
+
+.bench-table tbody tr:hover {
+    background: rgba(40, 40, 60, 0.8);
+    transform: translateX(3px);
+}
+
+.bench-table .player-row[draggable="true"] {
+    cursor: grab;
+}
+
+.bench-table .player-row[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+
+/* Jugador sustituido en banquillo */
+
+.bench-table .player-row.substituted {
+    text-decoration: line-through;
+    opacity: 0.6;
+    font-style: italic;
+}
+
+
+/* Animación drag and drop */
+
+.player-row.dragging {
+    opacity: 0.4;
+    background: rgba(251, 191, 36, 0.2);
+    border: 2px dashed #fbbf24;
+}
+
+.player-row.drag-over {
+    background: rgba(59, 130, 246, 0.3);
+    border-top: 3px solid #3b82f6;
+}
+
+
+/* Campos editables estilo Excel */
+
+[contenteditable="true"]:hover {
+    background: rgba(251, 191, 36, 0.1);
+    outline: 1px solid rgba(251, 191, 36, 0.3);
+    cursor: text;
+}
+
+[contenteditable="true"]:focus {
+    background: rgba(251, 191, 36, 0.2);
+    outline: 2px solid #fbbf24;
 }

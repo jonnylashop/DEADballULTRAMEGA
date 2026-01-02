@@ -800,10 +800,17 @@
 
                 </div>
                 <!-- Cierre del dice-layers-container -->
+            </div>
+            <!-- Fin columna visitante -->
+
+            <!-- Columna central: terreno de juego y sistema de dados -->
+            <div class="col col-central">
+
+                <!-- Botón de iniciar juego encima del estadio -->
 
                 <!-- SWING RESULT TABLE -->
-                <div id="swing-result-table-container" class="result-table-container" style="display: none; margin-top: 20px;">
-                    <div class="card shadow-lg">
+                <div id="swing-result-table-container" class="result-table-inline" style="display: none; margin-bottom: 20px; animation: slideDown 0.3s ease-out;">
+                    <div class="card shadow-lg" style="border: 2px solid #fbbf24;">
                         <div class="card-body">
                             <h5 class="card-title text-center text-white mb-3">
                                 <span id="batter-name-display" class="text-warning">--</span><small class="text-warning"> (BT:<span id="bt-value">--</span> | OBT:<span id="obt-value">--</span>)</small> - SWING RESULT TABLE
@@ -875,10 +882,244 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Columna central: terreno de juego y sistema de dados -->
-            <div class="col col-central">
+                <!-- HIT TABLE (D20) -->
+                <div id="hit-table-container" class="result-table-inline" style="display: none; margin-bottom: 20px; animation: slideDown 0.3s ease-out;">
+                    <div class="card shadow-lg" style="border: 2px solid #10b981;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">
+                                ⚾ HIT TABLE (D20)
+                            </h5>
+
+                            <div class="dice-display mb-4" style="justify-content: center;">
+                                <div class="dice-item">
+                                    <div class="dice-label">D20</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D20</span>
+                                        <input type="number" class="dice-value-input" id="hit-d20-value" placeholder="-" min="1" max="20" readonly>
+                                        <div class="mini-dice" onclick="rollHitD20()" title="Tirar D20">🎲</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-dark table-striped table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Roll</th>
+                                        <th style="width: 40%;">Result</th>
+                                        <th style="width: 40%;">You Write</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-hit="1-2">
+                                        <td><strong>1-2</strong></td>
+                                        <td>Single</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="3">
+                                        <td><strong>3</strong></td>
+                                        <td>Single, DEF (1B)</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="4">
+                                        <td><strong>4</strong></td>
+                                        <td>Single, DEF (2B)</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="5">
+                                        <td><strong>5</strong></td>
+                                        <td>Single, DEF (3B)</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="6">
+                                        <td><strong>6</strong></td>
+                                        <td>Single, DEF (SS)</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="7-9">
+                                        <td><strong>7-9</strong></td>
+                                        <td>Single</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="10-14">
+                                        <td><strong>10-14</strong></td>
+                                        <td>Single, runners adv. 2</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="15">
+                                        <td><strong>15</strong></td>
+                                        <td>Double, DEF (LF)</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="16">
+                                        <td><strong>16</strong></td>
+                                        <td>Double, DEF (CF)</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="17">
+                                        <td><strong>17</strong></td>
+                                        <td>Double, DEF (RF)</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="18">
+                                        <td><strong>18</strong></td>
+                                        <td>Double, runners adv. 3</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr data-hit="19-20">
+                                        <td><strong>19-20</strong></td>
+                                        <td>Home Run</td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div id="hit-result-display" class="text-center mb-3" style="display: none; padding: 10px; background: rgba(16, 185, 129, 0.2); border-radius: 6px; color: white; font-size: 1.1rem;">
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success" onclick="closeHitTable()" id="hit-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DEFENSE TABLE (D12) -->
+                <div id="defense-table-container" class="result-table-inline" style="display: none; margin-bottom: 20px; animation: slideDown 0.3s ease-out;">
+                    <div class="card shadow-lg" style="border: 2px solid #f59e0b;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">
+                                🛡️ DEFENSE TABLE (D12) - <span id="defense-position-label">Position</span>
+                            </h5>
+
+                            <div class="dice-display mb-4" style="justify-content: center;">
+                                <div class="dice-item">
+                                    <div class="dice-label">D12</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D12</span>
+                                        <input type="number" class="dice-value-input" id="defense-d12-value" placeholder="-" min="1" max="12" readonly>
+                                        <div class="mini-dice" onclick="rollDefenseD12()" title="Tirar D12">🎲</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-dark table-striped table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Roll</th>
+                                        <th style="width: 80%;">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-defense="1-2">
+                                        <td><strong>1-2</strong></td>
+                                        <td>Error. Runners take an extra base.</td>
+                                    </tr>
+                                    <tr data-defense="3-9">
+                                        <td><strong>3-9</strong></td>
+                                        <td>No change</td>
+                                    </tr>
+                                    <tr data-defense="10-11">
+                                        <td><strong>10-11</strong></td>
+                                        <td>Double turns into a single, runners advance 2.</td>
+                                    </tr>
+                                    <tr data-defense="12">
+                                        <td><strong>12</strong></td>
+                                        <td>Hit turned into out. Runners hold.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div id="defense-result-display" class="text-center mb-3" style="display: none; padding: 10px; background: rgba(245, 158, 11, 0.2); border-radius: 6px; color: white; font-size: 1.1rem;">
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success" onclick="closeDefenseTable()" id="defense-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OUT TABLE (Referencia para posición defensiva) -->
+                <div id="out-table-container" class="result-table-inline" style="display: none; margin-bottom: 20px; animation: slideDown 0.3s ease-out;">
+                    <div class="card shadow-lg" style="border: 2px solid #ef4444;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">
+                                🚫 OUT TABLE - Último dígito MSS: <span id="out-last-digit">-</span>
+                            </h5>
+
+                            <table class="table table-dark table-striped table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Last Digit</th>
+                                        <th style="width: 40%;">Result</th>
+                                        <th style="width: 35%;">You Write</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-out="0">
+                                        <td><strong>0</strong></td>
+                                        <td>Strikeout</td>
+                                        <td>(K)</td>
+                                    </tr>
+                                    <tr data-out="1">
+                                        <td><strong>1</strong></td>
+                                        <td>Strikeout</td>
+                                        <td>(K)</td>
+                                    </tr>
+                                    <tr data-out="2">
+                                        <td><strong>2</strong></td>
+                                        <td>Strikeout</td>
+                                        <td>(K)</td>
+                                    </tr>
+                                    <tr data-out="3">
+                                        <td><strong>3</strong></td>
+                                        <td>Groundball to 1B</td>
+                                        <td>(G-3)</td>
+                                    </tr>
+                                    <tr data-out="4">
+                                        <td><strong>4</strong></td>
+                                        <td>Groundball to 2B</td>
+                                        <td>(4-3)</td>
+                                    </tr>
+                                    <tr data-out="5">
+                                        <td><strong>5</strong></td>
+                                        <td>Groundball to 3B</td>
+                                        <td>(5-3)</td>
+                                    </tr>
+                                    <tr data-out="6">
+                                        <td><strong>6</strong></td>
+                                        <td>Groundball to SS</td>
+                                        <td>(6-3)</td>
+                                    </tr>
+                                    <tr data-out="7">
+                                        <td><strong>7</strong></td>
+                                        <td>Pop-up to LF</td>
+                                        <td>(F-7)</td>
+                                    </tr>
+                                    <tr data-out="8">
+                                        <td><strong>8</strong></td>
+                                        <td>Pop-up to CF</td>
+                                        <td>(F-8)</td>
+                                    </tr>
+                                    <tr data-out="9">
+                                        <td><strong>9</strong></td>
+                                        <td>Pop-up to RF</td>
+                                        <td>(F-9)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div id="out-result-display" class="text-center mb-3" style="display: none; padding: 10px; background: rgba(239, 68, 68, 0.2); border-radius: 6px; color: white; font-size: 1.1rem;">
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-danger" onclick="closeOutTable()" id="out-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Botón de iniciar juego encima del estadio -->
                 <div class="start-game-container">
                     <button id="start-game-btn" class="start-game-btn" onclick="startNewGame()">
@@ -918,74 +1159,79 @@
                     </button>
                 </div>
 
-                <!-- ===== BOTONES TEMPORALES DE PRUEBA ===== -->
-                <!-- NOTA: Estos botones se pueden remover en la versión final -->
-                <div class="debug-controls" style="text-align: center; margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px;">
-                    <small style="display: block; margin-bottom: 8px; color: #666; font-style: italic;">🧪 Controles de Desarrollo (temporales)</small>
-
-                    <button onclick="showIntentionSelector()" style="background: #059669; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
-                        🔧 Mostrar Selector
-                    </button>
-
-                    <button onclick="testStealSystem()" style="background: #dc2626; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
-                        🏃‍♂️ Test Robo
-                    </button>
-
-                    <button onclick="testTokenSystem()" style="background: #7c3aed; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
-                        💎 Test Tokens
-                    </button>
-
-                    <button onclick="testValidationSystem()" style="background: #f59e0b; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
-                        🔒 Test Validación
-                    </button>
-
-                    <button onclick="toggleBasePositionDebug()" style="background: #ef4444; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
-                        🎯 Posicionar Bases
-                    </button>
-
-                    <button onclick="showOdditiesTable()" style="background: #8b5cf6; color: white; padding: 0.4rem 0.8rem; margin: 0.2rem; border: none; border-radius: 4px; font-size: 0.85rem;">
-                        🎲 Test Oddities
-                    </button>
-                </div>
-
-                <!-- Sistema de Cascada de Resolución -->
-                <div class="cascade-system" id="cascade-system" style="display: block;">
-                    <div class="cascade-header">
-                        <h3>🎲 Resolución de Jugada</h3>
-                        <div class="cascade-status">
-                            <span id="cascade-current-action">Sistema activo - Esperando tirada...</span>
+                <!-- ÁREA DE RESOLUCIÓN DE JUGADAS - Ocupa todo el espacio azul -->
+                <div id="plays-resolution-area" style="
+                    width: 100%;
+                    max-height: 400px;
+                    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e3a8a 100%);
+                    border-radius: 12px;
+                    padding: 20px;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 2px 8px rgba(255, 255, 255, 0.1);
+                    border: 2px solid rgba(59, 130, 246, 0.5);
+                    margin-top: 15px;
+                    overflow-y: auto;
+                ">
+                    <!-- Header del área de jugadas -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h3 style="color: #fbbf24; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-size: 1.5rem;">
+                            🎲 Resolución de Jugada
+                        </h3>
+                        <div id="play-status" style="color: #93c5fd; margin-top: 8px; font-size: 1rem; font-weight: 500;">
+                            ⚡ Sistema activo - Esperando tirada...
                         </div>
                     </div>
 
-                    <div class="cascade-flow" id="cascade-flow">
-                        <!-- Aquí se generarán las casillas de cascada dinámicamente -->
-                        <div class="cascade-step" id="cascade-step-1">
-                            <div class="cascade-result">
-                                <div class="result-label">Resultado Inicial</div>
-                                <div class="result-value" id="initial-result">-</div>
-                            </div>
-                            <div class="cascade-dropdown" id="cascade-dropdown-1" style="display: none;">
-                                <!-- Opciones se cargarán dinámicamente -->
-                            </div>
-                        </div>
+                    <!-- Contenedor donde aparecerán todas las tablas de cascada -->
+                    <div id="cascade-tables-container" style="
+                        display: flex;
+                        flex-direction: column;
+                        gap: 15px;
+                        width: 100%;
+                    ">
+                        <!-- Las tablas serán movidas aquí por JavaScript al cargar la página -->
                     </div>
 
-                    <!-- Botón de confirmación para siguiente bateador - SIEMPRE VISIBLE PARA PRUEBAS -->
-                    <div class="cascade-confirmation" id="cascade-confirmation" style="display: block; background: rgba(0,100,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
-                        <div class="confirmation-message">
-                            <span id="confirmation-text">🧪 MODO PRUEBAS - Botón siempre visible</span>
+                    <!-- SELECTOR DE TIPO DE ROBO -->
+                    <div id="steal-type-selector" style="display: none; text-align: center; padding: 20px;">
+                        <h4 style="color: #fbbf24; margin-bottom: 20px;">🏃‍♂️ Selecciona Tipo de Robo</h4>
+                        <div style="display: flex; gap: 20px; justify-content: center;">
+                            <button id="single-steal-btn" onclick="selectStealType('single')" style="
+                                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                                color: white;
+                                border: none;
+                                padding: 20px 40px;
+                                border-radius: 12px;
+                                font-size: 1.2rem;
+                                font-weight: bold;
+                                cursor: pointer;
+                                box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+                                transition: all 0.3s;
+                            " onmouseover="if(!this.disabled) this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                🏃‍♂️ Single Steal
+                            </button>
+                            <button id="double-steal-btn" onclick="selectStealType('double')" style="
+                                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                                color: white;
+                                border: none;
+                                padding: 20px 40px;
+                                border-radius: 12px;
+                                font-size: 1.2rem;
+                                font-weight: bold;
+                                cursor: pointer;
+                                box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+                                transition: all 0.3s;
+                            " onmouseover="if(!this.disabled) this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                🏃‍♂️🏃‍♂️ Double Steal
+                            </button>
                         </div>
-                        <button class="next-batter-btn" id="next-batter-btn" onclick="confirmAndNextBatter()" style="background: #059669; color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
-                            ⚾ Siguiente Bateador
-                        </button>
                     </div>
                 </div>
 
                 <!-- ODDITIES TABLE -->
-                <div id="oddities-table-container" class="result-table-container" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 9999; overflow-y: auto; padding: 20px;">
-                    <div class="card shadow-lg">
+                <div id="oddities-table-container" class="result-table-inline" style="display: none; margin-bottom: 20px; animation: slideDown 0.3s ease-out;">
+                    <div class="card shadow-lg" style="border: 2px solid #8b5cf6;">
                         <div class="card-body">
-                            <h5 class="card-title text-center text-white mb-3">ODDITIES TABLE (2d10)</h5>
+                            <h5 class="card-title text-center text-white mb-3">🎲 ODDITIES TABLE (2d10)</h5>
 
                             <!-- Sistema de dados 2d10 -->
                             <div class="dice-display mb-4">
@@ -1122,8 +1368,372 @@
                                     </tr>
                                 </tbody>
                             </table>
+
+                            <div id="oddity-result-display" class="text-center mb-3" style="display: none; padding: 10px; background: rgba(139, 92, 246, 0.2); border-radius: 6px; color: white; font-size: 1.1rem;">
+                            </div>
+
                             <div class="text-center mt-3">
-                                <button class="btn btn-success" onclick="closeOdditiesTable()">✓ Continuar</button>
+                                <button class="btn btn-success" onclick="closeOdditiesTable()" id="oddity-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BUNTING TABLE (D6) -->
+                <div id="bunting-table-container" class="result-table-inline" style="display: none; margin-bottom: 20px; animation: slideDown 0.3s ease-out;">
+                    <div class="card shadow-lg" style="border: 2px solid #f59e0b;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">⚾ BUNTING (D6)</h5>
+
+                            <!-- Sistema de dado D6 -->
+                            <div class="dice-display mb-3">
+                                <div class="dice-item">
+                                    <div class="dice-label">TOQUE (D6)</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D6</span>
+                                        <input type="number" class="dice-value-input" id="bunting-dice-value" placeholder="-" min="1" max="6">
+                                        <div class="mini-dice" onclick="rollBuntingD6()" title="Tirar D6">🎲</div>
+                                    </div>
+                                </div>
+                                <div class="dice-operator">=</div>
+                                <div class="dice-item result">
+                                    <div class="dice-label">RESULTADO</div>
+                                    <div class="dice-visual result">
+                                        <span class="dice-value" id="bunting-result-value">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-dark table-striped table-bordered table-sm" style="font-size: 0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%;">Roll</th>
+                                        <th style="width: 35%;">Situation</th>
+                                        <th style="width: 50%;">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-bunt="1-2">
+                                        <td><strong>1-2</strong></td>
+                                        <td>All batters</td>
+                                        <td>Lead runner out, batter safe</td>
+                                    </tr>
+                                    <tr data-bunt="3">
+                                        <td><strong>3</strong></td>
+                                        <td>Lead runner at 1st or 2nd<br>Lead runner at 3rd</td>
+                                        <td>Lead runner advances, batter out<br>Lead runner out, batter safe</td>
+                                    </tr>
+                                    <tr data-bunt="4-5">
+                                        <td><strong>4-5</strong></td>
+                                        <td>All batters</td>
+                                        <td>Lead runner advances, batter out</td>
+                                    </tr>
+                                    <tr data-bunt="6">
+                                        <td><strong>6</strong></td>
+                                        <td>5+ hitter batting<br>All other batters</td>
+                                        <td>Single, DEF (3B)<br>Lead runner advances, batter out</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div id="bunting-result-display" class="text-center mb-2" style="display: none; padding: 8px; background: rgba(245, 158, 11, 0.2); border-radius: 6px; color: white; font-size: 1rem;">
+                            </div>
+
+                            <div class="text-center mt-2">
+                                <button class="btn btn-success btn-sm" onclick="closeBuntingTable()" id="bunting-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MINI-TIRADOR D4 (Animal On Field) -->
+                <div id="d4-mini-roller-container" class="result-table-container" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 10000; overflow-y: auto; padding: 20px;">
+                    <div class="card shadow-lg" style="max-width: 500px; margin: 2rem auto;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">🐦 ANIMAL ON FIELD (D4)</h5>
+
+                            <div class="dice-display mb-4" style="justify-content: center;">
+                                <div class="dice-item">
+                                    <div class="dice-label">D4</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D4</span>
+                                        <input type="number" class="dice-value-input" id="d4-value" placeholder="-" min="1" max="4" readonly>
+                                        <div class="mini-dice" onclick="rollD4()" title="Tirar D4">🎲</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="d4-result-text" class="text-white text-center mb-3" style="font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; display: none;">
+                                <strong id="d4-animal-name"></strong>
+                                <p id="d4-animal-effect" style="margin-top: 0.5rem;"></p>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success" onclick="closeD4Roller()" id="d4-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MINI-TIRADOR D100 (Rain Delay) -->
+                <div id="d100-mini-roller-container" class="result-table-container" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 10000; overflow-y: auto; padding: 20px;">
+                    <div class="card shadow-lg" style="max-width: 500px; margin: 2rem auto;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">🌧️ RAIN DELAY (D100)</h5>
+
+                            <div class="dice-display mb-4" style="justify-content: center;">
+                                <div class="dice-item">
+                                    <div class="dice-label">D100</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D100</span>
+                                        <input type="number" class="dice-value-input" id="d100-value" placeholder="-" min="1" max="100" readonly>
+                                        <div class="mini-dice" onclick="rollD100ForRain()" title="Tirar D100">🎲</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="d100-result-text" class="text-white text-center mb-3" style="font-size: 1.3rem; padding: 1.5rem; background: rgba(100,149,237,0.3); border-radius: 8px; display: none;">
+                                <strong>⏱️ Retraso: <span id="d100-delay-minutes">-</span> minutos</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.8;">El juego se reanudará tras el retraso</p>
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success" onclick="closeD100Roller()" id="d100-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BASE STEALING TABLE (D8) -->
+                <div id="base-steal-table-container" class="result-table-container" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 10000; overflow-y: auto; padding: 20px;">
+                    <div class="card shadow-lg" style="max-width: 600px; margin: 2rem auto;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">🏃 BASE STEALING (D8)</h5>
+                            <p class="text-center text-white mb-3"><span id="base-steal-context"></span></p>
+
+                            <div class="dice-display mb-4" style="justify-content: center;">
+                                <div class="dice-item">
+                                    <div class="dice-label">D8</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D8</span>
+                                        <input type="number" class="dice-value-input" id="base-steal-d8-value" placeholder="-" min="1" max="8" readonly>
+                                        <div class="mini-dice" onclick="rollBaseStealD8()" title="Tirar D8">🎲</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-dark table-striped table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 30%;">Roll (D8)</th>
+                                        <th style="width: 70%;">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="base-steal-table-body">
+                                    <!-- Se llenará dinámicamente según el contexto -->
+                                </tbody>
+                            </table>
+
+                            <div id="base-steal-result" class="text-white text-center mb-3" style="font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; display: none;">
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success" onclick="closeBaseStealTable()" id="base-steal-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INJURY SEVERITY TABLE (D100) -->
+                <div id="injury-severity-container" class="result-table-container" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 10000; overflow-y: auto; padding: 20px;">
+                    <div class="card shadow-lg" style="max-width: 700px; margin: 2rem auto;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">🏥 INJURY SEVERITY (D100)</h5>
+                            <p class="text-center text-white mb-3">Jugador lesionado: <strong id="injured-player-name">-</strong></p>
+
+                            <div class="dice-display mb-4" style="justify-content: center;">
+                                <div class="dice-item">
+                                    <div class="dice-label">D100</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D100</span>
+                                        <input type="number" class="dice-value-input" id="injury-severity-d100-value" placeholder="-" min="1" max="100" readonly>
+                                        <div class="mini-dice" onclick="rollInjurySeverity()" title="Tirar D100">🎲</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-dark table-striped table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Roll</th>
+                                        <th style="width: 80%;">Severity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-severity="1">
+                                        <td><strong>1</strong></td>
+                                        <td><strong>Catastrophic.</strong> Player out for season. Roll on catastrophic injury table.</td>
+                                    </tr>
+                                    <tr data-severity="2-5">
+                                        <td><strong>2-5</strong></td>
+                                        <td><strong>Major.</strong> Player out for 2d20 games.</td>
+                                    </tr>
+                                    <tr data-severity="6-10">
+                                        <td><strong>6-10</strong></td>
+                                        <td><strong>Minor.</strong> Player out for d8 games.</td>
+                                    </tr>
+                                    <tr data-severity="11-75">
+                                        <td><strong>11-75</strong></td>
+                                        <td><strong>Superficial.</strong> Player plays with BT reduced by 5 or PD reduced by 1 for d6 games. Bonus traits are nullified.</td>
+                                    </tr>
+                                    <tr data-severity="76-100">
+                                        <td><strong>76-100</strong></td>
+                                        <td><strong>Player is unhurt</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div id="injury-severity-result" class="text-white text-center mb-3" style="font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; display: none;">
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success" onclick="proceedAfterSeverity()" id="injury-severity-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INJURY LOCATION TABLE (D20) -->
+                <div id="injury-location-container" class="result-table-container" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 10001; overflow-y: auto; padding: 20px;">
+                    <div class="card shadow-lg" style="max-width: 700px; margin: 2rem auto;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">🎯 INJURY LOCATION (D20)</h5>
+
+                            <div class="dice-display mb-4" style="justify-content: center;">
+                                <div class="dice-item">
+                                    <div class="dice-label">D20</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D20</span>
+                                        <input type="number" class="dice-value-input" id="injury-location-d20-value" placeholder="-" min="1" max="20" readonly>
+                                        <div class="mini-dice" onclick="rollInjuryLocation()" title="Tirar D20">🎲</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-dark table-striped table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Roll</th>
+                                        <th style="width: 80%;">Location</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-location="1">
+                                        <td><strong>1</strong></td>
+                                        <td>Head</td>
+                                    </tr>
+                                    <tr data-location="2-5">
+                                        <td><strong>2-5</strong></td>
+                                        <td>Shoulder</td>
+                                    </tr>
+                                    <tr data-location="6-9">
+                                        <td><strong>6-9</strong></td>
+                                        <td>Elbow</td>
+                                    </tr>
+                                    <tr data-location="10">
+                                        <td><strong>10</strong></td>
+                                        <td>Forearm</td>
+                                    </tr>
+                                    <tr data-location="11">
+                                        <td><strong>11</strong></td>
+                                        <td>Wrist</td>
+                                    </tr>
+                                    <tr data-location="12">
+                                        <td><strong>12</strong></td>
+                                        <td>Hand</td>
+                                    </tr>
+                                    <tr data-location="13-14">
+                                        <td><strong>13-14</strong></td>
+                                        <td>Back</td>
+                                    </tr>
+                                    <tr data-location="15">
+                                        <td><strong>15</strong></td>
+                                        <td>Oblique</td>
+                                    </tr>
+                                    <tr data-location="16">
+                                        <td><strong>16</strong></td>
+                                        <td>Hip</td>
+                                    </tr>
+                                    <tr data-location="17">
+                                        <td><strong>17</strong></td>
+                                        <td>Hamstring</td>
+                                    </tr>
+                                    <tr data-location="18">
+                                        <td><strong>18</strong></td>
+                                        <td>Knee</td>
+                                    </tr>
+                                    <tr data-location="19">
+                                        <td><strong>19</strong></td>
+                                        <td>Ankle</td>
+                                    </tr>
+                                    <tr data-location="20">
+                                        <td><strong>20</strong></td>
+                                        <td>Foot</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div id="injury-location-result" class="text-white text-center mb-3" style="font-size: 1.1rem; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px; display: none;">
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-success" onclick="closeInjurySystem()" id="injury-location-continue-btn" style="display: none;">✓ Continuar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CATASTROPHIC INJURY TABLE (D6) -->
+                <div id="catastrophic-injury-container" class="result-table-container" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 10002; overflow-y: auto; padding: 20px;">
+                    <div class="card shadow-lg" style="max-width: 700px; margin: 2rem auto;">
+                        <div class="card-body">
+                            <h5 class="card-title text-center text-white mb-3">💀 CATASTROPHIC INJURY (D6)</h5>
+
+                            <div class="dice-display mb-4" style="justify-content: center;">
+                                <div class="dice-item">
+                                    <div class="dice-label">D6</div>
+                                    <div class="dice-visual">
+                                        <span class="dice-type">D6</span>
+                                        <input type="number" class="dice-value-input" id="catastrophic-d6-value" placeholder="-" min="1" max="6" readonly>
+                                        <div class="mini-dice" onclick="rollCatastrophicInjury()" title="Tirar D6">🎲</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <table class="table table-dark table-striped table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Roll</th>
+                                        <th style="width: 80%;">Catastrophic Effect</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr data-catastrophic="1">
+                                        <td><strong>1</strong></td>
+                                        <td><strong>Modern:</strong> Player retires. <strong>Ancient, head injuries only:</strong> Player dies.</td>
+                                    </tr>
+                                    <tr data-catastrophic="2-6">
+                                        <td><strong>2-6</strong></td>
+                                        <td>Permanently reduce BT by d10+2 or PD by 1.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div id="catastrophic-result" class="text-white text-center mb-3" style="font-size: 1.1rem; padding: 1rem; background: rgba(255,0,0,0.3); border-radius: 8px; display: none;">
+                            </div>
+
+                            <div class="text-center mt-3">
+                                <button class="btn btn-danger" onclick="closeInjurySystem()" id="catastrophic-continue-btn" style="display: none;">✓ Continuar</button>
                             </div>
                         </div>
                     </div>
@@ -1847,6 +2457,293 @@
             </div>
         </div>
     </div>
+
+    <!-- HOME RUN OVERLAY -->
+    <div id="home-run-overlay">⚾ HOME RUN! ⚾</div>
+
+    <!-- PANEL DE TESTING/DESARROLLO -->
+    <div id="testing-panel" style="position: fixed; bottom: 10px; right: 10px; z-index: 999999999;">
+        <button id="testing-panel-btn" onclick="toggleTestingPanel()" style="background: #8b5cf6; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5); transition: all 0.3s;"
+            onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+            🧪
+        </button>
+
+        <div id="testing-panel-content" style="display: none; position: absolute; bottom: 70px; right: 0; background: rgba(20, 20, 40, 0.98); border: 2px solid #8b5cf6; border-radius: 12px; padding: 20px; width: 350px; max-height: 600px; overflow-y: auto; box-shadow: 0 8px 16px rgba(0,0,0,0.5);">
+            <h4 style="color: #8b5cf6; margin: 0 0 15px 0; font-size: 18px;">🧪 Panel de Pruebas</h4>
+
+            <div style="margin-bottom: 15px;">
+                <button onclick="testAllOddities()" style="width: 100%; background: #059669; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 10px;">
+                    ▶️ Mostrar Tabla Oddities
+                </button>
+            </div>
+
+            <div style="margin-bottom: 15px; padding: 10px; background: rgba(59, 130, 246, 0.2); border-radius: 8px;">
+                <h5 style="color: #3b82f6; margin: 0 0 10px 0; font-size: 14px;">⚾ Probar Resultados</h5>
+                <button onclick="testHomeRun()" style="width: 100%; background: #fbbf24; color: black; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 5px;">
+                    🎆 Test Home Run
+                </button>
+                <button onclick="testSingle()" style="width: 100%; background: #10b981; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
+                    ⚾ Test Single
+                </button>
+                <button onclick="testDouble()" style="width: 100%; background: #10b981; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
+                    ⚾⚾ Test Double
+                </button>
+                <button onclick="testStrikeout()" style="width: 100%; background: #ef4444; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
+                    🚫 Test Strikeout
+                </button>
+                <button onclick="testGroundball()" style="width: 100%; background: #f97316; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
+                    ⚾ Test Groundball
+                </button>
+                <button onclick="testFlyball()" style="width: 100%; background: #8b5cf6; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
+                    🎈 Test Fly Ball
+                </button>
+                <button onclick="testBunting()" style="width: 100%; background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer;">
+                    🤏 Test Bunting
+                </button>
+            </div>
+
+            <div style="color: white; font-size: 12px; margin-bottom: 10px; padding: 8px; background: rgba(139, 92, 246, 0.2); border-radius: 6px;">
+                <strong>📝 Nota:</strong> Haz clic en cualquier número para probar ese efecto específico
+            </div>
+
+            <details style="margin-bottom: 10px;">
+                <summary style="color: #8b5cf6; cursor: pointer; font-weight: bold; margin-bottom: 8px;">📊 PD & Básicas (2, 7-12, 15, 18-20)</summary>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 8px;">
+                    <button onclick="testOddity(2)" class="test-btn">2-Fan</button>
+                    <button onclick="testOddity(7)" class="test-btn">7-TOOT</button>
+                    <button onclick="testOddity(8)" class="test-btn">8-Pick</button>
+                    <button onclick="testOddity(9)" class="test-btn">9-Call1st</button>
+                    <button onclick="testOddity(10)" class="test-btn">10-CallH</button>
+                    <button onclick="testOddity(11)" class="test-btn">11-HBP</button>
+                    <button onclick="testOddity(12)" class="test-btn">12-Wild</button>
+                    <button onclick="testOddity(15)" class="test-btn">15-Pass</button>
+                    <button onclick="testOddity(18)" class="test-btn">18-Error</button>
+                    <button onclick="testOddity(19)" class="test-btn">19-Balk</button>
+                    <button onclick="testOddity(20)" class="test-btn">20-Catch</button>
+                </div>
+            </details>
+
+            <details style="margin-bottom: 10px;">
+                <summary style="color: #fbbf24; cursor: pointer; font-weight: bold; margin-bottom: 8px;">🎲 Mini-Tiradores (3, 4, 13, 14)</summary>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 8px;">
+                    <button onclick="testOddity(3)" class="test-btn" style="background: #f59e0b;">3-Animal</button>
+                    <button onclick="testOddity(4)" class="test-btn" style="background: #3b82f6;">4-Rain</button>
+                    <button onclick="testOddity(13)" class="test-btn" style="background: #8b5cf6;">13-Distr</button>
+                    <button onclick="testOddity(14)" class="test-btn" style="background: #06b6d4;">14-Drop3</button>
+                </div>
+            </details>
+
+            <details style="margin-bottom: 10px;">
+                <summary style="color: #ef4444; cursor: pointer; font-weight: bold; margin-bottom: 8px;">🏥 Injury Tables (5, 6, 16, 17)</summary>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 8px;">
+                    <button onclick="testOddity(5)" class="test-btn" style="background: #dc2626;">5-Field</button>
+                    <button onclick="testOddity(6)" class="test-btn" style="background: #dc2626;">6-Pitch</button>
+                    <button onclick="testOddity(16)" class="test-btn" style="background: #dc2626;">16-CurrBat</button>
+                    <button onclick="testOddity(17)" class="test-btn" style="background: #dc2626;">17-PrevBat</button>
+                </div>
+            </details>
+
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(139, 92, 246, 0.3);">
+                <button onclick="showD4Roller()" style="width: 100%; background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; margin-bottom: 5px; font-size: 12px;">
+                    🐦 Test D4 Animal
+                </button>
+                <button onclick="showD100Roller()" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; margin-bottom: 5px; font-size: 12px;">
+                    🌧️ Test D100 Rain
+                </button>
+                <button onclick="showBaseStealTable('dropped-third-strike')" style="width: 100%; background: #06b6d4; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; margin-bottom: 5px; font-size: 12px;">
+                    🏃 Test D8 Steal
+                </button>
+                <button onclick="showInjuryTable('batter', 'current')" style="width: 100%; background: #dc2626; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                    🏥 Test Injury System
+                </button>
+            </div>
+
+            <div style="margin-top: 15px; font-size: 11px; color: rgba(255,255,255,0.6); text-align: center;">
+                v2.0 - Sistema Completo de Oddities
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .test-btn {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .test-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        #testing-panel-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #testing-panel-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        #testing-panel-content::-webkit-scrollbar-thumb {
+            background: #8b5cf6;
+            border-radius: 4px;
+        }
+        /* Animaciones para cascada inline y tokens */
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes tokenPop {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) rotate(180deg);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes tokenScore {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+            }
+            100% {
+                transform: translateY(-100px) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes tokenMove {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .result-table-inline {
+            animation: slideDown 0.4s ease-out;
+        }
+        
+        .token-popping {
+            animation: tokenPop 0.6s ease-out forwards;
+        }
+        
+        .token-scoring {
+            animation: tokenScore 0.8s ease-out forwards;
+        }
+        
+        .token-moving {
+            animation: tokenMove 2s ease-in-out;
+            transition: all 2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        /* Transiciones suaves para tokens con aceleración progresiva */
+        
+        .runner-token {
+            transition: all 2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        /* Animación de confeti para Home Run */
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 10000;
+            animation: confetti-fall 3s linear;
+            pointer-events: none;
+        }
+        /* Animación del token corriendo las bases */
+        
+        @keyframes homeRunPath {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(100px, -100px) scale(1.2);
+            }
+            50% {
+                transform: translate(200px, 0) scale(1.2);
+            }
+            75% {
+                transform: translate(100px, 100px) scale(1.2);
+            }
+            100% {
+                transform: translate(0, 0) scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        .home-run-runner {
+            animation: homeRunPath 3s ease-in-out forwards;
+        }
+        /* Overlay de HOME RUN */
+        
+        #home-run-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            font-weight: bold;
+            color: #fbbf24;
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            display: none;
+        }
+        
+        @keyframes homeRunPulse {
+            0%,
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+    </style>
 
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>

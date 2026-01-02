@@ -2203,11 +2203,11 @@ function calculateHitAndRun() {
         } else {
             resultText = '💥 GROUNDBALL + ROBO FALLIDO\n\n' +
                 `MSS: ${mss} (Groundball)\n` +
-                `D8: ${stealRoll} ${stealModifier !== 0 ? '(' + (stealModifier > 0 ? '+' : '') + stealModifier + ') = ' + adjustedStealRoll : ''} (Fallo)\n\n' +
-                        '⚾⚾ DOUBLE PLAY!';
+                `D8: ${stealRoll} ${stealModifier !== 0 ? '(' + (stealModifier > 0 ? '+' : '') + stealModifier + ') = ' + adjustedStealRoll : ''} (Fallo)\n\n` +
+                '⚾⚾ DOUBLE PLAY!';
         }
     }
-    
+
     document.getElementById('hitrun-result-text').textContent = resultText;
     document.getElementById('hitrun-result-section').style.display = 'block';
     document.getElementById('hitrun-calculate-btn').style.display = 'none';
@@ -2218,12 +2218,12 @@ function applyHitAndRunResult() {
     const stealSuccess = hitAndRunContext.stealResult;
     const batter = getCurrentBatter();
     const runner = gameState.bases.first;
-    
+
     if (battingResult === 'hit') {
         if (stealSuccess) {
             // Hit + Steal Success = Runners at 1st and 3rd
             updateCascadeStatus('⚡ HIT & RUN: Hit + Robo Exitoso - Corredores en 1B y 3B');
-            
+
             // Mover corredor a tercera
             gameState.bases.third = runner;
             gameState.bases.first = null;
@@ -2231,18 +2231,18 @@ function applyHitAndRunResult() {
                 clearTokensAtBase('first');
                 moveRunnerToBase(runner, 'third');
             }, 200);
-            
+
             // Bateador a primera
             gameState.bases.first = batter;
             setTimeout(() => {
                 moveRunnerToBase(batter, 'first');
             }, 400);
-            
+
             gameState.hits[getCurrentBattingTeam()]++;
         } else {
             // Hit + Steal Failure = Runners at 1st and 2nd
             updateCascadeStatus('⚡ HIT & RUN: Hit + Robo Fallido - Corredores en 1B y 2B');
-            
+
             // Mover corredor a segunda
             gameState.bases.second = runner;
             gameState.bases.first = null;
@@ -2250,13 +2250,13 @@ function applyHitAndRunResult() {
                 clearTokensAtBase('first');
                 moveRunnerToBase(runner, 'second');
             }, 200);
-            
+
             // Bateador a primera
             gameState.bases.first = batter;
             setTimeout(() => {
                 moveRunnerToBase(batter, 'first');
             }, 400);
-            
+
             gameState.hits[getCurrentBattingTeam()]++;
         }
     } else if (battingResult === 'strikeout' || (battingResult === 'out' && hitAndRunContext.mssRoll < 70)) {
@@ -2271,9 +2271,9 @@ function applyHitAndRunResult() {
             setTimeout(() => {
                 alert('💥 DOUBLE PLAY en Hit & Run!\n\nEl bateador es eliminado y el corredor es atrapado robando.');
             }, 300);
-            
+
             gameState.outs += 2;
-            
+
             // Eliminar corredor
             const token = document.querySelector('[data-current-base="first"]');
             if (token) animateTokenPop(token);
@@ -2284,7 +2284,7 @@ function applyHitAndRunResult() {
             // Groundball + Steal Success = Batter out, runner reaches 2nd
             updateCascadeStatus('⚡ HIT & RUN: Groundball + Robo Exitoso - Bateador OUT, corredor a 2B');
             gameState.outs++;
-            
+
             // Mover corredor a segunda
             gameState.bases.second = runner;
             gameState.bases.first = null;
@@ -2298,20 +2298,20 @@ function applyHitAndRunResult() {
             setTimeout(() => {
                 alert('💥 DOUBLE PLAY en Hit & Run!\n\nGroundball a segunda base, eliminan al corredor y tiran a primera.');
             }, 300);
-            
+
             gameState.outs += 2;
-            
+
             // Eliminar corredor
             const token = document.querySelector('[data-current-base="first"]');
             if (token) animateTokenPop(token);
             gameState.bases.first = null;
         }
     }
-    
+
     updateScoreboard();
-    
+
     closeHitAndRunSystem();
-    
+
     // Continuar con el juego
     if (gameState.outs >= 3) {
         changeInning();
@@ -2325,7 +2325,7 @@ function closeHitAndRunSystem() {
     if (overlay) {
         overlay.remove();
     }
-    
+
     // Reset context
     hitAndRunContext = {
         mssRoll: null,
@@ -2648,9 +2648,7 @@ function setupRosterValidation() {
     const rosters = ['visitante', 'local'];
 
     rosters.forEach(team => {
-        const table = document.getElementById(`
-            roster - $ { team }
-            `);
+        const table = document.getElementById(`roster-${team}`);
         if (!table) return;
 
         const positionSelects = table.querySelectorAll('.position-select');
@@ -2671,9 +2669,7 @@ function setupRosterValidation() {
 }
 
 function validatePositions(team, changedSelect) {
-    const table = document.getElementById(`
-            roster - $ { team }
-            `);
+    const table = document.getElementById(`roster-${team}`);
     if (!table) return;
 
     const positionSelects = Array.from(table.querySelectorAll('.position-select'));
@@ -2698,16 +2694,13 @@ function validatePositions(team, changedSelect) {
     });
 
     if (hasDuplicate) {
-        console.log(` [VALIDATION] Posiciones duplicadas en roster $ { team }
-            `);
+        console.log(`[VALIDATION] Posiciones duplicadas en roster ${team}`);
     }
 }
 
 function makeEditable(cell, type) {
     cell.style.cursor = 'pointer';
-    cell.title = `
-            Click para editar $ { type }
-            `;
+    cell.title = `Click para editar ${type}`;
 
     cell.addEventListener('click', function() {
         const currentValue = cell.textContent.trim();
@@ -2737,17 +2730,13 @@ function makeEditable(cell, type) {
 
             const numValue = parseFloat(newValue);
             if (isNaN(numValue) || numValue < 0 || numValue > 1) {
-                alert(`
-            $ { type }
-            debe estar entre .000 y 1.000 `);
+                alert(`${type} debe estar entre .000 y 1.000`);
                 cell.textContent = currentValue;
                 return;
             }
 
             cell.textContent = newValue;
-            console.log(` [ROSTER] $ { type }
-            actualizado a $ { newValue }
-            `);
+            console.log(`[ROSTER] ${type} actualizado a ${newValue}`);
         }
 
         input.addEventListener('blur', saveValue);
@@ -2761,28 +2750,19 @@ function makeEditable(cell, type) {
 
 // Funciones para el sistema de Banquillo
 function toggleBench(team) {
-    const benchTable = document.getElementById(`
-            bench - table - $ { team }
-            `);
+    const benchTable = document.getElementById(`bench-table-${team}`);
     if (!benchTable) return;
 
     benchTable.style.display = benchTable.style.display === 'none' ? '' : 'none';
-    console.log(` [BENCH] Banquillo $ { team }
-            $ { benchTable.style.display === 'none' ? 'oculto' : 'visible' }
-            `);
+    console.log(`[BENCH] Banquillo ${team} ${benchTable.style.display === 'none' ? 'oculto' : 'visible'}`);
 }
 
 function addBenchPlayer(team) {
-    const benchTable = document.getElementById(`
-            bench - table - $ { team }
-            `);
+    const benchTable = document.getElementById(`bench-table-${team}`);
     if (!benchTable) return;
 
     const tbody = benchTable.querySelector('tbody');
-    const newId = `
-            $ { team === 'local' ? 'l' : '' }
-            bench$ { Date.now() }
-            `;
+    const newId = `${team === 'local' ? 'l' : ''}bench${Date.now()}`;
     const newNumber = tbody.querySelectorAll('tr').length + 10;
 
     const newRow = document.createElement('tr');
@@ -2790,76 +2770,61 @@ function addBenchPlayer(team) {
     newRow.draggable = true;
     newRow.setAttribute('data-player-id', newId);
 
-    newRow.innerHTML = ` <
-            td class = "drag-handle" > ⋮⋮ < /td> <
-                td class = "player-number" > $ { newNumber } < /td> <
-                td class = "player-photo" > 📷 < /td> <
-                td class = "player-name"
-            contenteditable = "true" > Nuevo Jugador < /td> <
-                td >
-                <
-                select class = "position-select"
-            data - player = "${newId}" >
-                <
-                option value = "" > - < /option> <
-                option value = "P" > P < /option> <
-                option value = "C" > C < /option> <
-                option value = "1B" > 1 B < /option> <
-                option value = "2B" > 2 B < /option> <
-                option value = "3B" > 3 B < /option> <
-                option value = "SS" > SS < /option> <
-                option value = "LF" > LF < /option> <
-                option value = "CF" > CF < /option> <
-                option value = "RF" > RF < /option> <
-                option value = "DH" > DH < /option> <
-                /select> <
-                /td> <
-                td >
-                <
-                select class = "handedness-select"
-            data - player = "${newId}" >
-                <
-                option value = "R"
-            selected > R < /option> <
-                option value = "L" > L < /option> <
-                /select> <
-                /td> <
-                td class = "batting-avg"
-            contenteditable = "true" > .250 < /td> <
-                td class = "on-base-pct"
-            contenteditable = "true" > .300 < /td> <
-                td >
-                <
-                select class = "trait-select"
-            data - player = "${newId}" >
-                <
-                option value = ""
-            selected > - < /option> <
-                option value = "P+" > P + < /option> <
-                option value = "P++" > P++ < /option> <
-                option value = "C+" > C + < /option> <
-                option value = "S+" > S + < /option> <
-                option value = "D+" > D + < /option> <
-                option value = "T+" > T + < /option> <
-                option value = "P-" > P - < /option> <
-                option value = "P--" > P-- < /option> <
-                option value = "C" > C < /option> <
-                option value = "S-" > S - < /option> <
-                option value = "D-" > D - < /option> <
-                option value = "K+" > K + < /option> <
-                option value = "GB+" > GB + < /option> <
-                option value = "CN+" > CN + < /option> <
-                option value = "ST+" > ST + < /option> <
-                option value = "CN-" > CN - < /option> <
-                /select> <
-                /td> <
-                td class = "game-status" > 🪑 < /td>
-            `;
+    newRow.innerHTML = `
+        <td class="drag-handle">⋮⋮</td>
+        <td class="player-number">${newNumber}</td>
+        <td class="player-photo">📷</td>
+        <td class="player-name" contenteditable="true">Nuevo Jugador</td>
+        <td>
+            <select class="position-select" data-player="${newId}">
+                <option value="">-</option>
+                <option value="P">P</option>
+                <option value="C">C</option>
+                <option value="1B">1B</option>
+                <option value="2B">2B</option>
+                <option value="3B">3B</option>
+                <option value="SS">SS</option>
+                <option value="LF">LF</option>
+                <option value="CF">CF</option>
+                <option value="RF">RF</option>
+                <option value="DH">DH</option>
+            </select>
+        </td>
+        <td>
+            <select class="handedness-select" data-player="${newId}">
+                <option value="R" selected>R</option>
+                <option value="L">L</option>
+            </select>
+        </td>
+        <td class="batting-avg" contenteditable="true">.250</td>
+        <td class="on-base-pct" contenteditable="true">.300</td>
+        <td>
+            <select class="trait-select" data-player="${newId}">
+                <option value="" selected>-</option>
+                <option value="P+">P+</option>
+                <option value="P++">P++</option>
+                <option value="C+">C+</option>
+                <option value="S+">S+</option>
+                <option value="D+">D+</option>
+                <option value="T+">T+</option>
+                <option value="P-">P-</option>
+                <option value="P--">P--</option>
+                <option value="C">C</option>
+                <option value="S-">S-</option>
+                <option value="D-">D-</option>
+                <option value="K+">K+</option>
+                <option value="GB+">GB+</option>
+                <option value="CN+">CN+</option>
+                <option value="ST+">ST+</option>
+                <option value="CN-">CN-</option>
+            </select>
+        </td>
+        <td class="game-status">🪑</td>
+    `;
 
     tbody.appendChild(newRow);
     setupDragAndDrop(newRow);
-    console.log(` [BENCH] Jugador añadido al banquillo $ { team }
-            `);
+    console.log(`[BENCH] Jugador añadido al banquillo ${team}`);
 }
 
 // Sistema de Drag and Drop entre roster y banquillo
@@ -2889,8 +2854,7 @@ function setupDragAndDrop(row) {
         }
 
         const draggedId = e.dataTransfer.getData('playerId');
-        const draggedRow = document.querySelector(` [data - player - id = "${draggedId}"]
-            `);
+        const draggedRow = document.querySelector(`[data-player-id="${draggedId}"]`);
         const targetRow = this;
 
         if (draggedRow && targetRow && draggedRow !== targetRow) {
@@ -4330,4 +4294,520 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('%c🧪 Panel de Testing listo - Busca el botón morado en la esquina inferior derecha', 'background: #8b5cf6; color: white; padding: 8px; border-radius: 4px; font-weight: bold;');
     console.log('%c⚾ Sistema de cascada listo - Todas las tablas en el área azul', 'background: #3b82f6; color: white; padding: 8px; border-radius: 4px; font-weight: bold;');
+});
+
+// ========================================
+// TEAM SELECTION & CONFIGURATION SYSTEM
+// ========================================
+
+let currentEditingTeam = null;
+
+const MLB_TEAMS = {
+    yankees: {
+        name: 'New York Yankees',
+        abbr: 'NYY',
+        players: [
+            { name: 'Aaron Judge', number: 99, position: 'RF', hand: 'R', avg: '.291', obp: '.404', trait: 'P+' },
+            { name: 'Anthony Volpe', number: 11, position: 'SS', hand: 'R', avg: '.209', obp: '.283', trait: '' },
+            { name: 'Juan Soto', number: 22, position: 'LF', hand: 'L', avg: '.288', obp: '.410', trait: 'P++' },
+            { name: 'Giancarlo Stanton', number: 27, position: 'DH', hand: 'R', avg: '.233', obp: '.301', trait: 'P+' },
+            { name: 'Gleyber Torres', number: 25, position: '2B', hand: 'R', avg: '.257', obp: '.330', trait: '' },
+            { name: 'Anthony Rizzo', number: 48, position: '1B', hand: 'L', avg: '.243', obp: '.335', trait: 'D+' },
+            { name: 'DJ LeMahieu', number: 26, position: '3B', hand: 'R', avg: '.243', obp: '.301', trait: 'C+' },
+            { name: 'Alex Verdugo', number: 24, position: 'CF', hand: 'L', avg: '.233', obp: '.291', trait: '' },
+            { name: 'Jose Trevino', number: 39, position: 'C', hand: 'R', avg: '.215', obp: '.271', trait: 'D+' }
+        ]
+    },
+    dodgers: {
+        name: 'Los Angeles Dodgers',
+        abbr: 'LAD',
+        players: [
+            { name: 'Shohei Ohtani', number: 17, position: 'DH', hand: 'L', avg: '.310', obp: '.390', trait: 'P++' },
+            { name: 'Mookie Betts', number: 50, position: 'RF', hand: 'R', avg: '.289', obp: '.372', trait: 'P+' },
+            { name: 'Freddie Freeman', number: 5, position: '1B', hand: 'L', avg: '.331', obp: '.410', trait: 'P+' },
+            { name: 'Will Smith', number: 16, position: 'C', hand: 'R', avg: '.261', obp: '.354', trait: '' },
+            { name: 'Max Muncy', number: 13, position: '3B', hand: 'L', avg: '.212', obp: '.327', trait: '' },
+            { name: 'Teoscar Hernández', number: 37, position: 'LF', hand: 'R', avg: '.272', obp: '.339', trait: 'P+' },
+            { name: 'Gavin Lux', number: 9, position: '2B', hand: 'L', avg: '.251', obp: '.320', trait: '' },
+            { name: 'James Outman', number: 28, position: 'CF', hand: 'L', avg: '.147', obp: '.273', trait: 'S+' },
+            { name: 'Miguel Rojas', number: 11, position: 'SS', hand: 'R', avg: '.283', obp: '.331', trait: 'D+' }
+        ]
+    },
+    red_sox: {
+        name: 'Boston Red Sox',
+        abbr: 'BOS',
+        players: [
+            { name: 'Rafael Devers', number: 11, position: '3B', hand: 'L', avg: '.272', obp: '.354', trait: 'P+' },
+            { name: 'Jarren Duran', number: 16, position: 'CF', hand: 'L', avg: '.285', obp: '.342', trait: 'S+' },
+            { name: 'Tyler O\'Neill', number: 17, position: 'RF', hand: 'R', avg: '.241', obp: '.319', trait: 'P+' },
+            { name: 'Triston Casas', number: 36, position: '1B', hand: 'L', avg: '.241', obp: '.358', trait: '' },
+            { name: 'Ceddanne Rafaela', number: 43, position: 'SS', hand: 'R', avg: '.246', obp: '.284', trait: 'S+' },
+            { name: 'Wilyer Abreu', number: 52, position: 'LF', hand: 'L', avg: '.253', obp: '.322', trait: 'D+' },
+            { name: 'Connor Wong', number: 74, position: 'C', hand: 'R', avg: '.280', obp: '.333', trait: '' },
+            { name: 'Masataka Yoshida', number: 7, position: 'DH', hand: 'L', avg: '.280', obp: '.349', trait: 'C+' },
+            { name: 'Vaughn Grissom', number: 10, position: '2B', hand: 'R', avg: '.190', obp: '.259', trait: '' }
+        ]
+    },
+    giants: {
+        name: 'San Francisco Giants',
+        abbr: 'SF',
+        players: [
+            { name: 'Jung Hoo Lee', number: 62, position: 'CF', hand: 'L', avg: '.262', obp: '.310', trait: 'C+' },
+            { name: 'Matt Chapman', number: 26, position: '3B', hand: 'R', avg: '.247', obp: '.328', trait: 'D+' },
+            { name: 'Heliot Ramos', number: 17, position: 'RF', hand: 'R', avg: '.269', obp: '.321', trait: '' },
+            { name: 'Wilmer Flores', number: 41, position: '1B', hand: 'R', avg: '.255', obp: '.330', trait: '' },
+            { name: 'Patrick Bailey', number: 15, position: 'C', hand: 'S', avg: '.257', obp: '.314', trait: 'D+' },
+            { name: 'Tyler Fitzgerald', number: 49, position: 'SS', hand: 'R', avg: '.280', obp: '.333', trait: 'S+' },
+            { name: 'Mike Yastrzemski', number: 5, position: 'LF', hand: 'L', avg: '.231', obp: '.302', trait: '' },
+            { name: 'Thairo Estrada', number: 39, position: '2B', hand: 'R', avg: '.238', obp: '.285', trait: '' },
+            { name: 'Jorge Soler', number: 12, position: 'DH', hand: 'R', avg: '.241', obp: '.330', trait: 'P+' }
+        ]
+    }
+};
+
+// ========================================
+// MLB STATS API INTEGRATION
+// ========================================
+
+// Mapeo de posiciones MLB a posiciones del juego
+const POSITION_MAP = {
+    'Pitcher': 'P',
+    'Catcher': 'C',
+    'First Base': '1B',
+    'Second Base': '2B',
+    'Third Base': '3B',
+    'Shortstop': 'SS',
+    'Left Field': 'LF',
+    'Center Field': 'CF',
+    'Right Field': 'RF',
+    'Designated Hitter': 'DH',
+    'Outfield': 'CF'
+};
+
+// Convertir estadísticas MLB a traits del juego
+function calculateTraitFromStats(stats, position) {
+    if (!stats) return '';
+
+    const avg = parseFloat(stats.avg) || 0;
+    const obp = parseFloat(stats.obp) || 0;
+    const slg = parseFloat(stats.slg) || 0;
+    const hr = parseInt(stats.homeRuns) || 0;
+    const sb = parseInt(stats.stolenBases) || 0;
+    const ops = obp + slg;
+    const strikeouts = parseInt(stats.strikeOuts) || 0;
+    const atBats = parseInt(stats.atBats) || 1;
+    const kRate = strikeouts / atBats;
+
+    // Power trait (basado en HR y SLG)
+    // P++ para los sluggers élite
+    if (hr >= 40 || (hr >= 30 && slg >= 0.550)) return 'P++';
+    // P+ para buenos power hitters
+    if (hr >= 25 || (hr >= 20 && slg >= 0.500)) return 'P+';
+    // P- para poco power
+    if (hr <= 5 && slg <= 0.370) return 'P-';
+    // P-- para power muy bajo
+    if (hr <= 2 && slg <= 0.320) return 'P--';
+
+    // Contact trait (basado en AVG alto y K% bajo)
+    // C+ para jugadores con excelente contacto
+    if (avg >= 0.300 && kRate <= 0.15) return 'C+';
+    if (avg >= 0.290 && kRate <= 0.18 && ops >= 0.800) return 'C+';
+
+    // Speed trait (basado en SB)
+    // S+ para velocistas
+    if (sb >= 25) return 'S+';
+    // S- para jugadores lentos
+    if (sb === 0 && position && (position === 'C' || position === '1B')) return 'S-';
+
+    // Defense trait (basado en posición y contexto)
+    // D+ para catchers y defensores
+    if (position === 'C' || position === 'SS' || position === 'CF') {
+        if (avg >= 0.260 || obp >= 0.330) return 'D+';
+    }
+    // D- para jugadores con muy mala defensa (generalmente DH)
+    if (position === 'DH' && avg < 0.240) return 'D-';
+
+    return '';
+}
+
+// Importar equipo desde MLB Stats API
+async function importMLBTeam() {
+    const selector = document.getElementById('mlb-team-selector');
+    const teamId = selector.value;
+    const statusDiv = document.getElementById('import-status');
+
+    if (!teamId) {
+        statusDiv.textContent = '⚠️ Selecciona un equipo primero';
+        statusDiv.style.color = '#f59e0b';
+        return;
+    }
+
+    statusDiv.textContent = '⏳ Importando equipo...';
+    statusDiv.style.color = '#60a5fa';
+
+    try {
+        // Obtener roster del equipo para la temporada 2024
+        const rosterResponse = await fetch(
+            `
+            https: //statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=active&season=2024`
+        );
+
+        if (!rosterResponse.ok) {
+            throw new Error('Error al obtener roster del equipo');
+        }
+
+        const rosterData = await rosterResponse.json();
+        const roster = rosterData.roster || [];
+
+        // Filtrar solo jugadores de posición (no pitchers)
+        const positionPlayers = roster.filter(p =>
+            p.position.abbreviation !== 'P' &&
+            p.position.abbreviation !== 'TWP'
+        );
+
+        if (positionPlayers.length === 0) {
+            throw new Error('No se encontraron jugadores de posición');
+        }
+
+        statusDiv.textContent = `⏳ Cargando estadísticas de ${positionPlayers.length} jugadores...`;
+
+        // Obtener estadísticas de cada jugador
+        const players = [];
+        let processed = 0;
+
+        for (const rosterPlayer of positionPlayers.slice(0, 15)) {
+            try {
+                const statsResponse = await fetch(
+                    `https://statsapi.mlb.com/api/v1/people/${rosterPlayer.person.id}?hydrate=stats(group=[hitting],type=[season],season=2024)`
+                );
+
+                if (!statsResponse.ok) continue;
+
+                const playerData = await statsResponse.json();
+                const person = playerData.people[0];
+
+                // Obtener estadísticas de bateo
+                let batting = {
+                    avg: '.000',
+                    obp: '.000',
+                    slg: '.000',
+                    homeRuns: 0,
+                    stolenBases: 0,
+                    strikeOuts: 0,
+                    atBats: 0
+                };
+
+                if (person.stats && person.stats.length > 0) {
+                    const hittingStats = person.stats.find(s => s.group.displayName === 'hitting');
+                    if (hittingStats && hittingStats.splits && hittingStats.splits.length > 0) {
+                        const stats = hittingStats.splits[0].stat;
+                        batting = {
+                            avg: stats.avg || '.000',
+                            obp: stats.obp || '.000',
+                            slg: stats.slg || '.000',
+                            homeRuns: stats.homeRuns || 0,
+                            stolenBases: stats.stolenBases || 0,
+                            strikeOuts: stats.strikeOuts || 0,
+                            atBats: stats.atBats || 0
+                        };
+                    }
+                }
+
+                // Convertir posición
+                const position = POSITION_MAP[rosterPlayer.position.name] || rosterPlayer.position.abbreviation;
+
+                // Calcular trait basado en estadísticas y posición
+                const trait = calculateTraitFromStats(batting, position);
+
+                players.push({
+                    name: person.fullName,
+                    number: person.primaryNumber || '0',
+                    position: position,
+                    hand: (person.batSide && person.batSide.code) || 'R',
+                    avg: batting.avg.startsWith('.') ? batting.avg : '.' + batting.avg,
+                    obp: batting.obp.startsWith('.') ? batting.obp : '.' + batting.obp,
+                    trait: trait
+                });
+
+                processed++;
+                statusDiv.textContent = `⏳ Procesado ${processed}/${positionPlayers.slice(0, 15).length} jugadores...`;
+
+            } catch (err) {
+                console.error('Error al procesar jugador:', err);
+                continue;
+            }
+        }
+
+        if (players.length === 0) {
+            throw new Error('No se pudieron obtener estadísticas de jugadores');
+        }
+
+        // Ordenar por OBP descendente y tomar los mejores 9
+        players.sort((a, b) => parseFloat(b.obp) - parseFloat(a.obp));
+        const bestPlayers = players.slice(0, 9);
+
+        // Obtener nombre del equipo
+        const teamResponse = await fetch(`https://statsapi.mlb.com/api/v1/teams/${teamId}`);
+        const teamData = await teamResponse.json();
+        const teamName = teamData.teams[0].name;
+
+        // Actualizar UI
+        document.getElementById('team-name').value = teamName;
+        displayPlayersEditor(bestPlayers);
+
+        statusDiv.textContent = `✅ ${teamName} importado correctamente (${bestPlayers.length} jugadores)`;
+        statusDiv.style.color = '#10b981';
+
+        console.log(`[MLB IMPORT] Equipo ${teamName} importado con ${bestPlayers.length} jugadores`);
+
+    } catch (error) {
+        console.error('[MLB IMPORT] Error:', error);
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+        statusDiv.style.color = '#ef4444';
+    }
+}
+
+function openTeamConfig(team) {
+    currentEditingTeam = team;
+    const modal = document.getElementById('team-config-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const teamNameInput = document.getElementById('team-name');
+
+    if (!modal) {
+        console.error('[TEAM CONFIG] Modal no encontrado');
+        return;
+    }
+
+    // Actualizar título
+    const teamDisplay = team === 'visitante' ? 'Visitante' : 'Local';
+    modalTitle.textContent = `⚙️ Configurar Equipo ${teamDisplay}`;
+
+    // Limpiar nombre del equipo
+    teamNameInput.value = '';
+
+    // Resetear selector
+    document.getElementById('preset-teams').value = '';
+
+    // Limpiar editor de jugadores
+    document.getElementById('players-editor').innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 20px;">Selecciona un equipo predefinido o edita manualmente</p>';
+
+    // Mostrar modal
+    modal.style.display = 'flex';
+
+    console.log(`[TEAM CONFIG] Modal abierto para equipo: ${team}`);
+}
+
+function closeTeamConfig() {
+    const modal = document.getElementById('team-config-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    currentEditingTeam = null;
+    console.log('[TEAM CONFIG] Modal cerrado');
+}
+
+function loadPresetTeam() {
+    const selector = document.getElementById('preset-teams');
+    const teamKey = selector.value;
+
+    if (!teamKey || teamKey === 'custom') {
+        document.getElementById('players-editor').innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 20px;">Modo personalizado - Edita directamente en la tabla del roster</p>';
+        return;
+    }
+
+    const team = MLB_TEAMS[teamKey];
+    if (!team) {
+        console.error('[TEAM CONFIG] Equipo no encontrado:', teamKey);
+        return;
+    }
+
+    // Actualizar nombre del equipo
+    document.getElementById('team-name').value = team.name;
+
+    // Mostrar jugadores en el editor
+    displayPlayersEditor(team.players);
+
+    console.log(`[TEAM CONFIG] Equipo cargado: ${team.name}`);
+}
+
+function displayPlayersEditor(players) {
+    const editor = document.getElementById('players-editor');
+
+    let html = '<div class="players-list">';
+
+    players.forEach((player, index) => {
+        html += `
+            <div class="player-card">
+                <div class="player-card-header">
+                    <span class="player-number">#${player.number}</span>
+                    <input type="text" class="player-name-input" value="${player.name}" data-index="${index}">
+                </div>
+                <div class="player-card-body">
+                    <div class="player-stat">
+                        <label>Pos:</label>
+                        <select class="player-pos-select" data-index="${index}">
+                            <option value="P" ${player.position === 'P' ? 'selected' : ''}>P</option>
+                            <option value="C" ${player.position === 'C' ? 'selected' : ''}>C</option>
+                            <option value="1B" ${player.position === '1B' ? 'selected' : ''}>1B</option>
+                            <option value="2B" ${player.position === '2B' ? 'selected' : ''}>2B</option>
+                            <option value="3B" ${player.position === '3B' ? 'selected' : ''}>3B</option>
+                            <option value="SS" ${player.position === 'SS' ? 'selected' : ''}>SS</option>
+                            <option value="LF" ${player.position === 'LF' ? 'selected' : ''}>LF</option>
+                            <option value="CF" ${player.position === 'CF' ? 'selected' : ''}>CF</option>
+                            <option value="RF" ${player.position === 'RF' ? 'selected' : ''}>RF</option>
+                            <option value="DH" ${player.position === 'DH' ? 'selected' : ''}>DH</option>
+                        </select>
+                    </div>
+                    <div class="player-stat">
+                        <label>Mano:</label>
+                        <select class="player-hand-select" data-index="${index}">
+                            <option value="R" ${player.hand === 'R' ? 'selected' : ''}>R</option>
+                            <option value="L" ${player.hand === 'L' ? 'selected' : ''}>L</option>
+                            <option value="S" ${player.hand === 'S' ? 'selected' : ''}>S</option>
+                        </select>
+                    </div>
+                    <div class="player-stat">
+                        <label>AVG:</label>
+                        <input type="text" class="player-avg-input" value="${player.avg}" data-index="${index}">
+                    </div>
+                    <div class="player-stat">
+                        <label>OBP:</label>
+                        <input type="text" class="player-obp-input" value="${player.obp}" data-index="${index}">
+                    </div>
+                    <div class="player-stat">
+                        <label>Trait:</label>
+                        <select class="player-trait-select" data-index="${index}">
+                            <option value="" ${player.trait === '' ? 'selected' : ''}>-</option>
+                            <option value="P+" ${player.trait === 'P+' ? 'selected' : ''}>P+</option>
+                            <option value="P++" ${player.trait === 'P++' ? 'selected' : ''}>P++</option>
+                            <option value="C+" ${player.trait === 'C+' ? 'selected' : ''}>C+</option>
+                            <option value="S+" ${player.trait === 'S+' ? 'selected' : ''}>S+</option>
+                            <option value="D+" ${player.trait === 'D+' ? 'selected' : ''}>D+</option>
+                            <option value="P-" ${player.trait === 'P-' ? 'selected' : ''}>P-</option>
+                            <option value="P--" ${player.trait === 'P--' ? 'selected' : ''}>P--</option>
+                            <option value="S-" ${player.trait === 'S-' ? 'selected' : ''}>S-</option>
+                            <option value="D-" ${player.trait === 'D-' ? 'selected' : ''}>D-</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+    editor.innerHTML = html;
+}
+
+function saveTeamConfig() {
+    if (!currentEditingTeam) {
+        alert('⚠️ Error: No hay equipo seleccionado');
+        return;
+    }
+
+    const teamName = document.getElementById('team-name').value.trim();
+    const presetValue = document.getElementById('preset-teams').value;
+
+    if (!teamName && presetValue && presetValue !== 'custom') {
+        alert('⚠️ Por favor ingresa un nombre para el equipo');
+        return;
+    }
+
+    // Obtener datos de jugadores del editor
+    const playerCards = document.querySelectorAll('.player-card');
+    const players = [];
+
+    playerCards.forEach((card, index) => {
+        const name = card.querySelector('.player-name-input').value;
+        const number = card.querySelector('.player-number').textContent.replace('#', '');
+        const position = card.querySelector('.player-pos-select').value;
+        const hand = card.querySelector('.player-hand-select').value;
+        const avg = card.querySelector('.player-avg-input').value;
+        const obp = card.querySelector('.player-obp-input').value;
+        const trait = card.querySelector('.player-trait-select').value;
+
+        players.push({ name, number, position, hand, avg, obp, trait });
+    });
+
+    if (players.length === 0) {
+        alert('⚠️ No hay jugadores para cargar. Selecciona un equipo predefinido primero.');
+        return;
+    }
+
+    // Cargar jugadores en la tabla del roster
+    loadPlayersToRoster(currentEditingTeam, players, teamName);
+
+    // Cerrar modal
+    closeTeamConfig();
+
+    alert(`✅ Equipo "${teamName || currentEditingTeam}" cargado correctamente con ${players.length} jugadores`);
+}
+
+function loadPlayersToRoster(team, players, teamName) {
+    const table = document.getElementById('roster-' + team);
+    if (!table) {
+        console.error('[TEAM CONFIG] Tabla no encontrada:', team);
+        return;
+    }
+
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+        console.error('[TEAM CONFIG] tbody no encontrado');
+        return;
+    }
+
+    // Actualizar nombre del equipo en el header si se proporcionó
+    if (teamName) {
+        const teamHeader = table.closest('.col').querySelector('.team-header h2');
+        if (teamHeader) {
+            const icon = team === 'visitante' ? '🛫' : '🏠';
+            teamHeader.textContent = `${icon} ${teamName}`;
+        }
+    }
+
+    // Limpiar filas existentes (mantener solo las primeras 9)
+    const rows = tbody.querySelectorAll('tr');
+    const rowsToUpdate = Math.min(rows.length, players.length);
+
+    for (let i = 0; i < rowsToUpdate; i++) {
+        const row = rows[i];
+        const player = players[i];
+        const cells = row.querySelectorAll('td');
+
+        // Actualizar player-id
+        row.setAttribute('data-player-id', i + 1);
+
+        // Actualizar número
+        if (cells[1]) cells[1].textContent = player.number;
+
+        // Actualizar nombre
+        if (cells[3]) cells[3].textContent = player.name;
+
+        // Actualizar posición
+        const posSelect = cells[4] && cells[4].querySelector('.position-select');
+        if (posSelect) posSelect.value = player.position;
+
+        // Actualizar mano
+        const handSelect = cells[5] && cells[5].querySelector('.handedness-select');
+        if (handSelect) handSelect.value = player.hand;
+
+        // Actualizar AVG
+        if (cells[6]) cells[6].textContent = player.avg;
+
+        // Actualizar OBP
+        if (cells[7]) cells[7].textContent = player.obp;
+
+        // Actualizar trait
+        const traitSelect = cells[8] && cells[8].querySelector('.trait-select');
+        if (traitSelect) traitSelect.value = player.trait;
+    }
+
+    console.log(`[TEAM CONFIG] ${players.length} jugadores cargados en el roster de ${team}`);
+}
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('team-config-modal');
+    if (modal && event.target === modal) {
+        closeTeamConfig();
+    }
 });

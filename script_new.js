@@ -20,7 +20,35 @@ const gameState = {
     isGameActive: false,
     currentIntention: null,
     lastPitcherDice: null, // Almacena el último valor del dado del pitcher para Oddities
-    baseStealModifier: 0 // Modificador temporal para robo de bases (Oddity 13)
+    baseStealModifier: 0, // Modificador temporal para robo de bases (Oddity 13)
+    pitcher: {
+        visitante: {
+            basePitchDie: 'd12',
+            currentPitchDie: 'd12',
+            handedness: 'R',
+            type: 'starter',
+            scorelessInnings: 0,
+            runsAllowedThisInning: 0,
+            runsAllowedLastTwoInnings: 0,
+            totalRunsAllowed: 0,
+            inningsPitched: 0,
+            strikeoutsThisInning: 0,
+            battersThisInning: 0
+        },
+        local: {
+            basePitchDie: 'd12',
+            currentPitchDie: 'd12',
+            handedness: 'R',
+            type: 'starter',
+            scorelessInnings: 0,
+            runsAllowedThisInning: 0,
+            runsAllowedLastTwoInnings: 0,
+            totalRunsAllowed: 0,
+            inningsPitched: 0,
+            strikeoutsThisInning: 0,
+            battersThisInning: 0
+        }
+    }
 };
 
 const basePositions = {
@@ -58,11 +86,16 @@ function getCurrentBatter() {
     const traitSelect = cells[8] ? cells[8].querySelector('.trait-select') : null;
     const trait = traitSelect ? traitSelect.value : '';
 
+    // Obtener handedness (R/L) del bateador
+    const handednessSelect = cells[5] ? cells[5].querySelector('.handedness-select') : null;
+    const handedness = handednessSelect ? handednessSelect.value : 'R';
+
     return {
         id: row.getAttribute('data-player-id') || String(index + 1),
         number: cells[1] ? cells[1].textContent.trim() : String(index + 1),
         name: cells[3] ? cells[3].textContent.trim() : 'Jugador ' + (index + 1),
         position: cells[4] ? cells[4].textContent.trim() : 'P',
+        handedness: handedness,
         mlbId: row.getAttribute('data-mlb-id') || null,
         avg: avgText,
         obp: obpText,
@@ -166,6 +199,40 @@ function startNewGame() {
     gameState.isGameActive = true;
     gameState.currentIntention = null;
 
+    // Inicializar pitchers
+    gameState.pitcher = {
+        visitante: {
+            basePitchDie: 'd12',
+            currentPitchDie: 'd12',
+            handedness: 'R',
+            type: 'starter',
+            scorelessInnings: 0,
+            runsAllowedThisInning: 0,
+            runsAllowedLastTwoInnings: 0,
+            totalRunsAllowed: 0,
+            inningsPitched: 0,
+            strikeoutsThisInning: 0,
+            battersThisInning: 0
+        },
+        local: {
+            basePitchDie: 'd12',
+            currentPitchDie: 'd12',
+            handedness: 'R',
+            type: 'starter',
+            scorelessInnings: 0,
+            runsAllowedThisInning: 0,
+            runsAllowedLastTwoInnings: 0,
+            totalRunsAllowed: 0,
+            inningsPitched: 0,
+            strikeoutsThisInning: 0,
+            battersThisInning: 0
+        }
+    };
+
+    // Actualizar displays de Pitch Die
+    updatePitchDieDisplay('visitante');
+    updatePitchDieDisplay('local');
+
     const container = document.getElementById('runners-container');
     if (container) container.innerHTML = '';
 
@@ -174,8 +241,91 @@ function startNewGame() {
     updateGameDisplay();
     toggleGameControls();
     initializeFirstBatter();
+    updateGameButtons();
 
     console.log('[GAME] Juego iniciado correctamente');
+}
+
+function updateGameButtons() {
+    const startBtn = document.getElementById('start-game-btn');
+    const resetBtn = document.getElementById('reset-game-btn');
+
+    if (gameState.isGameActive) {
+        // Cambiar a modo "Reanudar"
+        if (startBtn) {
+            startBtn.textContent = '▶️ Reanudar Juego';
+            startBtn.classList.add('resume-mode');
+            startBtn.onclick = resumeGame;
+        }
+        // Mostrar botón de reset
+        if (resetBtn) {
+            resetBtn.style.display = 'inline-block';
+        }
+    } else {
+        // Modo inicial "Iniciar Nuevo Juego"
+        if (startBtn) {
+            startBtn.textContent = '🎮 Iniciar Nuevo Juego';
+            startBtn.classList.remove('resume-mode');
+            startBtn.onclick = startNewGame;
+        }
+        // Ocultar botón de reset
+        if (resetBtn) {
+            resetBtn.style.display = 'none';
+        }
+    }
+}
+
+function resumeGame() {
+    console.log('[GAME] Reanudando juego');
+    // Solo ocultar el botón o realizar acciones necesarias
+    // El juego ya está activo, solo necesitamos continuar
+    alert('✅ Juego reanudado');
+}
+
+function confirmResetGame() {
+    const confirmation = confirm('⚠️ ¿RESETEAR PARTIDO?\n\nSe perderá todo el progreso actual:\n• Marcador\n• Estadísticas\n• Corredores en base\n• Entrada actual\n\n¿Estás seguro?');
+
+    if (confirmation) {
+        resetGame();
+    }
+}
+
+function resetGame() {
+    console.log('[GAME] Reseteando partido completo');
+
+    // Resetear completamente el estado
+    gameState.isGameActive = false;
+    gameState.currentInning = 1;
+    gameState.isTopHalf = true;
+    gameState.visitanteBatterIndex = 0;
+    gameState.localBatterIndex = 0;
+    gameState.outs = 0;
+    gameState.strikes = 0;
+    gameState.balls = 0;
+    gameState.bases = { first: null, second: null, third: null };
+    gameState.score = {
+        visitante: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        local: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        totalVisitante: 0,
+        totalLocal: 0
+    };
+    gameState.hits = { visitante: 0, local: 0 };
+    gameState.errors = { visitante: 0, local: 0 };
+    gameState.currentIntention = null;
+
+    // Limpiar tokens
+    const container = document.getElementById('runners-container');
+    if (container) container.innerHTML = '';
+
+    // Ocultar selectores
+    hideAllIntentionSelectors();
+
+    // Actualizar display
+    updateGameDisplay();
+    updateGameButtons();
+
+    alert('🔄 Partido reseteado. Pulsa "Iniciar Nuevo Juego" para comenzar.');
+    console.log('[GAME] Partido reseteado correctamente');
 }
 
 function initializeFirstBatter() {
@@ -272,6 +422,10 @@ function confirmAndNextBatter() {
 function changeInning() {
     console.log('[INNING] Cambiando de inning');
 
+    // Registrar fin de inning para el equipo que estaba lanzando
+    const pitchingTeam = getCurrentPitchingTeam();
+    onInningEnd(pitchingTeam);
+
     gameState.outs = 0;
     gameState.bases = { first: null, second: null, third: null };
 
@@ -365,11 +519,214 @@ function highlightCurrentBatter() {
                 const cells = rows[index].querySelectorAll('td');
                 if (cells[6]) cells[6].textContent = batter.avg;
                 if (cells[7]) cells[7].textContent = batter.obp;
+
+                // Actualizar el display de "Bateador Actual"
+                updateBatterInfo(team, batter);
             }
 
             console.log('[HIGHLIGHT] Resaltado jugador ' + (index + 1) + ' de ' + team);
         }
     }
+}
+
+function updateBatterInfo(team, batter) {
+    if (!batter) return;
+
+    const infoElement = team === 'visitante' ?
+        document.getElementById('current-batter-info') :
+        document.getElementById('current-batter-info-local');
+
+    if (infoElement) {
+        const nameSpan = infoElement.querySelector('.batter-name');
+        const statsSpan = infoElement.querySelector('.batter-stats');
+
+        if (nameSpan) nameSpan.textContent = batter.name || 'Jugador';
+        if (statsSpan) statsSpan.textContent = `AVG: ${batter.avg || '.000'} | OBP: ${batter.obp || '.000'}`;
+    }
+}
+
+// ====== SISTEMA DE LANZADORES (PITCH DIE) ======
+
+const PITCH_DIE_LADDER = ['-d20', '-d12', '-d8', '-d4', 'd4', 'd8', 'd12', 'd20'];
+
+function getCurrentPitchingTeam() {
+    // El equipo que lanza es el contrario al que batea
+    return gameState.isTopHalf ? 'local' : 'visitante';
+}
+
+function getPitchDieLevel(pitchDie) {
+    return PITCH_DIE_LADDER.indexOf(pitchDie);
+}
+
+function adjustPitchDie(team, levels) {
+    const pitcher = gameState.pitcher[team];
+    const currentLevel = getPitchDieLevel(pitcher.currentPitchDie);
+    let newLevel = currentLevel + levels;
+
+    // Aplicar límites según tipo de lanzador
+    if (pitcher.type === 'starter') {
+        newLevel = Math.max(0, Math.min(6, newLevel)); // Máximo d12 para starters (índice 6)
+    } else {
+        newLevel = Math.max(0, Math.min(7, newLevel)); // Máximo d20 para relievers (índice 7)
+    }
+
+    pitcher.currentPitchDie = PITCH_DIE_LADDER[newLevel];
+    console.log(`[PITCHER] ${team} Pitch Die ajustado a ${pitcher.currentPitchDie} (${levels > 0 ? '+' : ''}${levels} niveles)`);
+    updatePitchDieDisplay(team);
+}
+
+function updatePitchDieWithHandedness(team) {
+    const pitcher = gameState.pitcher[team];
+    const batter = getCurrentBatter();
+
+    if (!batter) return;
+
+    // Resetear a base Pitch Die
+    pitcher.currentPitchDie = pitcher.basePitchDie;
+
+    // Aplicar ventaja R/L: si mismo handedness, sube un nivel
+    if (pitcher.handedness === batter.handedness) {
+        const currentLevel = getPitchDieLevel(pitcher.currentPitchDie);
+        let newLevel = currentLevel + 1;
+
+        // Aplicar límites según tipo
+        if (pitcher.type === 'starter') {
+            newLevel = Math.min(6, newLevel); // Máximo d12
+        } else {
+            newLevel = Math.min(7, newLevel); // Máximo d20
+        }
+
+        pitcher.currentPitchDie = PITCH_DIE_LADDER[newLevel];
+        console.log(`[PITCHER] Ventaja ${pitcher.handedness} vs ${batter.handedness}: ${pitcher.basePitchDie} → ${pitcher.currentPitchDie}`);
+    }
+
+    updatePitchDieDisplay(team);
+}
+
+function updatePitchDieDisplay(team) {
+    const pitcher = gameState.pitcher[team];
+    const displayId = team === 'visitante' ? 'pitch-die-visitante' : 'pitch-die-local';
+    const displayElement = document.getElementById(displayId);
+
+    if (displayElement) {
+        displayElement.textContent = pitcher.currentPitchDie;
+        console.log(`[PITCHER] Display actualizado: ${team} = ${pitcher.currentPitchDie}`);
+    }
+}
+
+function checkPitcherPerformance(team) {
+    const pitcher = gameState.pitcher[team];
+
+    // Verificar strikeout de todos los bateadores del inning
+    if (pitcher.strikeoutsThisInning === pitcher.battersThisInning && pitcher.battersThisInning >= 3) {
+        console.log(`[PITCHER] ${team} ponchó a todos en el inning!`);
+        adjustPitchDie(team, 1);
+    }
+
+    // Verificar 3 innings consecutivos sin carreras
+    if (pitcher.scorelessInnings >= 3) {
+        console.log(`[PITCHER] ${team} ha lanzado ${pitcher.scorelessInnings} innings sin carreras`);
+        const levels = Math.floor(pitcher.scorelessInnings / 3);
+        adjustPitchDie(team, levels);
+        pitcher.scorelessInnings = 0; // Reset después de aplicar bonus
+    }
+}
+
+function applyPitcherFatigue(team, runsAllowed) {
+    const pitcher = gameState.pitcher[team];
+    const inning = gameState.currentInning;
+
+    pitcher.runsAllowedThisInning += runsAllowed;
+    pitcher.totalRunsAllowed += runsAllowed;
+
+    console.log(`[PITCHER] ${team} permitió ${runsAllowed} carreras. Total inning: ${pitcher.runsAllowedThisInning}`);
+
+    // Regla especial: carrera en 7mo inning o después = automático a d4
+    if (inning >= 7 && runsAllowed > 0 && pitcher.type === 'starter') {
+        const targetLevel = getPitchDieLevel('d4');
+        const currentLevel = getPitchDieLevel(pitcher.currentPitchDie);
+        if (currentLevel > targetLevel) {
+            pitcher.currentPitchDie = 'd4';
+            console.log(`[PITCHER] ${team} permitió carrera en inning ${inning}. Pitch Die bajado automáticamente a d4`);
+            updatePitchDieDisplay(team);
+        }
+    }
+
+    // 3+ carreras en un inning
+    if (pitcher.runsAllowedThisInning >= 3) {
+        adjustPitchDie(team, -1);
+    }
+
+    // 4+ carreras en dos innings
+    pitcher.runsAllowedLastTwoInnings += runsAllowed;
+    if (pitcher.runsAllowedLastTwoInnings >= 4) {
+        adjustPitchDie(team, -1);
+        pitcher.runsAllowedLastTwoInnings = 0; // Reset
+    }
+
+    // Por cada carrera después de 4
+    if (pitcher.totalRunsAllowed > 4) {
+        const extraRuns = pitcher.totalRunsAllowed - 4;
+        adjustPitchDie(team, -extraRuns);
+    }
+
+    // Fatiga por innings (después del 6to)
+    if (inning > 6 && pitcher.type === 'starter') {
+        const fatigueInnings = inning - 6;
+        adjustPitchDie(team, -fatigueInnings);
+    }
+}
+
+function onInningEnd(team) {
+    const pitcher = gameState.pitcher[team];
+
+    // Si no permitió carreras, incrementar contador
+    if (pitcher.runsAllowedThisInning === 0) {
+        pitcher.scorelessInnings++;
+    } else {
+        pitcher.scorelessInnings = 0; // Reset si permitió carreras
+    }
+
+    // Guardar carreras de este inning para tracking de dos innings
+    const runsThisInning = pitcher.runsAllowedThisInning;
+
+    // Reset contadores del inning
+    pitcher.runsAllowedThisInning = 0;
+    pitcher.strikeoutsThisInning = 0;
+    pitcher.battersThisInning = 0;
+    pitcher.inningsPitched++;
+
+    // Actualizar runsAllowedLastTwoInnings
+    if (pitcher.inningsPitched > 1) {
+        pitcher.runsAllowedLastTwoInnings = runsThisInning;
+    }
+
+    checkPitcherPerformance(team);
+}
+
+function recordStrikeout(team) {
+    const pitcher = gameState.pitcher[team];
+    pitcher.strikeoutsThisInning++;
+    pitcher.battersThisInning++;
+    console.log(`[PITCHER] ${team} strikeout registrado (${pitcher.strikeoutsThisInning}/${pitcher.battersThisInning})`);
+}
+
+function recordBatterFaced(team) {
+    const pitcher = gameState.pitcher[team];
+    pitcher.battersThisInning++;
+}
+
+function addRun(team, runs = 1) {
+    // Actualizar score
+    gameState.score[team][gameState.currentInning - 1] += runs;
+    gameState.score['total' + (team === 'visitante' ? 'Visitante' : 'Local')] += runs;
+
+    // Trackear fatiga del lanzador oponente
+    const pitchingTeam = team === 'visitante' ? 'local' : 'visitante';
+    applyPitcherFatigue(pitchingTeam, runs);
+
+    console.log(`[SCORE] ${runs} carrera(s) para ${team}. Pitcher ${pitchingTeam} afectado por fatiga.`);
+    updateScoreboard();
 }
 
 function hasRunnersOnBase() {
@@ -394,10 +751,23 @@ function hideAllIntentionSelectors() {
 
 function showIntentionSelector() {
     const team = getCurrentBattingTeam();
+    const pitchingTeam = getCurrentPitchingTeam();
     const container = document.getElementById('intention-container-' + team);
 
     console.log('[SELECTOR] Intentando mostrar selector para equipo: ' + team);
     console.log('[SELECTOR] Contenedor encontrado: ' + (container ? 'SI' : 'NO'));
+
+    // Asegurar que el bateador está actualizado
+    highlightCurrentBatter();
+
+    // Actualizar Pitch Die del lanzador considerando handedness del bateador
+    updatePitchDieWithHandedness(pitchingTeam);
+
+    // Registrar que un bateador ha sido enfrentado
+    recordBatterFaced(pitchingTeam);
+
+    // Resetear dados de ambos equipos
+    resetDiceValues();
 
     if (container) {
         container.style.display = 'block';
@@ -408,6 +778,32 @@ function showIntentionSelector() {
     } else {
         console.log('[ERROR] No se encontro el contenedor intention-container-' + team);
     }
+}
+
+function resetDiceValues() {
+    // Limpiar dados del equipo visitante
+    const pitcherValue = document.getElementById('pitcher-dice-value');
+    const batterValue = document.getElementById('batter-dice-value');
+    const finalResult = document.getElementById('final-result');
+    const resultDescription = document.getElementById('result-description');
+
+    if (pitcherValue) pitcherValue.value = '';
+    if (batterValue) batterValue.value = '';
+    if (finalResult) finalResult.textContent = '-';
+    if (resultDescription) resultDescription.textContent = 'Esperando tirada...';
+
+    // Limpiar dados del equipo local
+    const pitcherValueLocal = document.getElementById('pitcher-dice-value-local');
+    const batterValueLocal = document.getElementById('batter-dice-value-local');
+    const finalResultLocal = document.getElementById('final-result-local');
+    const resultDescriptionLocal = document.getElementById('result-description-local');
+
+    if (pitcherValueLocal) pitcherValueLocal.value = '';
+    if (batterValueLocal) batterValueLocal.value = '';
+    if (finalResultLocal) finalResultLocal.textContent = '-';
+    if (resultDescriptionLocal) resultDescriptionLocal.textContent = 'Esperando tirada...';
+
+    console.log('[DICE] Dados reseteados');
 }
 
 function updateIntentionButtons() {
@@ -460,6 +856,13 @@ function selectIntention(intention) {
     if (intention === 'steal') {
         console.log('[STEAL] Mostrando selector de tipo de robo');
         showStealTypeSelector();
+        return;
+    }
+
+    // Si es hit and run, mostrar sistema combinado
+    if (intention === 'hitrun') {
+        console.log('[HIT&RUN] Mostrando sistema de Hit & Run');
+        showHitAndRunSystem();
         return;
     }
 
@@ -1019,8 +1422,7 @@ function advanceAllRunners() {
     const newBases = { first: null, second: null, third: null };
 
     if (gameState.bases.third) {
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
         console.log('[ODDITIES] Corredor anota desde tercera');
 
         // Animar corredor anotando (volando hacia arriba)
@@ -1575,6 +1977,366 @@ function closeBaseStealTable() {
 }
 
 // ========================================
+// HIT & RUN SYSTEM
+// ========================================
+
+let hitAndRunContext = {
+    mssRoll: null,
+    stealRoll: null,
+    battingResult: null,
+    stealResult: null,
+    btModifier: 0
+};
+
+function showHitAndRunSystem() {
+    console.log('[HIT&RUN] Iniciando sistema de Hit & Run');
+
+    // Verificar que hay corredor en primera
+    if (!gameState.bases.first) {
+        alert('⚠️ No hay corredor en primera base para Hit & Run');
+        return;
+    }
+
+    const batter = getCurrentBatter();
+    if (!batter) return;
+
+    // Determinar modificador según trait C+
+    hitAndRunContext.btModifier = batter.trait === 'C+' ? 10 : 5;
+
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'hitrun-overlay';
+    overlay.className = 'table-overlay';
+    overlay.innerHTML = `
+        <div class="table-container">
+            <div class="table-header">
+                <h3>⚡ HIT & RUN</h3>
+                <p class="table-subtitle">
+                    ${batter.name} (BT/OBT +${hitAndRunContext.btModifier})
+                    <br>Corredor en 1B intenta robar
+                </p>
+            </div>
+
+            <div class="table-content">
+                <div class="dice-section">
+                    <div class="dice-row">
+                        <div class="dice-column">
+                            <h4>MSS (Bateo)</h4>
+                            <div class="dice-controls">
+                                <label>Lanzador:</label>
+                                <input type="number" id="hitrun-pitcher-value" placeholder="-" min="-20" max="20" style="width: 80px;">
+                                <button onclick="rollHitRunPitcher()" class="mini-roll-btn">🎲</button>
+                            </div>
+                            <div class="dice-controls">
+                                <label>Bateador:</label>
+                                <input type="number" id="hitrun-batter-value" placeholder="-" min="1" max="100" style="width: 80px;">
+                                <button onclick="rollHitRunBatter()" class="mini-roll-btn">🎲</button>
+                            </div>
+                            <div class="dice-result">
+                                <strong>MSS:</strong> <span id="hitrun-mss-result">-</span>
+                            </div>
+                        </div>
+
+                        <div class="dice-column">
+                            <h4>D8 (Robo de Base)</h4>
+                            <div class="dice-controls">
+                                <label>Dado:</label>
+                                <input type="number" id="hitrun-steal-value" placeholder="-" min="1" max="8" style="width: 80px;">
+                                <button onclick="rollHitRunSteal()" class="mini-roll-btn">🎲</button>
+                            </div>
+                            <div class="dice-result">
+                                <strong>Robo:</strong> <span id="hitrun-steal-result">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="hitrun-calculate-btn" onclick="calculateHitAndRun()" class="confirm-btn" style="display:none; margin-top: 15px;">
+                        ✓ Calcular Resultado
+                    </button>
+                </div>
+
+                <div id="hitrun-result-section" style="display:none; margin-top: 20px; padding: 15px; background: #1e293b; border-radius: 8px;">
+                    <h4 style="color: #fbbf24; margin-bottom: 10px;">Resultado:</h4>
+                    <p id="hitrun-result-text" style="font-size: 1.1rem; line-height: 1.6;"></p>
+                    <button onclick="applyHitAndRunResult()" class="confirm-btn" style="margin-top: 15px;">
+                        ✓ Aplicar Resultado
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-footer">
+                <button onclick="closeHitAndRunSystem()" class="close-btn">✕ Cerrar</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Forzar recalcular el display
+    setTimeout(() => {
+        overlay.style.display = 'flex';
+    }, 10);
+}
+
+function rollHitRunPitcher() {
+    const pitchingTeam = getCurrentPitchingTeam();
+    const pitcher = gameState.pitcher[pitchingTeam];
+
+    // Obtener el tipo de dado actual del pitcher
+    const pitchDie = pitcher.currentPitchDie;
+    const diceValue = parseInt(pitchDie.replace('d', '').replace('-', ''));
+    const isNegative = pitchDie.startsWith('-');
+
+    let result;
+    if (isNegative) {
+        result = -(Math.floor(Math.random() * diceValue) + 1);
+    } else {
+        result = Math.floor(Math.random() * diceValue) + 1;
+    }
+
+    document.getElementById('hitrun-pitcher-value').value = result;
+    checkHitRunDiceComplete();
+}
+
+function rollHitRunBatter() {
+    const result = Math.floor(Math.random() * 100) + 1;
+    document.getElementById('hitrun-batter-value').value = result;
+    checkHitRunDiceComplete();
+}
+
+function rollHitRunSteal() {
+    const result = Math.floor(Math.random() * 8) + 1;
+    document.getElementById('hitrun-steal-value').value = result;
+    checkHitRunDiceComplete();
+}
+
+function checkHitRunDiceComplete() {
+    const pitcherValue = document.getElementById('hitrun-pitcher-value').value;
+    const batterValue = document.getElementById('hitrun-batter-value').value;
+    const stealValue = document.getElementById('hitrun-steal-value').value;
+    const calculateBtn = document.getElementById('hitrun-calculate-btn');
+
+    if (pitcherValue !== '' && batterValue !== '' && stealValue !== '') {
+        const mss = parseInt(pitcherValue) + parseInt(batterValue);
+        document.getElementById('hitrun-mss-result').textContent = mss;
+
+        hitAndRunContext.mssRoll = mss;
+        hitAndRunContext.stealRoll = parseInt(stealValue);
+
+        if (calculateBtn) calculateBtn.style.display = 'block';
+    }
+}
+
+function calculateHitAndRun() {
+    const batter = getCurrentBatter();
+    const mss = hitAndRunContext.mssRoll;
+    const stealRoll = hitAndRunContext.stealRoll;
+
+    // Aplicar modificador de BT/OBT
+    const bt = calculateBT(batter.avg) + hitAndRunContext.btModifier;
+    const obt = calculateOBT(batter.obp) + hitAndRunContext.btModifier;
+
+    // Determinar resultado del bateo
+    let battingResult;
+    if (mss >= 70) {
+        battingResult = 'hit';
+    } else if (mss >= 50) {
+        battingResult = 'out'; // Flyout/popup
+    } else if (mss >= bt) {
+        battingResult = 'groundball';
+    } else {
+        battingResult = 'strikeout';
+    }
+
+    // Determinar resultado del robo (simplificado - single steal)
+    // Aplicar modificadores normales de robo
+    const runner = gameState.bases.first;
+    let stealModifier = 0;
+
+    // Trait S+ del corredor
+    if (runner && runner.trait === 'S+') stealModifier += 1;
+
+    // Trait S- del corredor
+    if (runner && runner.trait === 'S-') stealModifier -= 1;
+
+    const adjustedStealRoll = stealRoll + stealModifier;
+    const stealSuccess = adjustedStealRoll >= 4; // 4-8 = success
+
+    hitAndRunContext.battingResult = battingResult;
+    hitAndRunContext.stealResult = stealSuccess;
+
+    // Determinar resultado combinado según tabla
+    let resultText = '';
+
+    if (battingResult === 'hit') {
+        if (stealSuccess) {
+            resultText = '✅ HIT + ROBO EXITOSO\n\n' +
+                `MSS: ${mss} (Hit)\n` +
+                `D8: ${stealRoll} ${stealModifier !== 0 ? '(' + (stealModifier > 0 ? '+' : '') + stealModifier + ') = ' + adjustedStealRoll : ''} (Éxito)\n\n` +
+                '📍 Corredores en 1B y 3B';
+        } else {
+            resultText = '⚠️ HIT + ROBO FALLIDO\n\n' +
+                `MSS: ${mss} (Hit)\n` +
+                `D8: ${stealRoll} ${stealModifier !== 0 ? '(' + (stealModifier > 0 ? '+' : '') + stealModifier + ') = ' + adjustedStealRoll : ''} (Fallo)\n\n` +
+                '📍 Corredores en 1B y 2B';
+        }
+    } else if (battingResult === 'strikeout' || (battingResult === 'out' && mss < 70)) {
+        if (stealSuccess) {
+            resultText = '❌ STRIKEOUT/POP UP + ROBO EXITOSO\n\n' +
+                `MSS: ${mss} (Out)\n` +
+                `D8: ${stealRoll} ${stealModifier !== 0 ? '(' + (stealModifier > 0 ? '+' : '') + stealModifier + ') = ' + adjustedStealRoll : ''} (Éxito)\n\n` +
+                '⚾ Bateador OUT\n' +
+                '📍 Corredor se queda en 1B';
+        } else {
+            resultText = '💥 STRIKEOUT/POP UP + ROBO FALLIDO\n\n' +
+                `MSS: ${mss} (Out)\n` +
+                `D8: ${stealRoll} ${stealModifier !== 0 ? '(' + (stealModifier > 0 ? '+' : '') + stealModifier + ') = ' + adjustedStealRoll : ''} (Fallo)\n\n` +
+                '⚾⚾ DOUBLE PLAY!';
+        }
+    } else if (battingResult === 'groundball') {
+        if (stealSuccess) {
+            resultText = '⚠️ GROUNDBALL + ROBO EXITOSO\n\n' +
+                `MSS: ${mss} (Groundball)\n` +
+                `D8: ${stealRoll} ${stealModifier !== 0 ? '(' + (stealModifier > 0 ? '+' : '') + stealModifier + ') = ' + adjustedStealRoll : ''} (Éxito)\n\n` +
+                '⚾ Bateador OUT\n' +
+                '📍 Corredor llega a 2B';
+        } else {
+            resultText = '💥 GROUNDBALL + ROBO FALLIDO\n\n' +
+                `MSS: ${mss} (Groundball)\n` +
+                `D8: ${stealRoll} ${stealModifier !== 0 ? '(' + (stealModifier > 0 ? '+' : '') + stealModifier + ') = ' + adjustedStealRoll : ''} (Fallo)\n\n' +
+                        '⚾⚾ DOUBLE PLAY!';
+        }
+    }
+    
+    document.getElementById('hitrun-result-text').textContent = resultText;
+    document.getElementById('hitrun-result-section').style.display = 'block';
+    document.getElementById('hitrun-calculate-btn').style.display = 'none';
+}
+
+function applyHitAndRunResult() {
+    const battingResult = hitAndRunContext.battingResult;
+    const stealSuccess = hitAndRunContext.stealResult;
+    const batter = getCurrentBatter();
+    const runner = gameState.bases.first;
+    
+    if (battingResult === 'hit') {
+        if (stealSuccess) {
+            // Hit + Steal Success = Runners at 1st and 3rd
+            updateCascadeStatus('⚡ HIT & RUN: Hit + Robo Exitoso - Corredores en 1B y 3B');
+            
+            // Mover corredor a tercera
+            gameState.bases.third = runner;
+            gameState.bases.first = null;
+            setTimeout(() => {
+                clearTokensAtBase('first');
+                moveRunnerToBase(runner, 'third');
+            }, 200);
+            
+            // Bateador a primera
+            gameState.bases.first = batter;
+            setTimeout(() => {
+                moveRunnerToBase(batter, 'first');
+            }, 400);
+            
+            gameState.hits[getCurrentBattingTeam()]++;
+        } else {
+            // Hit + Steal Failure = Runners at 1st and 2nd
+            updateCascadeStatus('⚡ HIT & RUN: Hit + Robo Fallido - Corredores en 1B y 2B');
+            
+            // Mover corredor a segunda
+            gameState.bases.second = runner;
+            gameState.bases.first = null;
+            setTimeout(() => {
+                clearTokensAtBase('first');
+                moveRunnerToBase(runner, 'second');
+            }, 200);
+            
+            // Bateador a primera
+            gameState.bases.first = batter;
+            setTimeout(() => {
+                moveRunnerToBase(batter, 'first');
+            }, 400);
+            
+            gameState.hits[getCurrentBattingTeam()]++;
+        }
+    } else if (battingResult === 'strikeout' || (battingResult === 'out' && hitAndRunContext.mssRoll < 70)) {
+        if (stealSuccess) {
+            // Strikeout/Pop + Steal Success = Batter out, runner stays at 1st
+            updateCascadeStatus('⚡ HIT & RUN: Out + Robo Exitoso - Bateador OUT, corredor en 1B');
+            gameState.outs++;
+            // Corredor se queda en primera
+        } else {
+            // Strikeout/Pop + Steal Failure = Double Play
+            updateCascadeStatus('⚡ HIT & RUN: Out + Robo Fallido - DOUBLE PLAY!');
+            setTimeout(() => {
+                alert('💥 DOUBLE PLAY en Hit & Run!\n\nEl bateador es eliminado y el corredor es atrapado robando.');
+            }, 300);
+            
+            gameState.outs += 2;
+            
+            // Eliminar corredor
+            const token = document.querySelector('[data-current-base="first"]');
+            if (token) animateTokenPop(token);
+            gameState.bases.first = null;
+        }
+    } else if (battingResult === 'groundball') {
+        if (stealSuccess) {
+            // Groundball + Steal Success = Batter out, runner reaches 2nd
+            updateCascadeStatus('⚡ HIT & RUN: Groundball + Robo Exitoso - Bateador OUT, corredor a 2B');
+            gameState.outs++;
+            
+            // Mover corredor a segunda
+            gameState.bases.second = runner;
+            gameState.bases.first = null;
+            setTimeout(() => {
+                clearTokensAtBase('first');
+                moveRunnerToBase(runner, 'second');
+            }, 200);
+        } else {
+            // Groundball + Steal Failure = Double Play
+            updateCascadeStatus('⚡ HIT & RUN: Groundball + Robo Fallido - DOUBLE PLAY!');
+            setTimeout(() => {
+                alert('💥 DOUBLE PLAY en Hit & Run!\n\nGroundball a segunda base, eliminan al corredor y tiran a primera.');
+            }, 300);
+            
+            gameState.outs += 2;
+            
+            // Eliminar corredor
+            const token = document.querySelector('[data-current-base="first"]');
+            if (token) animateTokenPop(token);
+            gameState.bases.first = null;
+        }
+    }
+    
+    updateScoreboard();
+    
+    closeHitAndRunSystem();
+    
+    // Continuar con el juego
+    if (gameState.outs >= 3) {
+        changeInning();
+    } else {
+        nextBatter();
+    }
+}
+
+function closeHitAndRunSystem() {
+    const overlay = document.getElementById('hitrun-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    // Reset context
+    hitAndRunContext = {
+        mssRoll: null,
+        stealRoll: null,
+        battingResult: null,
+        stealResult: null,
+        btModifier: 0
+    };
+}
+
+// ========================================
 // INJURY TABLES SYSTEM
 // ========================================
 
@@ -1886,7 +2648,9 @@ function setupRosterValidation() {
     const rosters = ['visitante', 'local'];
 
     rosters.forEach(team => {
-        const table = document.getElementById(`roster-${team}`);
+        const table = document.getElementById(`
+            roster - $ { team }
+            `);
         if (!table) return;
 
         const positionSelects = table.querySelectorAll('.position-select');
@@ -1907,7 +2671,9 @@ function setupRosterValidation() {
 }
 
 function validatePositions(team, changedSelect) {
-    const table = document.getElementById(`roster-${team}`);
+    const table = document.getElementById(`
+            roster - $ { team }
+            `);
     if (!table) return;
 
     const positionSelects = Array.from(table.querySelectorAll('.position-select'));
@@ -1932,13 +2698,16 @@ function validatePositions(team, changedSelect) {
     });
 
     if (hasDuplicate) {
-        console.log(`[VALIDATION] Posiciones duplicadas en roster ${team}`);
+        console.log(` [VALIDATION] Posiciones duplicadas en roster $ { team }
+            `);
     }
 }
 
 function makeEditable(cell, type) {
     cell.style.cursor = 'pointer';
-    cell.title = `Click para editar ${type}`;
+    cell.title = `
+            Click para editar $ { type }
+            `;
 
     cell.addEventListener('click', function() {
         const currentValue = cell.textContent.trim();
@@ -1968,13 +2737,17 @@ function makeEditable(cell, type) {
 
             const numValue = parseFloat(newValue);
             if (isNaN(numValue) || numValue < 0 || numValue > 1) {
-                alert(`${type} debe estar entre .000 y 1.000`);
+                alert(`
+            $ { type }
+            debe estar entre .000 y 1.000 `);
                 cell.textContent = currentValue;
                 return;
             }
 
             cell.textContent = newValue;
-            console.log(`[ROSTER] ${type} actualizado a ${newValue}`);
+            console.log(` [ROSTER] $ { type }
+            actualizado a $ { newValue }
+            `);
         }
 
         input.addEventListener('blur', saveValue);
@@ -1988,19 +2761,28 @@ function makeEditable(cell, type) {
 
 // Funciones para el sistema de Banquillo
 function toggleBench(team) {
-    const benchTable = document.getElementById(`bench-table-${team}`);
+    const benchTable = document.getElementById(`
+            bench - table - $ { team }
+            `);
     if (!benchTable) return;
 
     benchTable.style.display = benchTable.style.display === 'none' ? '' : 'none';
-    console.log(`[BENCH] Banquillo ${team} ${benchTable.style.display === 'none' ? 'oculto' : 'visible'}`);
+    console.log(` [BENCH] Banquillo $ { team }
+            $ { benchTable.style.display === 'none' ? 'oculto' : 'visible' }
+            `);
 }
 
 function addBenchPlayer(team) {
-    const benchTable = document.getElementById(`bench-table-${team}`);
+    const benchTable = document.getElementById(`
+            bench - table - $ { team }
+            `);
     if (!benchTable) return;
 
     const tbody = benchTable.querySelector('tbody');
-    const newId = `${team === 'local' ? 'l' : ''}bench${Date.now()}`;
+    const newId = `
+            $ { team === 'local' ? 'l' : '' }
+            bench$ { Date.now() }
+            `;
     const newNumber = tbody.querySelectorAll('tr').length + 10;
 
     const newRow = document.createElement('tr');
@@ -2008,61 +2790,76 @@ function addBenchPlayer(team) {
     newRow.draggable = true;
     newRow.setAttribute('data-player-id', newId);
 
-    newRow.innerHTML = `
-        <td class="drag-handle">⋮⋮</td>
-        <td class="player-number">${newNumber}</td>
-        <td class="player-photo">📷</td>
-        <td class="player-name" contenteditable="true">Nuevo Jugador</td>
-        <td>
-            <select class="position-select" data-player="${newId}">
-                <option value="">-</option>
-                <option value="P">P</option>
-                <option value="C">C</option>
-                <option value="1B">1B</option>
-                <option value="2B">2B</option>
-                <option value="3B">3B</option>
-                <option value="SS">SS</option>
-                <option value="LF">LF</option>
-                <option value="CF">CF</option>
-                <option value="RF">RF</option>
-                <option value="DH">DH</option>
-            </select>
-        </td>
-        <td>
-            <select class="handedness-select" data-player="${newId}">
-                <option value="R" selected>R</option>
-                <option value="L">L</option>
-            </select>
-        </td>
-        <td class="batting-avg" contenteditable="true">.250</td>
-        <td class="on-base-pct" contenteditable="true">.300</td>
-        <td>
-            <select class="trait-select" data-player="${newId}">
-                <option value="" selected>-</option>
-                <option value="P+">P+</option>
-                <option value="P++">P++</option>
-                <option value="C+">C+</option>
-                <option value="S+">S+</option>
-                <option value="D+">D+</option>
-                <option value="T+">T+</option>
-                <option value="P-">P-</option>
-                <option value="P--">P--</option>
-                <option value="C">C</option>
-                <option value="S-">S-</option>
-                <option value="D-">D-</option>
-                <option value="K+">K+</option>
-                <option value="GB+">GB+</option>
-                <option value="CN+">CN+</option>
-                <option value="ST+">ST+</option>
-                <option value="CN-">CN-</option>
-            </select>
-        </td>
-        <td class="game-status">🪑</td>
-    `;
+    newRow.innerHTML = ` <
+            td class = "drag-handle" > ⋮⋮ < /td> <
+                td class = "player-number" > $ { newNumber } < /td> <
+                td class = "player-photo" > 📷 < /td> <
+                td class = "player-name"
+            contenteditable = "true" > Nuevo Jugador < /td> <
+                td >
+                <
+                select class = "position-select"
+            data - player = "${newId}" >
+                <
+                option value = "" > - < /option> <
+                option value = "P" > P < /option> <
+                option value = "C" > C < /option> <
+                option value = "1B" > 1 B < /option> <
+                option value = "2B" > 2 B < /option> <
+                option value = "3B" > 3 B < /option> <
+                option value = "SS" > SS < /option> <
+                option value = "LF" > LF < /option> <
+                option value = "CF" > CF < /option> <
+                option value = "RF" > RF < /option> <
+                option value = "DH" > DH < /option> <
+                /select> <
+                /td> <
+                td >
+                <
+                select class = "handedness-select"
+            data - player = "${newId}" >
+                <
+                option value = "R"
+            selected > R < /option> <
+                option value = "L" > L < /option> <
+                /select> <
+                /td> <
+                td class = "batting-avg"
+            contenteditable = "true" > .250 < /td> <
+                td class = "on-base-pct"
+            contenteditable = "true" > .300 < /td> <
+                td >
+                <
+                select class = "trait-select"
+            data - player = "${newId}" >
+                <
+                option value = ""
+            selected > - < /option> <
+                option value = "P+" > P + < /option> <
+                option value = "P++" > P++ < /option> <
+                option value = "C+" > C + < /option> <
+                option value = "S+" > S + < /option> <
+                option value = "D+" > D + < /option> <
+                option value = "T+" > T + < /option> <
+                option value = "P-" > P - < /option> <
+                option value = "P--" > P-- < /option> <
+                option value = "C" > C < /option> <
+                option value = "S-" > S - < /option> <
+                option value = "D-" > D - < /option> <
+                option value = "K+" > K + < /option> <
+                option value = "GB+" > GB + < /option> <
+                option value = "CN+" > CN + < /option> <
+                option value = "ST+" > ST + < /option> <
+                option value = "CN-" > CN - < /option> <
+                /select> <
+                /td> <
+                td class = "game-status" > 🪑 < /td>
+            `;
 
     tbody.appendChild(newRow);
     setupDragAndDrop(newRow);
-    console.log(`[BENCH] Jugador añadido al banquillo ${team}`);
+    console.log(` [BENCH] Jugador añadido al banquillo $ { team }
+            `);
 }
 
 // Sistema de Drag and Drop entre roster y banquillo
@@ -2092,7 +2889,8 @@ function setupDragAndDrop(row) {
         }
 
         const draggedId = e.dataTransfer.getData('playerId');
-        const draggedRow = document.querySelector(`[data-player-id="${draggedId}"]`);
+        const draggedRow = document.querySelector(` [data - player - id = "${draggedId}"]
+            `);
         const targetRow = this;
 
         if (draggedRow && targetRow && draggedRow !== targetRow) {
@@ -2786,8 +3584,7 @@ function applySingle(batter) {
         if (token) {
             animateTokenScore(token);
         }
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
         console.log('[HIT] Corredor anota desde 3ra: ' + runner.name);
     }
 
@@ -2831,8 +3628,7 @@ function applySingleAdvance2(batter) {
     if (oldBases.third) {
         const token = document.querySelector('[data-base="third"]');
         if (token) animateTokenScore(token);
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
     }
 
     if (oldBases.second) {
@@ -2840,8 +3636,7 @@ function applySingleAdvance2(batter) {
             const token = document.querySelector('[data-base="second"]');
             if (token) animateTokenScore(token);
         }, 200);
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
     }
 
     // Actualizar bases
@@ -2878,8 +3673,7 @@ function applyDouble(batter) {
     if (oldBases.third) {
         const token = document.querySelector('[data-base="third"]');
         if (token) animateTokenScore(token);
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
     }
 
     if (oldBases.second) {
@@ -2887,8 +3681,7 @@ function applyDouble(batter) {
             const token = document.querySelector('[data-base="second"]');
             if (token) animateTokenScore(token);
         }, 200);
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
     }
 
     // Actualizar bases
@@ -2926,8 +3719,7 @@ function applyDoubleAdvance3(batter) {
     if (oldBases.third) {
         const token = document.querySelector('[data-base="third"]');
         if (token) animateTokenScore(token);
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
     }
 
     if (oldBases.second) {
@@ -2935,8 +3727,7 @@ function applyDoubleAdvance3(batter) {
             const token = document.querySelector('[data-base="second"]');
             if (token) animateTokenScore(token);
         }, 200);
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
     }
 
     if (oldBases.first) {
@@ -2944,8 +3735,7 @@ function applyDoubleAdvance3(batter) {
             const token = document.querySelector('[data-base="first"]');
             if (token) animateTokenScore(token);
         }, 400);
-        gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-        gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+        addRun(getCurrentBattingTeam(), 1);
     }
 
     // Actualizar bases
@@ -3037,14 +3827,11 @@ function applyHomeRun(batter) {
         }
     }, 1500);
 
-    // Actualizar score
-    gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1] += totalRuns;
-    gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')] += totalRuns;
+    // Registrar carreras con tracking de fatiga
+    addRun(getCurrentBattingTeam(), totalRuns);
 
     // Limpiar bases
     gameState.bases = { first: null, second: null, third: null };
-
-    updateScoreboard();
 
     console.log('[HIT] Home Run! ' + totalRuns + ' carreras anotadas');
 }
@@ -3093,70 +3880,233 @@ function applyOutResult() {
         updateCascadeStatus('⚾ Strikeout! OUT #' + gameState.outs + ' - Corredores permanecen');
         console.log('[OUT] Strikeout - Los corredores no avanzan');
 
+        // Registrar strikeout para el pitcher
+        const pitchingTeam = getCurrentPitchingTeam();
+        recordStrikeout(pitchingTeam);
+
     } else if (lastDigit >= 3 && lastDigit <= 6) {
         // ========== GROUNDBALL (Infield) ==========
-        updateCascadeStatus('⚾ Groundball al infield! OUT #' + gameState.outs);
+        const mss = cascadeContext.currentMSS || 0;
+        const isRightSide = (lastDigit === 3 || lastDigit === 4); // 1B o 2B
 
-        // Si hay corredor en primera → Posible Double Play
-        if (oldBases.first && gameState.outs < 3) {
-            // Double Play: El corredor de 1ra también es out
-            gameState.outs++;
-            gameState.bases.first = null;
+        // TRIPLE PLAY: Corredores en 1B y 2B, nadie out, MSS ≥ 100
+        if (oldBases.first && oldBases.second && gameState.outs === 1 && mss >= 100) {
+            updateCascadeStatus('⚾⚾⚾ TRIPLE PLAY!!!');
 
-            // Limpiar token de primera base
             setTimeout(function() {
-                const token = document.querySelector('[data-base="first"]');
-                if (token) animateTokenPop(token);
-            }, 200);
+                alert('🔥🔥🔥 TRIPLE PLAY! 🔥🔥🔥\n\n' +
+                    'MSS: ' + mss + ' (≥100)\n' +
+                    'Outs: 0 (nadie out)\n' +
+                    'Corredores en 1B y 2B\n' +
+                    'Groundball al infield\n\n' +
+                    '❌ Corredor de 2B OUT\n' +
+                    '❌ Corredor de 1B OUT\n' +
+                    '❌ Bateador OUT\n\n' +
+                    '🎭 ¡3 OUTS! ¡ENTRADA TERMINADA!\n' +
+                    '💢 ¡El bateador estrella su casco contra el suelo!');
+            }, 100);
 
-            updateCascadeStatus('⚾⚾ DOUBLE PLAY! Outs #' + (gameState.outs - 1) + ' y #' + gameState.outs);
-            console.log('[OUT] Double Play - Bateador y corredor de 1ra out');
-        } else {
-            // Sin corredor en primera, solo el bateador es out
-            // Corredor de 3ra puede anotar (sacrifice)
-            if (gameState.outs < 3 && oldBases.third) {
+            // Eliminar ambos corredores con animación
+            gameState.outs = 3;
+            gameState.bases.first = null;
+            gameState.bases.second = null;
+
+            setTimeout(function() {
+                clearTokensAtBase('first', true);
+            }, 300);
+
+            setTimeout(function() {
+                clearTokensAtBase('second', true);
+            }, 500);
+
+            console.log('[OUT] TRIPLE PLAY - ¡3 outs! Entrada terminada');
+
+            // DOUBLE PLAY o FIELDER'S CHOICE: Corredor en 1B
+        } else if (oldBases.first && gameState.outs < 3) {
+
+            if (mss < 50) {
+                // MSS < 50: Corredor avanza a 2B, bateador OUT
+                updateCascadeStatus('⚾ Groundball - Bateador OUT, corredor avanza a 2B');
+
                 setTimeout(function() {
-                    const token = document.querySelector('[data-base="third"]');
-                    if (token) animateTokenScore(token);
-                    gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-                    gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
-                    gameState.bases.third = null;
+                    alert('⚡ FIELDER\'S CHOICE (MSS < 50)\n\n' +
+                        'MSS: ' + mss + ' (menos de 50)\n' +
+                        'Corredor en 1B\n' +
+                        'Groundball al infield\n\n' +
+                        '❌ Bateador OUT en 1B\n' +
+                        '✅ Corredor avanza 1B → 2B\n\n' +
+                        '💪 ¡High fives en el dugout!');
+                }, 100);
+
+                // Mover corredor a segunda
+                setTimeout(function() {
+                    clearTokensAtBase('first');
+                    moveRunnerToBase(oldBases.first, 'second');
+                    gameState.bases.second = oldBases.first;
+                    gameState.bases.first = null;
                     updateScoreboard();
-                    console.log('[OUT] Sacrifice - Corredor anota desde 3ra');
+                    console.log('[OUT] Fielder\'s Choice - Corredor avanza, bateador out');
+                }, 300);
+
+            } else if (mss >= 50 && mss < 70) {
+                // MSS 50-69: Corredor OUT en 2B, bateador SAFE en 1B (Fielder's Choice)
+                updateCascadeStatus('⚾ FIELDER\'S CHOICE - Corredor OUT, bateador SAFE');
+
+                setTimeout(function() {
+                    alert('📝 FIELDER\'S CHOICE (MSS 50-69)\n\n' +
+                        'MSS: ' + mss + ' (entre 50 y 69)\n' +
+                        'Corredor en 1B\n' +
+                        'Groundball al infield\n\n' +
+                        '❌ Corredor OUT en 2B\n' +
+                        '✅ Bateador SAFE en 1B (FC)\n\n' +
+                        '📋 Todos escriben "FC" en su scorecard');
+                }, 100);
+
+                // Eliminar corredor de primera con animación
+                gameState.bases.first = null;
+                setTimeout(function() {
+                    clearTokensAtBase('first', true);
+                }, 300);
+
+                // Bateador llega a primera
+                const batter = getCurrentBatter();
+                setTimeout(function() {
+                    gameState.bases.first = {
+                        id: batter.id,
+                        name: batter.name,
+                        number: batter.number,
+                        team: getCurrentBattingTeam(),
+                        mlbId: batter.mlbId
+                    };
+                    moveRunnerToBase(gameState.bases.first, 'first');
+                    updateScoreboard();
+                    console.log('[OUT] Fielder\'s Choice - Corredor out, bateador safe en 1B');
+                }, 600);
+
+                // El bateador NO es out, así que no incrementamos outs
+                gameState.outs--;
+
+            } else {
+                // MSS ≥ 70: DOUBLE PLAY - Ambos OUT
+                updateCascadeStatus('⚾⚾ DOUBLE PLAY! (MSS ≥70)');
+
+                setTimeout(function() {
+                    alert('⚡⚡ DOUBLE PLAY! (MSS ≥70)\n\n' +
+                        'MSS: ' + mss + ' (≥70)\n' +
+                        'Corredor en 1B\n' +
+                        'Groundball rápido al infield\n\n' +
+                        '❌ Corredor OUT en 2B\n' +
+                        '❌ Bateador OUT en 1B\n\n' +
+                        '🙌 ¡Los defensores chocan las manos!');
+                }, 100);
+
+                gameState.outs++;
+                gameState.bases.first = null;
+
+                // Limpiar token de primera base con animación
+                setTimeout(function() {
+                    clearTokensAtBase('first', true);
+                }, 300);
+
+                console.log('[OUT] Double Play - Bateador y corredor de 1ra out');
+            }
+
+        } else {
+            // Sin corredor en primera, verificar sacrifice
+            const canSacrifice = (gameState.outs < 2) && (mss < 70) && (oldBases.second || oldBases.third) && isRightSide;
+
+            updateCascadeStatus('⚾ Groundball al infield! OUT #' + gameState.outs);
+            // Sin corredor en primera, verificar sacrifice
+
+            // Corredor de 3ra puede anotar (sacrifice) si MSS < 70 y lado derecho
+            if (gameState.outs < 3 && oldBases.third) {
+                if (canSacrifice) {
+                    setTimeout(function() {
+                        alert('🎯 SACRIFICE GROUNDBALL!\n\n' +
+                            'MSS: ' + mss + ' (menos de 70)\n' +
+                            'Outs: ' + (gameState.outs - 1) + ' (menos de 2)\n' +
+                            'Groundball al lado derecho (1B/2B)\n\n' +
+                            '✅ Corredor de 3B puede anotar\n\n' +
+                            'Si el MSS hubiera sido ≥70, sería demasiado rápido y el corredor permanecería.');
+                    }, 100);
+
+                    setTimeout(function() {
+                        const token = document.querySelector('[data-base="third"]');
+                        if (token) animateTokenScore(token);
+                        addRun(getCurrentBattingTeam(), 1);
+                        gameState.bases.third = null;
+                        updateScoreboard();
+                        console.log('[OUT] Sacrifice groundball - Corredor anota desde 3ra');
+                    }, 300);
+                } else {
+                    console.log('[OUT] Groundball - Corredor de 3ra permanece (MSS ≥70 o no lado derecho)');
+                }
+            }
+
+            // Corredor de 2da puede avanzar a 3ra si MSS < 70 y lado derecho
+            if (gameState.outs < 3 && oldBases.second && canSacrifice && !oldBases.third) {
+                setTimeout(function() {
+                    clearTokensAtBase('second');
+                    moveRunnerToBase(oldBases.second, 'third');
+                    gameState.bases.third = oldBases.second;
+                    gameState.bases.second = null;
+                    updateScoreboard();
+                    console.log('[OUT] Sacrifice groundball - Corredor avanza 2da → 3ra');
                 }, 300);
             }
         }
 
     } else if (lastDigit >= 7 && lastDigit <= 9) {
         // ========== FLY BALL / POP-UP (Outfield) ==========
-        updateCascadeStatus('⚾ Fly out! OUT #' + gameState.outs + ' - Corredores pueden avanzar');
+        const mss = cascadeContext.currentMSS || 0;
+        const canSacFly = (gameState.outs < 2) && (mss < 70) && (oldBases.second || oldBases.third);
 
-        // Corredores en 2da y 3ra avanzan (tag up)
+        if (canSacFly) {
+            updateCascadeStatus('⚾ SACRIFICE FLY! OUT #' + gameState.outs + ' - MSS < 70, corredores avanzan');
+            console.log('[OUT] Sacrifice Fly - MSS: ' + mss + ' < 70, corredores pueden avanzar');
+
+            // Mostrar aviso explicativo
+            setTimeout(function() {
+                alert('🎯 SACRIFICE FLY!\n\n' +
+                    'MSS: ' + mss + ' (menos de 70)\n' +
+                    'Outs: ' + (gameState.outs - 1) + ' (menos de 2)\n' +
+                    'Fly ball profundo al outfield\n\n' +
+                    '✅ Los corredores en 2B/3B pueden avanzar (tag up)\n\n' +
+                    'Si el MSS hubiera sido ≥70, la bola sería demasiado corta y los corredores permanecerían.');
+            }, 100);
+        } else {
+            updateCascadeStatus('⚾ Fly out! OUT #' + gameState.outs + ' - Corredores pueden avanzar');
+        }
+
+        // Corredores en 2da y 3ra avanzan (tag up) solo si MSS < 70 y menos de 2 outs
         let delay = 300;
 
-        // Corredor de 3ra anota
-        if (oldBases.third && gameState.outs < 3) {
+        // Corredor de 3ra anota (solo si sacrifice fly o menos de 3 outs)
+        if (oldBases.third && gameState.outs < 3 && canSacFly) {
             setTimeout(function() {
                 const token = document.querySelector('[data-base="third"]');
                 if (token) animateTokenScore(token);
-                gameState.score[getCurrentBattingTeam()][gameState.currentInning - 1]++;
-                gameState.score['total' + (getCurrentBattingTeam() === 'visitante' ? 'Visitante' : 'Local')]++;
+                addRun(getCurrentBattingTeam(), 1);
                 gameState.bases.third = null;
-                console.log('[OUT] Fly ball - Corredor anota desde 3ra (tag up)');
+                console.log('[OUT] Sacrifice fly - Corredor anota desde 3ra (tag up)');
             }, delay);
             delay += 200;
+        } else if (oldBases.third && !canSacFly) {
+            console.log('[OUT] Fly ball corto (MSS ≥70) - Corredor de 3ra permanece');
         }
 
-        // Corredor de 2da avanza a 3ra
-        if (oldBases.second && gameState.outs < 3) {
+        // Corredor de 2da avanza a 3ra (solo si sacrifice fly)
+        if (oldBases.second && gameState.outs < 3 && canSacFly) {
             setTimeout(function() {
                 clearTokensAtBase('second');
                 moveRunnerToBase(oldBases.second, 'third');
                 gameState.bases.third = oldBases.second;
                 gameState.bases.second = null;
-                console.log('[OUT] Fly ball - Corredor avanza 2da → 3ra (tag up)');
+                console.log('[OUT] Sacrifice fly - Corredor avanza 2da → 3ra (tag up)');
             }, delay);
             delay += 200;
+        } else if (oldBases.second && !canSacFly) {
+            console.log('[OUT] Fly ball corto (MSS ≥70) - Corredor de 2da permanece');
         }
 
         // Corredor de 1ra permanece (no puede avanzar en fly ball)

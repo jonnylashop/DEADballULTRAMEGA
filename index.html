@@ -744,6 +744,10 @@
                                     <span class="batter-name">Bateador Actual</span>
                                     <span class="batter-stats">AVG: .000</span>
                                 </div>
+                                <div class="pitch-die-display">
+                                    <span class="pitch-die-label">Pitch Die:</span>
+                                    <span class="pitch-die-value" id="pitch-die-local">d12</span>
+                                </div>
                                 <div class="dice-controls">
                                     <!-- Dados visuales lado a lado -->
                                     <div class="dice-display">
@@ -1120,12 +1124,17 @@
                     </div>
                 </div>
 
-                <!-- Botón de iniciar juego encima del estadio -->
+                <!-- Botón principal de control (centro) -->
                 <div class="start-game-container">
                     <button id="start-game-btn" class="start-game-btn" onclick="startNewGame()">
                         🎮 Iniciar Nuevo Juego
                     </button>
                 </div>
+
+                <!-- Botón de reset (esquina superior derecha) -->
+                <button id="reset-game-btn" class="reset-game-btn-corner" onclick="confirmResetGame()" style="display: none;">
+                    🔄
+                </button>
 
                 <!-- ===== SISTEMA DE TOKENS VISUALES EN EL DIAMANTE ===== -->
                 <!-- 
@@ -2355,6 +2364,10 @@
                             <div class="current-batter-info" id="current-batter-info-local">
                                 <span class="batter-name">Bateador Actual</span>
                                 <span class="batter-stats">AVG: .000</span>
+                            </div>
+                            <div class="pitch-die-display">
+                                <span class="pitch-die-label">Pitch Die:</span>
+                                <span class="pitch-die-value" id="pitch-die-visitante">d12</span>
                             </div>
                             <div class="dice-controls">
                                 <!-- Dados visuales lado a lado -->

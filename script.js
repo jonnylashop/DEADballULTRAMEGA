@@ -57,17 +57,22 @@ const gameState = {
     // RESULTADO DE LA TIRADA ACTUAL
     currentDiceRoll: null, // Almacena el resultado total de la tirada actual (MSS + Event)
 
-    // TODO: IMPLEMENTAR MÁS TARDE - HISTORIAL DE BATEADORES
-    // batterHistory: [] // Array que contendrá el registro de cada bateador:
-    // {
-    //     batter: {name, position, stats...},
-    //     diceRoll: number,
-    //     result: string,
-    //     inning: number,
-    //     isTopHalf: boolean,
-    //     timestamp: Date,
-    //     outcome: string (hit, out, walk, etc.)
-    // }
+    // ESTADÍSTICAS DE JUGADORES
+    playerStats: {
+        visitante: {}, // { playerName: { AB, H, R, RBI, BB, K, AVG } }
+        local: {} // { playerName: { AB, H, R, RBI, BB, K, AVG } }
+    },
+
+    // HISTORIAL DE JUGADAS
+    playByPlay: [] // Array con registro de cada jugada del partido
+        // {
+        //     inning: number,
+        //     isTopHalf: boolean,
+        //     batter: string,
+        //     result: string,
+        //     outs: number,
+        //     timestamp: Date
+        // }
 };
 
 // ===== FUNCIONES DE NAVEGACIÓN DE JUGADORES =====
@@ -118,14 +123,112 @@ function getCurrentBatter() {
 
     if (cells.length < 6) return null;
 
+    // Obtener ID y número del jugador desde la fila
+    const playerId = playerRow.getAttribute('data-player-id') || (batterIndex + 1).toString();
+    const playerNumber = cells[1].textContent.trim(); // Columna '#'
+    const mlbId = playerRow.getAttribute('data-mlb-id') || null;
+
     // Crear objeto jugador con los datos de la tabla
     return {
+        id: playerId,
+        number: playerNumber,
         name: cells[3].textContent.trim(), // Columna 'Nombre'
         position: cells[4].textContent.trim(), // Columna 'Posición'
         battingAvg: parseFloat(cells[6].textContent.trim()) || 0, // Columna 'BT'
         onBasePct: parseFloat(cells[7].textContent.trim()) || 0, // Columna 'OBT'
-        traits: cells[8].textContent.trim() // Columna 'Traits'
+        traits: cells[8].textContent.trim(), // Columna 'Traits'
+        mlbId: mlbId
     };
+}
+
+/*
+  FUNCIÓN: initializeFirstBatter()
+  PROPÓSITO: Inicializa el primer bateador al inicio del juego SIN incrementar el índice
+  EXPLICACIÓN: Crea el token del bateador actual sin avanzar al siguiente
+*/
+function initializeFirstBatter() {
+    console.log('🚀 ========== INICIANDO initializeFirstBatter ==========');
+
+    // IMPORTANTE: Solo crea el token, NO modifica índices (ya están en 0 desde startNewGame)
+    const battingTeam = getCurrentBattingTeam();
+    console.log(`🔍 Equipo bateando: ${battingTeam}`);
+    console.log(`🔍 Índice actual: ${getCurrentBatterIndex()}`);
+
+    const currentBatter = getCurrentBatter();
+
+    console.log(`🏃 Primer bateador: ${currentBatter?.name || 'Desconocido'}`);
+    console.log(`📊 Índice de bateador: ${getCurrentBatterIndex() + 1}/9`);
+
+    if (currentBatter) {
+        console.log('✅ Bateador obtenido correctamente:', currentBatter);
+
+        // Limpiar tokens anteriores en home
+        const runnersContainer = document.getElementById('runners-container');
+        console.log(`🔍 Buscando contenedor 'runners-container'...`);
+        console.log(`🔍 Contenedor encontrado:`, runnersContainer);
+        console.log(`🔍 Contenedor existe:`, !!runnersContainer);
+
+        if (runnersContainer) {
+            console.log('✅ Contenedor runners-container ENCONTRADO');
+            console.log(`📊 Posición del contenedor:`, runnersContainer.getBoundingClientRect());
+            console.log(`📊 Display del contenedor:`, window.getComputedStyle(runnersContainer).display);
+            console.log(`📊 Visibility del contenedor:`, window.getComputedStyle(runnersContainer).visibility);
+
+            const existingBatterTokens = runnersContainer.querySelectorAll('[data-current-base="home"]');
+            console.log(`🧹 Limpiando ${existingBatterTokens.length} tokens anteriores en home`);
+            existingBatterTokens.forEach(token => token.remove());
+        } else {
+            console.error('❌❌❌ NO se encontró runners-container - Los tokens NO se mostrarán');
+            console.error('🔍 Buscando elementos similares...');
+            const allDivs = document.querySelectorAll('div[id*="runner"]');
+            console.log(`🔍 Divs con 'runner' en ID:`, Array.from(allDivs).map(d => d.id));
+            return;
+        }
+
+        // Crear token del primer bateador
+        const batterData = {
+            id: currentBatter.id || '1',
+            number: currentBatter.number || '1',
+            name: currentBatter.name,
+            team: battingTeam,
+            mlbId: currentBatter.mlbId || null
+        };
+        console.log('🎯 Datos del token a crear:', batterData);
+        console.log('🎯 Posición home:', basePositions.home);
+
+        const createdToken = createRunnerToken(batterData, 'home');
+        console.log(`⚾ createRunnerToken() completado - Token devuelto:`, createdToken);
+
+        // Verificar que el token se creó
+        setTimeout(() => {
+            const verifyToken = runnersContainer.querySelector('[data-current-base="home"]');
+            console.log(`🔍 Verificación del token:`, verifyToken);
+            if (verifyToken) {
+                console.log(`✅✅✅ CONFIRMADO: Token visible en home plate`);
+                console.log(`📊 Estilo del token:`, window.getComputedStyle(verifyToken).cssText);
+            } else {
+                console.error(`❌❌❌ ERROR: Token NO se creó correctamente`);
+                console.error(`🔍 Contenido del contenedor:`, runnersContainer.innerHTML);
+                console.error(`🔍 Hijos del contenedor:`, runnersContainer.children);
+            }
+        }, 300);
+    } else {
+        console.error('❌ No hay bateador actual - No se puede crear token');
+        console.error('🔍 Revisando tablas de roster...');
+        const visitanteTable = document.getElementById('roster-visitante');
+        const localTable = document.getElementById('roster-local');
+        console.log('🔍 Tabla visitante:', visitanteTable);
+        console.log('🔍 Tabla local:', localTable);
+    }
+
+    // Actualizar display
+    updateGameDisplay();
+
+    // MOSTRAR SELECTOR DE INTENCIONES AUTOMÁTICAMENTE
+    console.log('🎯 Mostrando selector de intenciones automáticamente...');
+    showIntentionSelector();
+
+    console.log('🏁 ========== FIN initializeFirstBatter ==========');
 }
 
 /*
@@ -145,15 +248,65 @@ function nextBatter() {
     console.log(`🏃 Siguiente bateador: ${getCurrentBatter()?.name || 'Desconocido'}`);
     console.log(`📊 Índice de bateador: ${getCurrentBatterIndex() + 1}/9`);
 
-    // NO ACTUALIZAR VISUALIZACIÓN - Puede interferir con dados visibles
-    // updateGameDisplay(); // COMENTADO - Mantener dados visibles
+    // Resetear cuenta de strikes y balls para el nuevo bateador
+    gameState.strikes = 0;
+    gameState.balls = 0;
+    console.log('🔄 Strikes y balls reseteados a 0');
 
-    // NO ACTUALIZAR POSICIÓN - Puede interferir con dados visibles  
-    // if (gameState.isGameActive) {
-    //     updateDiceSystemPosition();
-    // }
+    // Crear token del bateador en home plate
+    const currentBatter = getCurrentBatter();
+    console.log('🏃 Datos del bateador actual:', currentBatter);
 
-    console.log(`✅ Bateador avanzado sin resetear dados`);
+    if (currentBatter) {
+        // Limpiar tokens anteriores en home
+        const runnersContainer = document.getElementById('runners-container');
+        if (runnersContainer) {
+            const existingBatterTokens = runnersContainer.querySelectorAll('[data-current-base="home"]');
+            existingBatterTokens.forEach(token => token.remove());
+            console.log(`🧹 Limpiados ${existingBatterTokens.length} tokens anteriores en home`);
+        } else {
+            console.error('❌ No se encontró runners-container');
+        }
+
+        // Crear nuevo token del bateador usando el ID del roster
+        const batterData = {
+            id: currentBatter.id,
+            number: currentBatter.number,
+            name: currentBatter.name,
+            team: battingTeam,
+            mlbId: currentBatter.mlbId
+        };
+        console.log('🎯 Creando token con datos:', batterData);
+        createRunnerToken(batterData, 'home');
+        console.log(`⚾ Token del bateador creado en home: ${currentBatter.name}`);
+    }
+
+    // Actualizar display para mostrar el nuevo bateador y cuenta reseteada
+    updateGameDisplay();
+
+    // Limpiar sistema de cascada
+    resetCascadeSystemComplete();
+    console.log('🧹 Sistema de cascada limpiado');
+
+    // MOSTRAR SELECTOR DE INTENCIONES para el nuevo bateador
+    console.log('🎯 Mostrando selector de intenciones para nuevo bateador...');
+    setTimeout(() => {
+        showIntentionSelector();
+        updateIntentionSelector(); // Validar opciones disponibles
+        console.log('✅ Selector de intenciones mostrado');
+    }, 200);
+
+    // Mostrar estadísticas actuales del jugador que acaba de batear
+    const previousBatter = gameState.playerStats[battingTeam];
+    if (Object.keys(previousBatter).length > 0) {
+        showGameStats();
+    }
+
+    console.log(`✅ Bateador avanzado - Todo listo para nueva jugada`);
+
+    // MOSTRAR SELECTOR DE INTENCIONES AUTOMÁTICAMENTE
+    console.log('🎯 Mostrando selector de intenciones automáticamente...');
+    showIntentionSelector();
 }
 
 // ===== FUNCIONES DE ACTUALIZACIÓN VISUAL DEL ESTADO =====
@@ -191,6 +344,20 @@ function updateGameDisplay() {
   EXPLICACIÓN: Sincroniza la tabla del marcador con el gameState.score
 */
 function updateScoreboard() {
+    // VERIFICACIÓN DE SEGURIDAD: Asegurar que score está inicializado
+    if (!gameState.score || !gameState.score.visitante || !gameState.score.local) {
+        console.error('❌ ERROR: gameState.score no está inicializado correctamente');
+        console.log('🔍 Estado actual de gameState.score:', gameState.score);
+        // Inicializar score si no existe
+        gameState.score = {
+            visitante: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            local: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            totalVisitante: 0,
+            totalLocal: 0
+        };
+        console.log('✅ gameState.score inicializado automáticamente');
+    }
+
     // Actualizar carreras por inning para visitante
     const visitanteRow = document.querySelector('tbody tr:first-child');
     if (visitanteRow) {
@@ -347,6 +514,9 @@ function updateBasesDisplay() {
     // Esta función se puede expandir más adelante para mostrar 
     // gráficamente los corredores en las bases
     console.log('Bases actuales:', gameState.bases);
+
+    // Actualizar visibilidad del botón de robo
+    updateStealBaseButton();
 }
 
 // ===== FUNCIONES DE CONTROL DEL FLUJO DEL JUEGO =====
@@ -358,6 +528,9 @@ function updateBasesDisplay() {
 */
 function startNewGame() {
     console.log('🎮 Iniciando nuevo juego...');
+    console.log('========================================');
+    console.log('FUNCIÓN startNewGame() EJECUTADA');
+    console.log('========================================');
 
     try {
         // RESETEO SELECTIVO - Solo elementos específicos de dados, NO todo el DOM
@@ -430,8 +603,10 @@ function startNewGame() {
         console.log('⏳ Reseteando gameState...');
         gameState.currentInning = 1;
         gameState.isTopHalf = true; // Siempre empieza bateando el visitante
-        gameState.visitanteBatterIndex = 0; // Primer bateador del visitante
-        gameState.localBatterIndex = 0; // Primer bateador del local (para cuando les toque)
+
+        // Empezar desde el primer bateador (índice 0)
+        gameState.visitanteBatterIndex = 0; // Primer bateador
+        gameState.localBatterIndex = 0; // Primer bateador
 
         // Resetear count
         gameState.outs = 0;
@@ -486,10 +661,16 @@ function startNewGame() {
 
         console.log('🎮 ¡Nuevo juego iniciado correctamente!');
 
-        // Obtener bateador actual
-        console.log('⏳ Obteniendo primer bateador...');
-        const currentBatter = getCurrentBatter();
-        console.log(`🏃 Primer bateador: ${currentBatter?.name || 'Desconocido'}`);
+        // Obtener primer bateador y crear su token
+        console.log('⏳ Inicializando primer bateador...');
+        console.log('🔍 Estado antes de initializeFirstBatter:');
+        console.log('  - isGameActive:', gameState.isGameActive);
+        console.log('  - currentInning:', gameState.currentInning);
+        console.log('  - isTopHalf:', gameState.isTopHalf);
+        console.log('  - batterIndex:', getCurrentBatterIndex());
+
+        initializeFirstBatter();
+        console.log('✅ Primer bateador inicializado');
 
         // NO llamar a resetIntentionSelector aquí - el selector ya está visible por defecto
         console.log('🎯 Selector de intenciones ya visible por defecto');
@@ -515,27 +696,55 @@ function resetGame() {
 
     // PASO 1: Resetear estado del juego a valores iniciales (INACTIVO)
     gameState.isGameActive = false; // ¡IMPORTANTE! Volver a estado inactivo
+    gameState.gameComplete = false;
+    gameState.winner = null;
     gameState.currentInning = 1;
     gameState.isTopHalf = true;
-    gameState.visitanteBatterIndex = 0;
-    gameState.localBatterIndex = 0;
+
+    // Resetear índices al primer bateador
+    gameState.visitanteBatterIndex = 0; // Primer bateador
+    gameState.localBatterIndex = 0; // Primer bateador
+
     gameState.outs = 0;
     gameState.currentDiceRoll = null;
     gameState.lastRollDetails = null;
     gameState.currentIntention = null;
+    gameState.strikes = 0;
+    gameState.balls = 0;
 
-    // PASO 2: Resetear marcador
+    // PASO 2: Limpiar bases
+    gameState.bases = { first: null, second: null, third: null };
+
+    // PASO 3: Resetear marcador COMPLETAMENTE
     gameState.score = {
-        visitanteRuns: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        localRuns: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        visitante: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        local: [0, 0, 0, 0, 0, 0, 0, 0, 0],
         totalVisitante: 0,
         totalLocal: 0
     };
 
-    // PASO 3: Limpiar interfaz de dados
+    // PASO 4: RESETEAR ESTADÍSTICAS DEL PARTIDO
+    gameState.hits = { visitante: 0, local: 0 };
+    gameState.errors = { visitante: 0, local: 0 };
+
+    // PASO 5: RESETEAR ESTADÍSTICAS DE JUGADORES
+    gameState.playerStats = {
+        visitante: {},
+        local: {}
+    };
+    console.log('📊 Estadísticas de jugadores reseteadas');
+
+    // PASO 6: LIMPIAR TOKENS DEL CAMPO
+    const runnersContainer = document.getElementById('runners-container');
+    if (runnersContainer) {
+        runnersContainer.innerHTML = '';
+        console.log('🧹 Tokens del campo limpiados');
+    }
+
+    // PASO 7: Limpiar interfaz de dados
     resetCascadeSystemComplete();
 
-    // PASO 4: Ocultar todos los contenedores de dados y selector de intenciones
+    // PASO 8: Ocultar todos los contenedores de dados y selector de intenciones
     const visitanteContainer = document.getElementById('dice-container-visitante');
     const localContainer = document.getElementById('dice-container-local');
     const intentionContainer = document.getElementById('intention-container-visitante');
@@ -544,7 +753,7 @@ function resetGame() {
     if (localContainer) localContainer.style.display = 'none';
     if (intentionContainer) intentionContainer.style.display = 'none';
 
-    // PASO 5: Limpiar campos de entrada
+    // PASO 9: Limpiar campos de entrada
     const diceInputIds = [
         'pitcher-dice-value', 'batter-dice-value',
         'pitcher-dice-value-local', 'batter-dice-value-local'
@@ -555,8 +764,9 @@ function resetGame() {
         if (input) input.value = '';
     });
 
-    // PASO 6: Actualizar display y mostrar botón "Iniciar Nuevo Juego"
+    // PASO 10: Actualizar display y mostrar botón "Iniciar Nuevo Juego"
     updateGameDisplay();
+    updateBasesDisplay();
 
     console.log('🔍 Estado antes de toggleGameControls:', {
         isGameActive: gameState.isGameActive,
@@ -720,47 +930,180 @@ const basePositions = {
 };
 
 /**
+ * Obtiene las iniciales de un nombre de jugador
+ * @param {string} name - Nombre completo del jugador
+ * @returns {string} - Iniciales (ej: "Juan Pérez" → "JP")
+ */
+function getPlayerInitials(name) {
+    if (!name) return '??';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) {
+        // Solo un nombre, tomar primeras 2 letras
+        return parts[0].substring(0, 2).toUpperCase();
+    }
+    // Tomar primera letra de cada palabra (máximo 3)
+    return parts.slice(0, 3).map(part => part.charAt(0).toUpperCase()).join('');
+}
+
+/**
  * Crea un token visual para un corredor en el diamante
  * @param {Object} player - Objeto jugador con propiedades name, id, team
  * @param {string} base - Base donde colocar el token ('first', 'second', 'third', 'home')
  * @returns {HTMLElement} - Elemento DOM del token creado
  */
 function createRunnerToken(player, base) {
-    console.log(`🏃 Creando token para ${player.name} en ${base}`);
+    console.log(`🏃 ========== INICIANDO createRunnerToken ==========`);
+    console.log(`🏃 Jugador: ${player.name}, Base: ${base}`);
+    console.log('📋 Datos completos del jugador:', player);
+    console.log('📍 Posición base:', basePositions[base]);
 
     const token = document.createElement('div');
     token.className = `runner-token team-${player.team} entering`;
     token.dataset.playerId = player.id;
     token.dataset.currentBase = base;
 
-    // Crear contenido del token (nombre abreviado o número)
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'runner-name';
-    nameSpan.textContent = player.name.split(' ').map(n => n[0]).join('') || player.number || '?';
-    token.appendChild(nameSpan);
+    console.log(`✅ Token creado - className: ${token.className}`);
+    console.log(`✅ Token ID: ${token.dataset.playerId}, Base: ${token.dataset.currentBase}`);
+
+    // Crear imagen del jugador con fallback
+    const playerImg = document.createElement('div');
+    playerImg.className = 'runner-photo';
+
+    // Obtener foto del jugador (usar API MLB o fotos locales)
+    const photoUrl = getPlayerPhotoUrl(player);
+    console.log(`🖼️ URL de foto obtenida: ${photoUrl}`);
+
+    // Si hay foto, intentar cargarla
+    if (photoUrl) {
+        playerImg.style.backgroundImage = `url('${photoUrl}')`;
+        console.log('✅ Foto asignada al background-image');
+
+        // Si la foto falla al cargar, mostrar J# como fallback
+        const testImg = new Image();
+        testImg.onerror = () => {
+            // La foto no cargó, mostrar J# en su lugar
+            playerImg.style.backgroundImage = 'none';
+            const playerNumberSpan = document.createElement('span');
+            playerNumberSpan.className = 'player-initials';
+            playerNumberSpan.textContent = player.number ? `J${player.number}` : getPlayerInitials(player.name);
+            playerImg.appendChild(playerNumberSpan);
+            console.log(`❌ Foto falló al cargar, mostrando ${playerNumberSpan.textContent}`);
+        };
+        testImg.onload = () => {
+            console.log('✅ Foto cargada exitosamente');
+        };
+        testImg.src = photoUrl;
+    } else {
+        // No hay URL de foto, mostrar J# directamente
+        const playerNumberSpan = document.createElement('span');
+        playerNumberSpan.className = 'player-initials';
+        playerNumberSpan.textContent = player.number ? `J${player.number}` : getPlayerInitials(player.name);
+        playerImg.appendChild(playerNumberSpan);
+        console.log(`📝 Sin foto: mostrando ${playerNumberSpan.textContent}`);
+    }
+
+    token.appendChild(playerImg);
+    console.log(`✅ Imagen añadida al token`);
+
+    // Añadir nombre debajo del token
+    const nameLabel = document.createElement('div');
+    nameLabel.className = 'runner-label';
+    // Mostrar número y apellido (ej: "J1 - Jugador")
+    const displayName = player.number ?
+        `J${player.number} - ${player.name.split(' ').pop()}` :
+        player.name.split(' ').pop();
+    nameLabel.textContent = displayName;
+    token.appendChild(nameLabel);
+    console.log(`✅ Etiqueta añadida: ${displayName}`);
 
     // Posicionar en la base especificada
     const position = basePositions[base];
     token.style.left = position.x;
     token.style.top = position.y;
+    console.log(`✅ Posición establecida - Left: ${position.x}, Top: ${position.y}`);
 
     // Añadir tooltip con información completa
     token.title = `${player.name} (${player.team}) - ${base} base`;
 
     // Añadir al contenedor de tokens
     const container = document.getElementById('runners-container');
+    console.log(`🔍 Buscando contenedor 'runners-container'...`);
     if (container) {
+        console.log(`✅ Contenedor encontrado:`, container);
         container.appendChild(token);
+        console.log(`✅ Token añadido al contenedor`);
+        console.log(`📊 Total de hijos en contenedor: ${container.children.length}`);
+
+        // Verificar que el token está realmente en el DOM
+        setTimeout(() => {
+            const verification = document.querySelector(`[data-player-id="${player.id}"]`);
+            if (verification) {
+                console.log(`✅✅✅ TOKEN CONFIRMADO EN EL DOM`);
+                console.log(`📍 Posición computada:`, window.getComputedStyle(verification).left, window.getComputedStyle(verification).top);
+            } else {
+                console.error(`❌❌❌ TOKEN NO ENCONTRADO EN EL DOM`);
+            }
+        }, 50);
     } else {
-        console.error('❌ No se encontró el contenedor de runners');
+        console.error('❌❌❌ NO se encontró el contenedor de runners');
+        console.error('🔍 Buscando contenedores similares...');
+        const allDivs = document.querySelectorAll('div');
+        console.log(`📊 Total de divs en el documento: ${allDivs.length}`);
+        const containersWithRunner = Array.from(allDivs).filter(div =>
+            div.id && div.id.includes('runner')
+        );
+        console.log(`🔍 Divs con 'runner' en el ID:`, containersWithRunner.map(d => d.id));
     }
 
     // Remover clase de entrada después de la animación
     setTimeout(() => {
         token.classList.remove('entering');
+        console.log(`✅ Clase 'entering' removida del token`);
     }, 800);
 
+    console.log(`🏃 ========== FIN createRunnerToken ==========`);
     return token;
+}
+
+/**
+ * Obtiene la URL de la foto del jugador
+ * @param {Object} player - Objeto del jugador
+ * @returns {string|null} - URL de la foto o null
+ */
+function getPlayerPhotoUrl(player) {
+    // Base de datos de fotos de jugadores MLB (ejemplos populares)
+    const mlbPhotos = {
+        // Estrellas actuales
+        'Shohei Ohtani': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/660271/headshot/67/current',
+        'Aaron Judge': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/592450/headshot/67/current',
+        'Mookie Betts': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/605141/headshot/67/current',
+        'Juan Soto': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/665742/headshot/67/current',
+        'Ronald Acuña Jr.': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/660670/headshot/67/current',
+        'Fernando Tatis Jr.': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/665487/headshot/67/current',
+        'Mike Trout': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/545361/headshot/67/current',
+        'Bryce Harper': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/547180/headshot/67/current',
+        'José Altuve': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/514888/headshot/67/current',
+        'Vladimir Guerrero Jr.': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/665489/headshot/67/current'
+    };
+
+    // Buscar por nombre exacto
+    if (mlbPhotos[player.name]) {
+        return mlbPhotos[player.name];
+    }
+
+    // Si el jugador tiene un ID MLB, construir URL
+    if (player.mlbId) {
+        return `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${player.mlbId}/headshot/67/current`;
+    }
+
+    // Fallback: intentar buscar por apellido
+    const lastName = player.name.split(' ').pop();
+    const match = Object.keys(mlbPhotos).find(name => name.includes(lastName));
+    if (match) {
+        return mlbPhotos[match];
+    }
+
+    return null;
 }
 
 /**
@@ -1349,7 +1692,8 @@ function rollDice() {
         resultType = 'out';
     }
 
-    // Activar sistema de cascada inmediatamente
+    // Activar sistema de cascada inmediatamente con la tirada completa
+    console.log(`🎯 Llamando initializeCascade con tirada: ${total}`);
     initializeCascade(total, resultType);
 
     // NO procesar automáticamente - esperar confirmación manual
@@ -1386,11 +1730,26 @@ function changeInning() {
 
 function endGame() {
     gameState.isGameActive = false;
+    gameState.gameComplete = true;
+
     const winner = gameState.score.totalVisitante > gameState.score.totalLocal ? 'Visitante' :
         gameState.score.totalLocal > gameState.score.totalVisitante ? 'Local' : 'Empate';
 
-    alert(`¡Juego terminado! Ganador: ${winner}`);
-    console.log('Juego terminado');
+    gameState.winner = winner;
+
+    // Guardar estadísticas del juego
+    saveGameStats();
+
+    // Mostrar estadísticas finales en consola
+    console.log('');
+    console.log('🏁 ═══════════════════════════════════════ 🏁');
+    console.log('           JUEGO TERMINADO');
+    console.log(`           Ganador: ${winner}`);
+    console.log('🏁 ═══════════════════════════════════════ 🏁');
+    showGameStats();
+
+    alert(`¡Juego terminado!\n\nGanador: ${winner}\n\nVerifica la consola (F12) para ver las estadísticas completas del partido.`);
+    console.log('💾 Estadísticas guardadas. Puedes verlas en la consola.');
 
     // Ocultar sistema de dados
     document.getElementById('dice-container-visitante').style.display = 'none';
@@ -1754,57 +2113,6 @@ function updateBatterInfo(team) {
     }
 }
 
-function rollDice() {
-    const team = gameState.isTopHalf ? 'visitante' : 'local';
-    const resultsDisplay = team === 'visitante' ?
-        document.getElementById('dice-results-display') :
-        document.getElementById('dice-results-display-local');
-    const finalResult = team === 'visitante' ?
-        document.getElementById('final-result') :
-        document.getElementById('final-result-local');
-    const description = team === 'visitante' ?
-        document.getElementById('result-description') :
-        document.getElementById('result-description-local');
-
-    // Simular tirada de dados (D20 + D100)
-    const d20 = Math.floor(Math.random() * 20) + 1;
-    const d100 = Math.floor(Math.random() * 100) + 1;
-    const total = d20 + d100;
-
-    // Mostrar resultados
-    resultsDisplay.style.display = 'block';
-    finalResult.textContent = total;
-
-    // Determinar resultado de la jugada
-    let resultText = '';
-    if (total <= 30) {
-        resultText = 'Out (foul, strikeout, groundout)';
-    } else if (total <= 60) {
-        resultText = 'Hit sencillo';
-    } else if (total <= 80) {
-        resultText = 'Hit doble';
-    } else if (total <= 95) {
-        resultText = 'Hit triple';
-    } else {
-        resultText = 'Home run!';
-    }
-
-    description.textContent = `D20: ${d20} + D100: ${d100} = ${total} → ${resultText}`;
-
-    // MOSTRAR INMEDIATAMENTE EL BOTÓN "SIGUIENTE BATEADOR"
-    const confirmation = document.getElementById('cascade-confirmation');
-    const confirmationText = document.getElementById('confirmation-text');
-    if (confirmation && confirmationText) {
-        confirmationText.textContent = 'Dados tirados. ¿Continuar al siguiente bateador?';
-        confirmation.style.display = 'block';
-        console.log(`🎯 Botón "Siguiente Bateador" mostrado inmediatamente`);
-    }
-
-    // NO HACER NADA AUTOMÁTICAMENTE - Solo mostrar el botón y esperar
-    // El usuario debe presionar "Siguiente Bateador" para continuar
-    console.log(`✅ Dados mostrados. Esperando confirmación del usuario...`);
-}
-
 // Event listeners para los botones de dados
 document.addEventListener('DOMContentLoaded', function() {
     const rollButtonVisitante = document.getElementById('roll-main-dice');
@@ -2001,10 +2309,21 @@ function applyTeamToTable(teamType, teamData) {
         row.setAttribute('data-player-id', player.id || (index + 1));
 
         // Crear la estructura HTML completa con todas las clases CSS
+        // Generar token con foto para el roster
+        const photoUrl = getPlayerPhotoUrl(player);
+        let photoHTML = '';
+        if (photoUrl) {
+            // Usar <img> en lugar de background-image para mejor carga
+            photoHTML = `<div class="roster-player-token"><img src="${photoUrl}" onerror="this.parentElement.innerHTML='<span>J${index + 1}</span>';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" /></div>`;
+        } else {
+            // Si no hay foto, mostrar J# como en el campo
+            photoHTML = `<div class="roster-player-token"><span>J${index + 1}</span></div>`;
+        }
+
         row.innerHTML = `
             <td class="drag-handle">⋮⋮</td>
             <td class="player-number">${index + 1}</td>
-            <td class="player-photo">📷</td>
+            <td class="player-photo">${photoHTML}</td>
             <td class="player-name">${player.name}</td>
             <td>
                 <select class="position-select" data-player="${player.id || (index + 1)}">
@@ -2056,253 +2375,31 @@ function generateTraitTags(traits) {
   Maneja la resolución paso a paso de jugadas complejas
 */
 
-// Mostrar el sistema de cascada (contenedor siempre visible)
-function showCascadeSystem() {
-    // El contenedor ya está siempre visible por CSS
-    // Solo activamos la visualización de contenido
-    console.log('📋 Sistema de cascada activado (contenedor siempre visible)');
-}
-
-// Ocultar solo los dropdowns (contenedor siempre visible)
-function hideCascadeSystem() {
-    const cascadeSystem = document.getElementById('cascade-system');
-    if (cascadeSystem) {
-        // NO ocultar el contenedor - solo los dropdowns
-        // cascadeSystem.style.display = 'none'; // REMOVIDO
-
-        // Ocultar y resetear todos los dropdowns con position fixed
-        const dropdowns = cascadeSystem.querySelectorAll('.cascade-dropdown');
-        dropdowns.forEach(dropdown => {
-            dropdown.style.display = 'none';
-            dropdown.classList.remove('show');
-            // Resetear posicionamiento fixed
-            dropdown.style.left = '';
-            dropdown.style.top = '';
-            dropdown.style.transform = '';
-        });
-
-        // Actualizar estado a esperando
-        const cascadeStatus = document.getElementById('cascade-current-action');
-        if (cascadeStatus) {
-            cascadeStatus.textContent = 'Sistema activo - Esperando tirada...';
-        }
-
-        console.log('📋 Dropdowns ocultos y reseteados (contenedor permanece visible)');
-    }
-}
-
-// Inicializar cascada con resultado inicial
+// Inicializar cascada con resultado inicial (FUNCIÓN GLOBAL)
 function initializeCascade(result, resultType) {
-    showCascadeSystem();
+    console.log(`🎲 initializeCascade() llamada con: resultado=${result}, tipo=${resultType}`);
 
-    // Actualizar estado de la cascada con nombres más legibles
-    const cascadeStatus = document.getElementById('cascade-current-action');
-    if (cascadeStatus) {
-        const typeNames = {
-            'oddity': 'Oddity - Evento especial',
-            'critical-hit': 'Critical Hit - Golpe crítico',
-            'ordinary-hit': 'Ordinary Hit - Golpe ordinario',
-            'walk': 'Walk - Base por bolas',
-            'possible-error': 'Possible Error - Posible error',
-            'productive-out-1': 'Productive Out - Out productivo',
-            'productive-out-2': 'Productive Out - Elección del fildeador',
-            'out': 'Out - Eliminación'
-        };
-        const displayName = typeNames[resultType] || resultType;
-        cascadeStatus.textContent = `Resolviendo: ${displayName}`;
-    }
+    // Mostrar la cascada completa con la tabla de Swing Result
+    const cascadeConfirmation = document.getElementById('cascade-confirmation');
+    if (cascadeConfirmation) {
+        const cascadeHTML = generateSimpleCascade(result);
+        console.log(`📋 HTML de cascada generado (${cascadeHTML.length} caracteres)`);
 
-    // Mostrar resultado inicial
-    const initialResult = document.getElementById('initial-result');
-    if (initialResult) {
-        initialResult.textContent = result;
-    }
-
-    console.log(`🎲 Cascada inicializada: ${result} → ${resultType}`);
-
-    // Aquí se determinará si necesita más resolución
-    checkForAdditionalResolution(resultType);
-}
-
-// Verificar si el resultado necesita resolución adicional
-function checkForAdditionalResolution(resultType) {
-    // Todos los tipos de la tabla de Swing Result necesitan mostrar el dropdown
-    const allResultTypes = [
-        'oddity', 'critical-hit', 'ordinary-hit', 'walk', 'possible-error',
-        'productive-out-1', 'productive-out-2', 'out'
-    ];
-
-    if (allResultTypes.includes(resultType) || resultType) {
-        console.log(`⚡ ${resultType} - Mostrando tabla de Swing Result`);
-        showCascadeDropdown(1, resultType);
+        cascadeConfirmation.innerHTML = `
+            <div style="background: #1e3a5f; color: white; padding: 1.5rem; border-radius: 12px; border: 3px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
+                <h2 style="margin: 0 0 1rem 0; color: #fbbf24;">🎯 SWING RESULT TABLE</h2>
+                <p style="margin: 0 0 1rem 0; font-size: 0.9rem; opacity: 0.8;">Haz clic en la fila resaltada para continuar</p>
+                ${cascadeHTML}
+            </div>
+        `;
+        cascadeConfirmation.style.display = 'block';
+        console.log(`✅ Cascada mostrada - Esperando selección del usuario`);
     } else {
-        console.log(`✅ ${resultType} - Tipo no reconocido, manteniendo visible`);
-        // NO ocultar automáticamente - esperar confirmación manual
+        console.error('❌ No se encontró el elemento cascade-confirmation');
     }
 }
 
-// Mostrar dropdown de opciones de cascada
-function showCascadeDropdown(stepNumber, resultType) {
-    console.log(`🔍 Intentando mostrar dropdown ${stepNumber} con tipo: ${resultType}`);
-
-    const dropdown = document.getElementById(`cascade-dropdown-${stepNumber}`);
-    console.log(`🔍 Dropdown encontrado:`, dropdown);
-
-    if (dropdown) {
-        // Generar opciones según el tipo de resultado usando la nueva cascada simplificada
-        const options = generateSimpleCascade(gameState.currentDiceRoll);
-        console.log(`🔍 Opciones generadas:`, options.substring(0, 100) + '...');
-
-        dropdown.innerHTML = options;
-
-        // Posicionamiento fixed para que aparezca por encima de TODO
-        positionFixedDropdown(dropdown, stepNumber);
-
-        dropdown.style.display = 'block';
-        dropdown.classList.add('show');
-
-        console.log(`🔽 Dropdown mostrado para paso ${stepNumber}: ${resultType}`);
-        console.log(`🔍 Estilos del dropdown:`, dropdown.style.cssText);
-    } else {
-        console.error(`❌ No se encontró dropdown con ID: cascade-dropdown-${stepNumber}`);
-    }
-}
-
-// Posicionar dropdown con position fixed por encima de todas las capas
-function positionFixedDropdown(dropdown, stepNumber) {
-    const step = document.getElementById(`cascade-step-${stepNumber}`);
-    if (step) {
-        const rect = step.getBoundingClientRect();
-
-        // Posicionar encima del resultado inicial con más espacio para la tabla
-        let targetTop = rect.top - 420; // Más arriba para mostrar toda la tabla
-
-        // Asegurar que no salga de la pantalla por arriba
-        const minTop = 10;
-        if (targetTop < minTop) {
-            targetTop = minTop;
-        }
-
-        // Calcular posición fija en la pantalla
-        dropdown.style.left = `${rect.left + (rect.width / 2)}px`;
-        dropdown.style.top = `${targetTop}px`;
-        dropdown.style.transform = 'translateX(-50%)';
-
-        console.log(`📍 Dropdown posicionado sin tapar el número: left=${dropdown.style.left}, top=${dropdown.style.top}`);
-    }
-} // Determinar qué fila de la tabla debe resaltarse basado en la tirada y datos del bateador
-function getHighlightedRowIndex(diceRoll) {
-    if (!diceRoll) return -1; // No resaltar si no hay tirada
-
-    console.log(`🎯 Calculando resaltado para tirada: ${diceRoll}`);
-
-    // Obtener datos del bateador actual
-    const currentBatter = getCurrentBatter();
-    if (!currentBatter) {
-        console.warn('❌ No hay bateador actual, usando valores por defecto');
-        return getHighlightedRowIndexDefault(diceRoll);
-    }
-
-    console.log(`🏏 Datos del bateador:`, currentBatter);
-
-    // Extraer BT y OBT del bateador
-    const rawBT = currentBatter.battingAvg || 0.250;
-    const rawOBT = currentBatter.onBasePct || 0.320;
-
-    console.log(`📊 Raw BT: ${rawBT}, Raw OBT: ${rawOBT}`);
-
-    // CONVERSIÓN MEJORADA: Coger los dos primeros números desde la izquierda
-    let bt, obt;
-
-    // Convertir a string para poder manipular
-    const btString = rawBT.toString();
-    const obtString = rawOBT.toString();
-
-    // Extraer los dos primeros dígitos significativos
-    if (rawBT >= 1) {
-        // Si es >= 1, tomar los dos primeros dígitos: 25 → 25, 347 → 34
-        bt = Math.floor(rawBT / Math.pow(10, Math.floor(Math.log10(rawBT)) - 1));
-        if (bt > 99) bt = Math.floor(bt / 10); // Si sale 347 → 34
-    } else {
-        // Si es decimal, extraer después del punto: 0.347 → 34, 0.280 → 28
-        const afterDecimal = btString.split('.')[1] || '00';
-        bt = parseInt(afterDecimal.substring(0, 2).padEnd(2, '0'));
-    }
-
-    if (rawOBT >= 1) {
-        // Si es >= 1, tomar los dos primeros dígitos
-        obt = Math.floor(rawOBT / Math.pow(10, Math.floor(Math.log10(rawOBT)) - 1));
-        if (obt > 99) obt = Math.floor(obt / 10);
-    } else {
-        // Si es decimal, extraer después del punto: 0.412 → 41
-        const afterDecimal = obtString.split('.')[1] || '00';
-        obt = parseInt(afterDecimal.substring(0, 2).padEnd(2, '0'));
-    }
-
-    console.log(`🏏 Bateador: ${currentBatter.name}`);
-    console.log(`📊 BT calculado: ${bt} (de ${rawBT}), OBT calculado: ${obt} (de ${rawOBT})`);
-    console.log(`🎯 Rangos variables serán: 6-${bt}, ${bt + 1}-${obt}, ${obt + 1}-${obt + 5}, ${obt + 6}-49`); // LÓGICA SEGÚN TU EXPLICACIÓN:
-
-    // RANGOS FIJOS (no dependen de stats)
-    if (diceRoll === 1) {
-        console.log(`✅ Tirada ${diceRoll} → Oddity (fijo)`);
-        return 0;
-    } else if (diceRoll >= 2 && diceRoll <= 5) {
-        console.log(`✅ Tirada ${diceRoll} → Critical Hit (fijo)`);
-        return 1;
-    } else if (diceRoll >= 50 && diceRoll <= 69) {
-        console.log(`✅ Tirada ${diceRoll} → Productive Out 50-69 (fijo)`);
-        return 6;
-    } else if (diceRoll >= 70 && diceRoll <= 98) {
-        console.log(`✅ Tirada ${diceRoll} → Out 70-98 (fijo)`);
-        return 7;
-    } else if (diceRoll === 99) {
-        console.log(`✅ Tirada ${diceRoll} → Oddity 99 (fijo)`);
-        return 8;
-    } else if (diceRoll >= 100) {
-        console.log(`✅ Tirada ${diceRoll} → Out 100+ (fijo)`);
-        return 9;
-    }
-
-    // RANGOS VARIABLES (dependen de BT y OBT)
-    else if (diceRoll >= 6 && diceRoll <= bt) {
-        console.log(`✅ Tirada ${diceRoll} → Hit Ordinario [6-${bt}] (variable)`);
-        return 2;
-    } else if (diceRoll >= (bt + 1) && diceRoll <= obt) {
-        console.log(`✅ Tirada ${diceRoll} → Base por Bolas [${bt + 1}-${obt}] (variable)`);
-        return 3;
-    } else if (diceRoll >= (obt + 1) && diceRoll <= (obt + 5)) {
-        console.log(`✅ Tirada ${diceRoll} → Posible Error [${obt + 1}-${obt + 5}] (variable)`);
-        return 4;
-    } else if (diceRoll >= (obt + 6) && diceRoll <= 49) {
-        console.log(`✅ Tirada ${diceRoll} → Out Productivo [${obt + 6}-49] (variable)`);
-        return 5;
-    }
-
-    console.log(`❌ Tirada ${diceRoll} no encaja en ningún rango`);
-    return -1;
-}
-
-// Función de respaldo con valores por defecto si no hay bateador
-function getHighlightedRowIndexDefault(diceRoll) {
-    const defaultBT = 10;
-    const defaultOBT = 15;
-
-    if (diceRoll === 1) return 0;
-    else if (diceRoll >= 2 && diceRoll <= 5) return 1;
-    else if (diceRoll >= 6 && diceRoll <= defaultBT) return 2;
-    else if (diceRoll >= (defaultBT + 1) && diceRoll <= defaultOBT) return 3;
-    else if (diceRoll >= (defaultOBT + 1) && diceRoll <= (defaultOBT + 5)) return 4;
-    else if (diceRoll >= (defaultOBT + 6) && diceRoll <= 49) return 5;
-    else if (diceRoll >= 50 && diceRoll <= 69) return 6;
-    else if (diceRoll >= 70 && diceRoll <= 98) return 7;
-    else if (diceRoll === 99) return 8;
-    else if (diceRoll >= 100) return 9;
-
-    return -1;
-}
-
-// NUEVA CASCADA SIMPLIFICADA - FUNCIONA SIEMPRE
+// Generar cascada simplificada (FUNCIÓN GLOBAL)
 function generateSimpleCascade(diceRoll) {
     console.log(`🆕 NUEVA CASCADA SIMPLIFICADA - Tirada: ${diceRoll}`);
 
@@ -2347,8 +2444,8 @@ function generateSimpleCascade(diceRoll) {
         { range: `6-${bt}`, event: "Ordinary Hit", result: "Roll d20 on Hit Table", highlighted: diceRoll >= 6 && diceRoll <= bt },
         { range: `${bt + 1}-${obt}`, event: "Walk", result: "Batter advances to first", highlighted: diceRoll >= (bt + 1) && diceRoll <= obt },
         { range: `${obt + 1}-${obt + 5}`, event: "Possible Error", result: "Roll d12 on Defense Table", highlighted: diceRoll >= (obt + 1) && diceRoll <= (obt + 5) },
-        { range: `${obt + 6}-49`, event: "Productive Out", result: "Runners advance, batter may be safe", highlighted: diceRoll >= (obt + 6) && diceRoll <= 49 },
-        { range: "50-69", event: "Productive Out", result: "Limited runner advancement", highlighted: diceRoll >= 50 && diceRoll <= 69 },
+        { range: `${obt + 6}-49`, event: "Productive Out 1", result: "Runners advance significantly", highlighted: diceRoll >= (obt + 6) && diceRoll <= 49 },
+        { range: "50-69", event: "Productive Out 2", result: "Limited runner advancement", highlighted: diceRoll >= 50 && diceRoll <= 69 },
         { range: "70-98", event: "Out", result: "Standard out, limited advancement", highlighted: diceRoll >= 70 && diceRoll <= 98 },
         { range: "99", event: "Oddity", result: "Roll 2d10 on Oddities table", highlighted: diceRoll === 99 },
         { range: "100+", event: "Out", result: "Possible triple play", highlighted: diceRoll >= 100 }
@@ -2380,23 +2477,1302 @@ function generateSimpleCascade(diceRoll) {
     return html;
 }
 
-// Función para seleccionar resultado
-function selectResult(event, result) {
-    console.log(`✅ Resultado seleccionado: ${event} - ${result}`);
+// Mostrar el sistema de cascada (contenedor siempre visible)
+function showCascadeSystem() {
+    // El contenedor ya está siempre visible por CSS
+    // Solo activamos la visualización de contenido
+    console.log('📋 Sistema de cascada activado (contenedor siempre visible)');
+    // Ocultar solo los dropdowns (contenedor siempre visible)
+    function hideCascadeSystem() {
+        const cascadeSystem = document.getElementById('cascade-system');
+        if (cascadeSystem) {
+            // NO ocultar el contenedor - solo los dropdowns
+            // cascadeSystem.style.display = 'none'; // REMOVIDO
 
-    // Mostrar confirmación
+            // Ocultar y resetear todos los dropdowns con position fixed
+            const dropdowns = cascadeSystem.querySelectorAll('.cascade-dropdown');
+            dropdowns.forEach(dropdown => {
+                dropdown.style.display = 'none';
+                dropdown.classList.remove('show');
+                // Resetear posicionamiento fixed
+                dropdown.style.left = '';
+                dropdown.style.top = '';
+                dropdown.style.transform = '';
+            });
+
+            // Actualizar estado a esperando
+            const cascadeStatus = document.getElementById('cascade-current-action');
+            if (cascadeStatus) {
+                cascadeStatus.textContent = 'Sistema activo - Esperando tirada...';
+            }
+
+            console.log('📋 Dropdowns ocultos y reseteados (contenedor permanece visible)');
+        }
+    }
+
+    // REMOVIDO - Se mueve fuera como función global
+
+    // Verificar si el resultado necesita resolución adicional
+    function checkForAdditionalResolution(resultType) {
+        // Todos los tipos de la tabla de Swing Result necesitan mostrar el dropdown
+        const allResultTypes = [
+            'oddity', 'critical-hit', 'ordinary-hit', 'walk', 'possible-error',
+            'productive-out-1', 'productive-out-2', 'out'
+        ];
+
+        if (allResultTypes.includes(resultType) || resultType) {
+            console.log(`⚡ ${resultType} - Mostrando tabla de Swing Result`);
+            showCascadeDropdown(1, resultType);
+        } else {
+            console.log(`✅ ${resultType} - Tipo no reconocido, manteniendo visible`);
+            // NO ocultar automáticamente - esperar confirmación manual
+        }
+    }
+
+    // Mostrar dropdown de opciones de cascada
+    function showCascadeDropdown(stepNumber, resultType) {
+        console.log(`🔍 Intentando mostrar dropdown ${stepNumber} con tipo: ${resultType}`);
+
+        const dropdown = document.getElementById(`cascade-dropdown-${stepNumber}`);
+        console.log(`🔍 Dropdown encontrado:`, dropdown);
+
+        if (dropdown) {
+            // Generar opciones según el tipo de resultado usando la nueva cascada simplificada
+            const options = generateSimpleCascade(gameState.currentDiceRoll);
+            console.log(`🔍 Opciones generadas:`, options.substring(0, 100) + '...');
+
+            dropdown.innerHTML = options;
+
+            // Posicionamiento fixed para que aparezca por encima de TODO
+            positionFixedDropdown(dropdown, stepNumber);
+
+            dropdown.style.display = 'block';
+            dropdown.classList.add('show');
+
+            console.log(`🔽 Dropdown mostrado para paso ${stepNumber}: ${resultType}`);
+            console.log(`🔍 Estilos del dropdown:`, dropdown.style.cssText);
+        } else {
+            console.error(`❌ No se encontró dropdown con ID: cascade-dropdown-${stepNumber}`);
+        }
+        // Posicionar dropdown con position fixed por encima de todas las capas
+        function positionFixedDropdown(dropdown, stepNumber) {
+            const step = document.getElementById(`cascade-step-${stepNumber}`);
+            if (step) {
+                const rect = step.getBoundingClientRect();
+
+                // Posicionar encima del resultado inicial con más espacio para la tabla
+                let targetTop = rect.top - 420; // Más arriba para mostrar toda la tabla
+
+                // Asegurar que no salga de la pantalla por arriba
+                const minTop = 10;
+                if (targetTop < minTop) {
+                    targetTop = minTop;
+                }
+
+                // Calcular posición fija en la pantalla
+                dropdown.style.left = `${rect.left + (rect.width / 2)}px`;
+                dropdown.style.top = `${targetTop}px`;
+                dropdown.style.transform = 'translateX(-50%)';
+
+                console.log(`📍 Dropdown posicionado sin tapar el número: left=${dropdown.style.left}, top=${dropdown.style.top}`);
+            }
+        } // Determinar qué fila de la tabla debe resaltarse basado en la tirada y datos del bateador
+        function getHighlightedRowIndex(diceRoll) {
+            if (!diceRoll) return -1; // No resaltar si no hay tirada
+
+            console.log(`🎯 Calculando resaltado para tirada: ${diceRoll}`);
+
+            // Obtener datos del bateador actual
+            const currentBatter = getCurrentBatter();
+            if (!currentBatter) {
+                console.warn('❌ No hay bateador actual, usando valores por defecto');
+                return getHighlightedRowIndexDefault(diceRoll);
+            }
+
+            console.log(`🏏 Datos del bateador:`, currentBatter);
+
+            // Extraer BT y OBT del bateador
+            const rawBT = currentBatter.battingAvg || 0.250;
+            const rawOBT = currentBatter.onBasePct || 0.320;
+
+            console.log(`📊 Raw BT: ${rawBT}, Raw OBT: ${rawOBT}`);
+
+            // CONVERSIÓN MEJORADA: Coger los dos primeros números desde la izquierda
+            let bt, obt;
+
+            // Convertir a string para poder manipular
+            const btString = rawBT.toString();
+            const obtString = rawOBT.toString();
+
+            // Extraer los dos primeros dígitos significativos
+            if (rawBT >= 1) {
+                // Si es >= 1, tomar los dos primeros dígitos: 25 → 25, 347 → 34
+                bt = Math.floor(rawBT / Math.pow(10, Math.floor(Math.log10(rawBT)) - 1));
+                if (bt > 99) bt = Math.floor(bt / 10); // Si sale 347 → 34
+            } else {
+                // Si es decimal, extraer después del punto: 0.347 → 34, 0.280 → 28
+                const afterDecimal = btString.split('.')[1] || '00';
+                bt = parseInt(afterDecimal.substring(0, 2).padEnd(2, '0'));
+            }
+
+            if (rawOBT >= 1) {
+                // Si es >= 1, tomar los dos primeros dígitos
+                obt = Math.floor(rawOBT / Math.pow(10, Math.floor(Math.log10(rawOBT)) - 1));
+                if (obt > 99) obt = Math.floor(obt / 10);
+            } else {
+                // Si es decimal, extraer después del punto: 0.412 → 41
+                const afterDecimal = obtString.split('.')[1] || '00';
+                obt = parseInt(afterDecimal.substring(0, 2).padEnd(2, '0'));
+            }
+
+            console.log(`🏏 Bateador: ${currentBatter.name}`);
+            console.log(`📊 BT calculado: ${bt} (de ${rawBT}), OBT calculado: ${obt} (de ${rawOBT})`);
+            console.log(`🎯 Rangos variables serán: 6-${bt}, ${bt + 1}-${obt}, ${obt + 1}-${obt + 5}, ${obt + 6}-49`); // LÓGICA SEGÚN TU EXPLICACIÓN:
+
+            // RANGOS FIJOS (no dependen de stats)
+            if (diceRoll === 1) {
+                console.log(`✅ Tirada ${diceRoll} → Oddity (fijo)`);
+                return 0;
+            } else if (diceRoll >= 2 && diceRoll <= 5) {
+                console.log(`✅ Tirada ${diceRoll} → Critical Hit (fijo)`);
+                return 1;
+            } else if (diceRoll >= 50 && diceRoll <= 69) {
+                console.log(`✅ Tirada ${diceRoll} → Productive Out 50-69 (fijo)`);
+                return 6;
+            } else if (diceRoll >= 70 && diceRoll <= 98) {
+                console.log(`✅ Tirada ${diceRoll} → Out 70-98 (fijo)`);
+                return 7;
+            } else if (diceRoll === 99) {
+                console.log(`✅ Tirada ${diceRoll} → Oddity 99 (fijo)`);
+                return 8;
+            } else if (diceRoll >= 100) {
+                console.log(`✅ Tirada ${diceRoll} → Out 100+ (fijo)`);
+                return 9;
+            }
+
+            // RANGOS VARIABLES (dependen de BT y OBT)
+            else if (diceRoll >= 6 && diceRoll <= bt) {
+                console.log(`✅ Tirada ${diceRoll} → Hit Ordinario [6-${bt}] (variable)`);
+                return 2;
+            } else if (diceRoll >= (bt + 1) && diceRoll <= obt) {
+                console.log(`✅ Tirada ${diceRoll} → Base por Bolas [${bt + 1}-${obt}] (variable)`);
+                return 3;
+            } else if (diceRoll >= (obt + 1) && diceRoll <= (obt + 5)) {
+                console.log(`✅ Tirada ${diceRoll} → Posible Error [${obt + 1}-${obt + 5}] (variable)`);
+                return 4;
+            } else if (diceRoll >= (obt + 6) && diceRoll <= 49) {
+                console.log(`✅ Tirada ${diceRoll} → Out Productivo [${obt + 6}-49] (variable)`);
+                return 5;
+            }
+
+            console.log(`❌ Tirada ${diceRoll} no encaja en ningún rango`);
+            return -1;
+        }
+
+        // Función de respaldo con valores por defecto si no hay bateador
+        function getHighlightedRowIndexDefault(diceRoll) {
+            const defaultBT = 10;
+            const defaultOBT = 15;
+
+            if (diceRoll === 1) return 0;
+            else if (diceRoll >= 2 && diceRoll <= 5) return 1;
+            else if (diceRoll >= 6 && diceRoll <= defaultBT) return 2;
+            else if (diceRoll >= (defaultBT + 1) && diceRoll <= defaultOBT) return 3;
+            else if (diceRoll >= (defaultOBT + 1) && diceRoll <= (defaultOBT + 5)) return 4;
+            else if (diceRoll >= (defaultOBT + 6) && diceRoll <= 49) return 5;
+            else if (diceRoll >= 50 && diceRoll <= 69) return 6;
+            else if (diceRoll >= 70 && diceRoll <= 98) return 7;
+            else if (diceRoll === 99) return 8;
+            else if (diceRoll >= 100) return 9;
+
+            return -1;
+        }
+
+        // REMOVIDO - Movido como función global
+
+        // ===== TABLAS OFICIALES DE DEADBALL MODERN ERA =====
+
+        // HIT TABLE (D20) - Usada para Ordinary Hit y Critical Hit
+        const hitTable = [
+            { range: "1-2", result: "Single", def: null },
+            { range: "3", result: "Single", def: "1B" },
+            { range: "4", result: "Single", def: "2B" },
+            { range: "5", result: "Single", def: "3B" },
+            { range: "6", result: "Single", def: "SS" },
+            { range: "7-9", result: "Single", def: null },
+            { range: "10-14", result: "Single, runners adv. 2", def: null },
+            { range: "15", result: "Double", def: "LF" },
+            { range: "16", result: "Double", def: "CF" },
+            { range: "17", result: "Double", def: "RF" },
+            { range: "18", result: "Double, runners adv. 3", def: null },
+            { range: "19-20", result: "Home Run", def: null }
+        ];
+
+        // ODDITIES TABLE (2d10) - ALL ERAS - Solo se accede con MSS=1 o MSS=99
+        // Tirar 2 dados de 10 caras (resultado entre 2 y 20)
+        const oddityTable = [
+            { range: "2", result: "Fan Interference", effect: "Even PD: Home run overturned. Batter out. Odd PD: Fan catches a sure out. At-bat continues." },
+            { range: "3", result: "Animal On Field", effect: "Roll d4: 1-Seagull steals pitcher's hat (reduce PD by 1). 2-Raccoon bites fielder. 3-Black cat spooks team. 4-Streaker inspires crowd." },
+            { range: "4", result: "Rain Delay", effect: "Delay lasts d100*2 minutes." },
+            { range: "5", result: "Fielder Appears Injured", effect: "Roll on injury table for fielder who made last out." },
+            { range: "6", result: "Pitcher Appears Injured", effect: "Roll on injury table for pitcher." },
+            { range: "7", result: "TOOTBLAN", effect: "Lead runner thrown out like a nincompoop. If no runner on base, batter logged out." },
+            { range: "8", result: "Pick-Off", effect: "Runner at first picked off. If no runner at first, treat catcher as D+ for next stolen base attempt." },
+            { range: "9", result: "Call Blown at First", effect: "If PD is even, batter wrongly called safe. If PD is odd, batter wrongly called out." },
+            { range: "10", result: "Call Blown at Home Plate", effect: "If PD is even, batter draws walk. If PD is odd, batter called out on pitch that should have been a ball." },
+            { range: "11", result: "Hit by Pitch", effect: "Batter goes to first." },
+            { range: "12", result: "Wild Pitch", effect: "All runners advance one base." },
+            { range: "13", result: "Pitcher Distracted", effect: "Add 1 to any stolen base attempt for this at-bat." },
+            { range: "14", result: "Dropped Third Strike", effect: "Roll d8 for stolen base. If roll is successful, batter reaches first." },
+            { range: "15", result: "Passed Ball", effect: "All runners advance one base." },
+            { range: "16", result: "Current Batter Appears Injured", effect: "Roll on injury table for current batter." },
+            { range: "17", result: "Previous Batter Appears Injured", effect: "Roll on injury table for previous batter." },
+            { range: "18", result: "Pitcher Error", effect: "Batter reaches first. All runners advance one base." },
+            { range: "19", result: "Balk", effect: "All runners advance one base." },
+            { range: "20", result: "Catcher Interference", effect: "Batter goes to first." }
+        ];
+
+        // OUT TABLE - Para resolución de outs específicos
+        const outTable = [
+            { lastDigit: "0", result: "Strikeout", notation: "(K)", type: "strikeout" },
+            { lastDigit: "1", result: "Strikeout", notation: "(K)", type: "strikeout" },
+            { lastDigit: "2", result: "Strikeout", notation: "(K)", type: "strikeout" },
+            { lastDigit: "3", result: "Groundout to 1B", notation: "(G-3)", type: "groundout" },
+            { lastDigit: "4", result: "Groundout to 2B", notation: "(4-3)", type: "groundout" },
+            { lastDigit: "5", result: "Groundout to 3B", notation: "(5-3)", type: "groundout" },
+            { lastDigit: "6", result: "Groundout to SS", notation: "(6-3)", type: "groundout" },
+            { lastDigit: "7", result: "Pop-up to LF", notation: "(F-7)", type: "flyout" },
+            { lastDigit: "8", result: "Pop-up to CF", notation: "(F-8)", type: "flyout" },
+            { lastDigit: "9", result: "Pop-up to RF", notation: "(F-9)", type: "flyout" }
+        ];
+
+        // PRODUCTIVE OUT TABLE 1 (OBP+6 a 49) - Mayor avance de corredores
+        const productiveOutTable1 = [
+            { lastDigit: "0", result: "Strikeout", notation: "(K)", advancement: "No runners advance" },
+            { lastDigit: "1", result: "Strikeout", notation: "(K)", advancement: "No runners advance" },
+            { lastDigit: "2", result: "Strikeout", notation: "(K)", advancement: "No runners advance" },
+            { lastDigit: "3", result: "Groundout to 1B", notation: "(G-3)", advancement: "Runner on 3rd scores" },
+            { lastDigit: "4", result: "Groundout to 2B", notation: "(4-3)", advancement: "Runner on 3rd scores" },
+            { lastDigit: "5", result: "Groundout to 3B", notation: "(5-3)", advancement: "Runner on 3rd scores" },
+            { lastDigit: "6", result: "Groundout to SS", notation: "(6-3)", advancement: "Runner on 3rd scores" },
+            { lastDigit: "7", result: "Flyout to LF", notation: "(F-7)", advancement: "Runners on 2nd and 3rd advance" },
+            { lastDigit: "8", result: "Flyout to CF", notation: "(F-8)", advancement: "Runners on 2nd and 3rd advance" },
+            { lastDigit: "9", result: "Flyout to RF", notation: "(F-9)", advancement: "Runners on 2nd and 3rd advance" }
+        ];
+
+        // PRODUCTIVE OUT TABLE 2 (50-69) - Menor avance de corredores
+        const productiveOutTable2 = [
+            { lastDigit: "0", result: "Strikeout", notation: "(K)", advancement: "No runners advance" },
+            { lastDigit: "1", result: "Strikeout", notation: "(K)", advancement: "No runners advance" },
+            { lastDigit: "2", result: "Strikeout", notation: "(K)", advancement: "No runners advance" },
+            { lastDigit: "3", result: "Groundout to 1B", notation: "(G-3)", advancement: "No runners advance" },
+            { lastDigit: "4", result: "Groundout to 2B", notation: "(4-3)", advancement: "No runners advance" },
+            { lastDigit: "5", result: "Groundout to 3B", notation: "(5-3)", advancement: "No runners advance" },
+            { lastDigit: "6", result: "Groundout to SS", notation: "(6-3)", advancement: "No runners advance" },
+            { lastDigit: "7", result: "Flyout to LF", notation: "(F-7)", advancement: "Runner on 3rd scores" },
+            { lastDigit: "8", result: "Flyout to CF", notation: "(F-8)", advancement: "Runner on 3rd scores" },
+            { lastDigit: "9", result: "Flyout to RF", notation: "(F-9)", advancement: "Runner on 3rd scores" }
+        ];
+
+        // DEFENSE TABLE (D12) - Usada para Possible Error
+        // NOTA: Esta tabla no está completamente visible en la imagen
+        // Se mantiene estructura básica
+        const defenseTable = [
+            { range: "1-2", result: "Error. Runners take an extra base" },
+            { range: "3-9", result: "No change" },
+            { range: "10-11", result: "Double turns into a single, runners advance 2" },
+            { range: "12", result: "Hit turned into out. Runners hold" }
+        ];
+
+        // BASE STEALING TABLE (D8) - Robo de bases individual
+        const baseStealingTable = [
+            { roll: 1, result: "Success", description: "Runner steals successfully" },
+            { roll: 2, result: "Success", description: "Runner steals successfully" },
+            { roll: 3, result: "Success", description: "Runner steals successfully" },
+            { roll: 4, result: "Success", description: "Runner steals successfully" },
+            { roll: 5, result: "Success", description: "Runner steals successfully" },
+            { roll: 6, result: "Failure", description: "Runner is out" },
+            { roll: 7, result: "Failure", description: "Runner is out" },
+            { roll: 8, result: "Double Play", description: "Batter out on popup/strikeout, runner caught stealing" }
+        ];
+
+        // DOUBLE STEAL TABLE (D8) - Robo doble (dos corredores)
+        const doubleStealTable = [
+            { roll: 1, result: "Both Safe", description: "Both runners steal successfully" },
+            { roll: 2, result: "Both Safe", description: "Both runners steal successfully" },
+            { roll: 3, result: "Lead Runner Out", description: "Lead runner caught, trailing runner safe" },
+            { roll: 4, result: "Lead Runner Out", description: "Lead runner caught, trailing runner safe" },
+            { roll: 5, result: "Trailing Runner Out", description: "Trailing runner caught, lead runner safe" },
+            { roll: 6, result: "Trailing Runner Out", description: "Trailing runner caught, lead runner safe" },
+            { roll: 7, result: "Both Out", description: "Both runners caught stealing" },
+            { roll: 8, result: "Both Out", description: "Both runners caught stealing" }
+        ];
+
+        // ===== SISTEMA DE CASCADA DE DADOS =====
+
+        // HACER cascadeState GLOBAL para que sea accesible desde todas las funciones
+        window.cascadeState = {
+            currentTable: null, // Qué tabla secundaria se está usando
+            firstRoll: null, // Primera tirada (Swing Result)
+            secondRoll: null, // Segunda tirada (tabla secundaria)
+            eventType: null, // Tipo de evento (oddity, critical hit, etc.)
+            finalResult: null // Resultado final interpretado
+        };
+
+        // Función global para calcular total de 2d10 (Oddities)
+        function calculateOddityTotal() {
+            const input1 = document.getElementById('oddity-dice-1');
+            const input2 = document.getElementById('oddity-dice-2');
+            const dice1 = parseInt(input1 && input1.value || 0) || 0;
+            const dice2 = parseInt(input2 && input2.value || 0) || 0;
+            const totalElement = document.getElementById('oddity-total');
+
+            if (!totalElement) return;
+
+            if (dice1 > 0 && dice2 > 0 && dice1 <= 10 && dice2 <= 10) {
+                const total = dice1 + dice2;
+                totalElement.textContent = total;
+                totalElement.style.background = '#fbbf24';
+                updateSecondaryTable('Oddity', total);
+            } else {
+                totalElement.textContent = '-';
+                totalElement.style.background = '#6b7280';
+            }
+        }
+
+        // Funciones para tirar dados secundarios automáticamente
+        function rollSecondaryDice(maxValue) {
+            const roll = Math.floor(Math.random() * maxValue) + 1;
+            const input = document.getElementById('secondary-dice-value');
+            if (input) {
+                input.value = roll;
+                input.dispatchEvent(new Event('input'));
+            }
+        }
+
+        function rollOddityDice() {
+            const roll1 = Math.floor(Math.random() * 10) + 1;
+            const roll2 = Math.floor(Math.random() * 10) + 1;
+
+            const input1 = document.getElementById('oddity-dice-1');
+            const input2 = document.getElementById('oddity-dice-2');
+
+            if (input1 && input2) {
+                input1.value = roll1;
+                input2.value = roll2;
+                calculateOddityTotal();
+            }
+        }
+
+        function rollOutLastDigit() {
+            const roll = Math.floor(Math.random() * 10); // 0-9
+            const input = document.getElementById('secondary-dice-value');
+            if (input) {
+                input.value = roll;
+                input.dispatchEvent(new Event('input'));
+            }
+        }
+
+        // Función para seleccionar resultado y determinar si necesita cascada
+        function selectResult(event, result) {
+            console.log(`✅ Resultado seleccionado: ${event} - ${result}`);
+
+            window.cascadeState.eventType = event;
+
+            // Determinar si necesita segunda tirada
+            const needsSecondRoll = [
+                'Oddity',
+                'Critical Hit',
+                'Ordinary Hit',
+                'Possible Error',
+                'Out',
+                'Productive Out 1',
+                'Productive Out 2'
+            ].includes(event);
+
+            if (needsSecondRoll) {
+                console.log(`🎲 Se requiere segunda tirada para: ${event}`);
+
+                // Guardar el tipo de evento
+                window.cascadeState.eventType = event;
+                window.cascadeState.firstRoll = gameState.currentDiceRoll;
+
+                console.log(`📊 Estado de cascada guardado:`, window.cascadeState);
+
+                // Para OUT TABLE y Productive Out, extraer último dígito de la tirada original
+                if ((event === 'Out' || event === 'Productive Out 1' || event === 'Productive Out 2') && gameState.currentDiceRoll) {
+                    const lastDigit = Math.abs(gameState.currentDiceRoll) % 10;
+                    console.log(`📊 ${event}: Último dígito de ${gameState.currentDiceRoll} = ${lastDigit}`);
+                    showSecondaryDiceBox(event, lastDigit);
+                } else {
+                    showSecondaryDiceBox(event);
+                }
+            } else {
+                // No necesita segunda tirada, procesar directamente
+                console.log(`✅ No se requiere segunda tirada. Procesando...`);
+                showFinalConfirmation(event, result);
+            }
+        }
+
+        // Mostrar caja de dados secundaria para tabla específica
+        function showSecondaryDiceBox(tableType, prefilledValue = null) {
+            console.log(`🎲 showSecondaryDiceBox llamado - Tipo: ${tableType}, Valor prellenado: ${prefilledValue}`);
+
+            const cascadeContainer = document.getElementById('cascade-confirmation');
+            if (!cascadeContainer) {
+                console.error('❌ No se encontró cascade-confirmation');
+                return;
+            }
+
+            let diceType = '';
+            let tableName = '';
+            let maxValue = 20;
+
+            switch (tableType) {
+                case 'Oddity':
+                    diceType = '2d10';
+                    tableName = 'Oddity Table';
+                    maxValue = 20;
+                    break;
+                case 'Critical Hit':
+                    diceType = 'd20';
+                    tableName = 'Critical Hit Table (con upgrade +1)';
+                    maxValue = 20;
+                    break;
+                case 'Ordinary Hit':
+                    diceType = 'd20';
+                    tableName = 'Hit Table';
+                    maxValue = 20;
+                    break;
+                case 'Possible Error':
+                    diceType = 'd12';
+                    tableName = 'Defense Table';
+                    maxValue = 12;
+                    break;
+                case 'Out':
+                    diceType = 'último dígito';
+                    tableName = 'Out Table (último dígito de la tirada)';
+                    maxValue = 9;
+                    break;
+                case 'Productive Out 1':
+                    diceType = 'último dígito';
+                    tableName = 'Productive Out Table (OBP+6 a 49) - Mayor avance';
+                    maxValue = 9;
+                    break;
+                case 'Productive Out 2':
+                    diceType = 'último dígito';
+                    tableName = 'Productive Out Table (50-69) - Menor avance';
+                    maxValue = 9;
+                    break;
+                default:
+                    diceType = 'd20';
+                    tableName = 'Secondary Table';
+                    maxValue = 20;
+            }
+
+            window.cascadeState.currentTable = tableType;
+
+            // Crear interfaz especial para 2d10 (Oddities)
+            let diceInputHTML = '';
+            if (tableType === 'Oddity') {
+                diceInputHTML = `
+            <div style="background: rgba(251, 191, 36, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+                    <div style="text-align: center; position: relative;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem; color: #fbbf24;">🎲 Dado 1</label>
+                        <div style="position: relative; display: inline-block;">
+                            <input type="number" id="oddity-dice-1" min="1" max="10" placeholder="1-10"
+                                   style="width: 70px; padding: 0.5rem; font-size: 1.2rem; border: 2px solid #fbbf24; border-radius: 4px; text-align: center; -moz-appearance: textfield;"
+                                   oninput="calculateOddityTotal()">
+                            <div class="mini-dice" onclick="rollOddityDice()" title="Tirar 2d10" 
+                                 style="position: absolute; bottom: 2px; right: 2px; font-size: 0.7rem; cursor: pointer; opacity: 0.7; padding: 2px; border-radius: 3px;">🎲</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 2rem; padding-top: 1.5rem; color: #fbbf24;">+</div>
+                    <div style="text-align: center; position: relative;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem; color: #fbbf24;">🎲 Dado 2</label>
+                        <div style="position: relative; display: inline-block;">
+                            <input type="number" id="oddity-dice-2" min="1" max="10" placeholder="1-10"
+                                   style="width: 70px; padding: 0.5rem; font-size: 1.2rem; border: 2px solid #fbbf24; border-radius: 4px; text-align: center; -moz-appearance: textfield;"
+                                   oninput="calculateOddityTotal()">
+                            <div class="mini-dice" onclick="rollOddityDice()" title="Tirar 2d10" 
+                                 style="position: absolute; bottom: 2px; right: 2px; font-size: 0.7rem; cursor: pointer; opacity: 0.7; padding: 2px; border-radius: 3px;">🎲</div>
+                        </div>
+                    </div>
+                    <div style="font-size: 2rem; padding-top: 1.5rem; color: #fbbf24;">=</div>
+                    <div style="text-align: center;">
+                        <label style="font-weight: bold; display: block; margin-bottom: 0.5rem; color: #fbbf24;">Total</label>
+                        <div id="oddity-total" style="width: 70px; padding: 0.5rem; font-size: 1.5rem; font-weight: bold; 
+                                                       background: #fbbf24; color: #1e3a5f; border-radius: 4px; text-align: center; min-height: 40px; line-height: 40px;">
+                            -
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+            } else if (tableType === 'Out') {
+                // Para OUT TABLE mostrar solo la tabla sin input (se usa último dígito)
+                diceInputHTML = `
+            <div style="background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; text-align: center;">
+                <p style="margin: 0; color: #ef4444; font-weight: bold; font-size: 1.1rem;">
+                    📊 Último dígito de la tirada: <span style="font-size: 1.5rem; background: #ef4444; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; margin-left: 0.5rem;">${prefilledValue}</span>
+                </p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.8;">
+                    Consulta automática en OUT TABLE
+                </p>
+            </div>
+        `;
+            } else if (tableType === 'Productive Out 1') {
+                // Para Productive Out 1 mostrar solo la tabla sin input
+                diceInputHTML = `
+            <div style="background: rgba(251, 191, 36, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; text-align: center;">
+                <p style="margin: 0; color: #f59e0b; font-weight: bold; font-size: 1.1rem;">
+                    📊 Último dígito de la tirada: <span style="font-size: 1.5rem; background: #f59e0b; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; margin-left: 0.5rem;">${prefilledValue}</span>
+                </p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.8;">
+                    Productive Out - Mayor avance de corredores
+                </p>
+            </div>
+        `;
+            } else if (tableType === 'Productive Out 2') {
+                // Para Productive Out 2 mostrar solo la tabla sin input
+                diceInputHTML = `
+            <div style="background: rgba(234, 179, 8, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; text-align: center;">
+                <p style="margin: 0; color: #ca8a04; font-weight: bold; font-size: 1.1rem;">
+                    📊 Último dígito de la tirada: <span style="font-size: 1.5rem; background: #ca8a04; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; margin-left: 0.5rem;">${prefilledValue}</span>
+                </p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.8;">
+                    Productive Out - Menor avance de corredores
+                </p>
+            </div>
+        `;
+            } else {
+                diceInputHTML = `
+            <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; margin: 1rem 0;">
+                <label style="font-weight: bold;">Resultado del dado (1-${maxValue}):</label>
+                <div style="position: relative; display: inline-block;">
+                    <input type="number" id="secondary-dice-value" min="1" max="${maxValue}" 
+                           style="width: 100px; padding: 0.5rem; font-size: 1.2rem; border: 2px solid #fbbf24; border-radius: 4px; text-align: center; -moz-appearance: textfield;"
+                           oninput="updateSecondaryTable('${tableType}', this.value)">
+                    <div class="mini-dice" onclick="rollSecondaryDice(${maxValue})" title="Tirar d${maxValue}" 
+                         style="position: absolute; bottom: 2px; right: 2px; font-size: 0.7rem; cursor: pointer; opacity: 0.7; padding: 2px; border-radius: 3px;">🎲</div>
+                </div>
+            </div>
+        `;
+            }
+
+            cascadeContainer.style.display = 'block';
+
+            // Debug: verificar qué tipo de tabla es
+            console.log(`🔍 Tipo de tabla: "${tableType}"`);
+            console.log(`🔍 Es OUT/Productive Out? ${tableType === 'Out' || tableType === 'Productive Out 1' || tableType === 'Productive Out 2'}`);
+
+            cascadeContainer.innerHTML = `
+        <div style="background: #1e3a5f; color: white; padding: 1.5rem; border-radius: 12px; border: 3px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
+            <h2 style="margin: 0 0 1rem 0; color: #fbbf24;">🎲 SEGUNDA TIRADA REQUERIDA</h2>
+            <h3 style="margin: 0 0 0.5rem 0;">${tableName}</h3>
+            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; opacity: 0.8;">Tira ${diceType} para determinar el resultado exacto</p>
+            
+            ${diceInputHTML}
+            
+            <div id="secondary-table-display" style="margin: 1rem 0;"></div>
+            
+            ${(tableType === 'Out' || tableType === 'Productive Out 1' || tableType === 'Productive Out 2') ? `
+                <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem; text-align: center;">
+                    <p style="margin: 0; color: #10b981; font-weight: bold;">
+                        ⏱️ Aplicando resultado automáticamente...
+                    </p>
+                </div>
+            ` : `
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <button onclick="confirmSecondaryResult()" 
+                            style="flex: 1; background: #059669; color: white; padding: 0.75rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                        ✅ Confirmar Resultado
+                    </button>
+                    <button onclick="cancelCascade()" 
+                            style="flex: 1; background: #dc2626; color: white; padding: 0.75rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                        ❌ Cancelar
+                    </button>
+                </div>
+            `}
+        </div>
+    `;
+
+    // Si es OUT TABLE o Productive Out con valor pre-rellenado, mostrar tabla inmediatamente
+    if ((tableType === 'Out' || tableType === 'Productive Out 1' || tableType === 'Productive Out 2') && prefilledValue !== null) {
+        // Primero actualizar la tabla para que establezca el finalResult
+        updateSecondaryTable(tableType, prefilledValue);
+        
+        // Auto-confirmar después de un breve delay para que el usuario vea la tabla
+        setTimeout(() => {
+            console.log('🎯 Auto-confirmando resultado de OUT/Productive Out...');
+            
+            // Verificar que finalResult esté definido antes de confirmar
+            if (window.cascadeState.finalResult) {
+                confirmSecondaryResult();
+            } else {
+                console.error('❌ No se pudo auto-confirmar: finalResult no está definido');
+                console.log('Estado de cascada:', window.cascadeState);
+            }
+        }, 2500); // 2.5 segundos para asegurar que la tabla se renderice
+    }
+}
+
+// Actualizar tabla secundaria según la tirada
+function updateSecondaryTable(tableType, diceValue) {
+    console.log(`🔄 updateSecondaryTable llamado - Tipo: ${tableType}, Valor: ${diceValue}`);
+    
+    const value = parseInt(diceValue);
+
+    // Validación especial para tablas basadas en último dígito (permite 0-9)
+    if (tableType === 'Out' || tableType === 'Productive Out 1' || tableType === 'Productive Out 2') {
+        if (isNaN(value) || value < 0 || value > 9) {
+            console.error(`❌ Valor inválido para ${tableType}: ${value}`);
+            return;
+        }
+    } else if (isNaN(value) || value < 1) {
+        console.error(`❌ Valor inválido: ${value}`);
+        return;
+    }
+
+    console.log(`✅ Valor validado: ${value}`);
+
+    window.cascadeState.secondRoll = value;
+
+    const displayDiv = document.getElementById('secondary-table-display');
+    if (!displayDiv) return;
+
+    let table = [];
+    let isCritical = tableType === 'Critical Hit';
+
+    switch (tableType) {
+        case 'Oddity':
+            table = oddityTable;
+            break;
+        case 'Critical Hit':
+        case 'Ordinary Hit':
+            table = hitTable; // Ambos usan la misma HIT TABLE
+            break;
+        case 'Possible Error':
+            table = defenseTable;
+            break;
+        case 'Out':
+            table = outTable;
+            break;
+        case 'Productive Out 1':
+            table = productiveOutTable1;
+            break;
+        case 'Productive Out 2':
+            table = productiveOutTable2;
+            break;
+    }
+
+    let html = '<div class="secondary-table">';
+    html += '<table style="width: 100%; border-collapse: collapse;">';
+
+    // Encabezados diferentes según el tipo de tabla
+    if (tableType === 'Oddity') {
+        html += '<tr style="background: #374151; border-bottom: 2px solid #fbbf24;"><th style="padding: 0.5rem;">Roll</th><th style="padding: 0.5rem;">Oddity</th><th style="padding: 0.5rem;">Effect</th></tr>';
+    } else if (tableType === 'Out' || tableType === 'Productive Out 1' || tableType === 'Productive Out 2') {
+        html += '<tr style="background: #374151; border-bottom: 2px solid #fbbf24;"><th style="padding: 0.5rem;">Dígito</th><th style="padding: 0.5rem;">Resultado</th><th style="padding: 0.5rem;">Notación</th><th style="padding: 0.5rem;">Avance</th></tr>';
+    } else {
+        html += '<tr style="background: #374151; border-bottom: 2px solid #fbbf24;"><th style="padding: 0.5rem;">Rango</th><th style="padding: 0.5rem;">Resultado</th></tr>';
+    }
+
+    table.forEach(row => {
+        let isMatch = false;
+
+        // Para OUT TABLE, comparar con lastDigit en lugar de range
+        if (tableType === 'Out') {
+            isMatch = value === parseInt(row.lastDigit);
+        } else {
+            isMatch = checkRangeMatch(value, row.range);
+        }
+
+        const highlightStyle = isMatch ?
+            'background: #dc2626; color: white; font-weight: bold; border: 2px solid #fbbf24;' :
+            'background: #1f2937;';
+
+        if (tableType === 'Oddity') {
+            // Formato especial para Oddities con efecto
+            html += `<tr style="${highlightStyle}">
+                <td style="padding: 0.5rem; text-align: center;">${row.range}</td>
+                <td style="padding: 0.5rem;">${row.result}</td>
+                <td style="padding: 0.5rem; font-size: 0.9rem;">${row.effect}</td>
+            </tr>`;
+        } else if (tableType === 'Out') {
+            // Formato especial para OUT TABLE con notación
+            html += `<tr style="${highlightStyle}">
+                <td style="padding: 0.5rem; text-align: center; font-size: 1.2rem; font-weight: bold;">${row.lastDigit}</td>
+                <td style="padding: 0.5rem;">${row.result}</td>
+                <td style="padding: 0.5rem; color: #fbbf24; font-family: monospace;">${row.notation}</td>
+                <td style="padding: 0.5rem; font-size: 0.85rem; opacity: 0.8;">-</td>
+            </tr>`;
+        } else if (tableType === 'Productive Out 1' || tableType === 'Productive Out 2') {
+            // Formato especial para Productive Out con avance de corredores
+            html += `<tr style="${highlightStyle}">
+                <td style="padding: 0.5rem; text-align: center; font-size: 1.2rem; font-weight: bold;">${row.lastDigit}</td>
+                <td style="padding: 0.5rem;">${row.result}</td>
+                <td style="padding: 0.5rem; color: #fbbf24; font-family: monospace;">${row.notation}</td>
+                <td style="padding: 0.5rem; font-size: 0.85rem; color: ${isMatch ? '#10b981' : 'inherit'};">${row.advancement}</td>
+            </tr>`;
+        } else {
+            // Formato para HIT TABLE y otras tablas
+            let displayResult = row.result;
+            if (row.def) {
+                displayResult += `, DEF (${row.def})`;
+            }
+
+            html += `<tr style="${highlightStyle}">
+                <td style="padding: 0.5rem; text-align: center;">${row.range}</td>
+                <td style="padding: 0.5rem;">${displayResult}${isCritical && isMatch ? ' <strong>(+1 nivel)</strong>' : ''}</td>
+            </tr>`;
+        }
+
+        if (isMatch) {
+            window.cascadeState.finalResult = row.result;
+
+            // Guardar información adicional para Productive Out
+            if (tableType === 'Productive Out 1' || tableType === 'Productive Out 2') {
+                window.cascadeState.advancement = row.advancement;
+                window.cascadeState.outType = row.type || 'unknown';
+            }
+            console.log(`✅ Match encontrado! finalResult = "${row.result}"`);
+
+            if (isCritical) {
+                // Upgrade según reglas de Critical Hit
+                if (row.result === 'Single' || row.result.includes('Single')) {
+                    window.cascadeState.finalResult = 'Double (upgraded from Single)';
+                } else if (row.result === 'Double' || row.result.includes('Double')) {
+                    window.cascadeState.finalResult = 'Triple (upgraded from Double)';
+                } else if (row.result === 'Triple') {
+                    window.cascadeState.finalResult = 'Home Run (upgraded from Triple)';
+                } else if (row.result === 'Home Run') {
+                    window.cascadeState.finalResult = 'Home Run'; // Home Run se mantiene
+                }
+                console.log(`🔼 Critical Hit upgrade: finalResult = "${window.cascadeState.finalResult}"`);
+            }
+        }
+    });
+
+    html += '</table></div>';
+    displayDiv.innerHTML = html;
+}
+
+// Verificar si un valor está en un rango
+function checkRangeMatch(value, range) {
+    if (range.includes('-')) {
+        const [min, max] = range.split('-').map(n => parseInt(n.trim()));
+        return value >= min && value <= max;
+    } else {
+        return value === parseInt(range);
+    }
+}
+
+// Confirmar resultado de tabla secundaria
+function confirmSecondaryResult() {
+    console.log(`🔍 Intentando confirmar resultado...`);
+    console.log(`📋 Estado cascada:`, window.cascadeState);
+
+    if (!window.cascadeState.finalResult) {
+        console.warn('❌ No hay finalResult definido');
+        alert('⚠️ Por favor ingresa un valor de dado válido y espera a que se resalte una fila');
+        return;
+    }
+
+    console.log(`✅ Resultado secundario confirmado: ${window.cascadeState.finalResult}`);
+
+    // DETECTAR SI EL RESULTADO TIENE DEF (Defense Position)
+    const resultText = window.cascadeState.finalResult.toLowerCase();
+    const defMatch = window.cascadeState.finalResult.match(/\((1B|2B|3B|SS|LF|CF|RF)\)/);
+    
+    if (defMatch && window.cascadeState.currentTable === 'Hit Table') {
+        const defPosition = defMatch[1];
+        console.log(`🛡️ Detectado DEF: ${defPosition} - Mostrando Defense Table`);
+        window.cascadeState.defensePosition = defPosition;
+        showDefenseTable(defPosition);
+        return; // No procesar aún, esperar resultado de Defense Table
+    }
+
+    // Si viene de Defense Table, combinar con resultado de Hit
+    if (window.cascadeState.currentTable === 'Defense Table' && window.cascadeState.hitResult) {
+        const finalResult = applyDefenseResult(window.cascadeState.hitResult, window.cascadeState.finalResult);
+        processFinalResult(finalResult);
+    } else {
+        // Procesar el resultado final directamente
+        processFinalResult(window.cascadeState.finalResult);
+    }
+
+    // Limpiar cascada (después de procesar)
+    setTimeout(() => {
+        closeCascade();
+    }, 500);
+}
+
+// Mostrar Defense Table cuando un hit tiene DEF
+function showDefenseTable(defPosition) {
+    console.log(`🛡️ Mostrando Defense Table para posición: ${defPosition}`);
+    
     const confirmation = document.getElementById('cascade-confirmation');
-    if (confirmation) {
-        confirmation.style.display = 'block';
-        confirmation.innerHTML = `
-            <div style="background: #1e293b; color: white; padding: 1rem; border-radius: 8px; border: 2px solid #059669;">
-                <h3>🎯 Resultado: ${event}</h3>
-                <p>${result}</p>
-                <button onclick="confirmAndNextBatter()" style="background: #059669; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; margin-right: 0.5rem;">✅ Confirmar y Siguiente Bateador</button>
-                <button onclick="cancelSelection()" style="background: #dc2626; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;">❌ Cancelar</button>
+    if (!confirmation) return;
+
+    // Guardar el resultado del hit actual
+    cascadeState.hitResult = cascadeState.finalResult;
+    cascadeState.currentTable = 'Defense Table';
+
+    const defenseTable = [
+        { range: "1-2", result: "Error - Runners take extra base" },
+        { range: "3-9", result: "No change" },
+        { range: "10-11", result: "Double → Single, runners advance 2" },
+        { range: "12", result: "Hit → Out, runners hold" }
+    ];
+
+    let html = `
+        <div style="background: linear-gradient(135deg, #1e293b, #0f172a); padding: 1.5rem; border-radius: 8px; border: 2px solid #f59e0b; max-width: 600px;">
+            <h3 style="color: #f59e0b; margin: 0 0 1rem 0; text-align: center;">🛡️ DEFENSE TABLE (d12) - ${defPosition}</h3>
+            <p style="color: #94a3b8; margin-bottom: 1rem; text-align: center;">Tira d12 para verificar jugada defensiva</p>
+            
+            <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                <label style="color: white; font-weight: bold;">Tirada d12:</label>
+                <input type="number" id="defense-dice-input" min="1" max="12" 
+                       style="width: 80px; padding: 0.5rem; font-size: 1.2rem; border: 2px solid #f59e0b; border-radius: 4px; text-align: center;"
+                       oninput="validateDefenseDice()" />
+                <button onclick="rollDefenseDice()" 
+                        style="background: #f59e0b; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    🎲 Tirar d12
+                </button>
+            </div>
+            
+            <div id="defense-table-display" style="margin: 1rem 0;"></div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+                <button id="confirm-defense-btn" onclick="confirmDefenseResult()" 
+                        style="background: #059669; color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; display: none;">
+                    ✅ Confirmar Resultado
+                </button>
+            </div>
+        </div>
+    `;
+
+    confirmation.innerHTML = html;
+    confirmation.style.display = 'block';
+}
+
+// Validar entrada de dado de defensa
+function validateDefenseDice() {
+    const input = document.getElementById('defense-dice-input');
+    if (!input) return;
+    
+    const value = parseInt(input.value);
+    if (value >= 1 && value <= 12) {
+        displayDefenseTable(value);
+    }
+}
+
+// Tirar dado de defensa automáticamente
+function rollDefenseDice() {
+    const roll = Math.floor(Math.random() * 12) + 1;
+    const input = document.getElementById('defense-dice-input');
+    if (input) {
+        input.value = roll;
+        displayDefenseTable(roll);
+    }
+}
+
+// Mostrar tabla de defensa con resultado resaltado
+function displayDefenseTable(diceValue) {
+    console.log(`🎲 Defense dice: ${diceValue}`);
+    
+    const displayDiv = document.getElementById('defense-table-display');
+    if (!displayDiv) return;
+
+    const defenseTable = [
+        { range: "1-2", result: "Error - Runners take extra base" },
+        { range: "3-9", result: "No change" },
+        { range: "10-11", result: "Double → Single, runners advance 2" },
+        { range: "12", result: "Hit → Out, runners hold" }
+    ];
+
+    let html = '<table style="width: 100%; border-collapse: collapse; background: #0f172a; margin: 1rem 0;">';
+    html += '<tr style="background: #1e293b; border-bottom: 2px solid #f59e0b;"><th style="padding: 0.5rem; color: white;">Rango</th><th style="padding: 0.5rem; color: white;">Resultado</th></tr>';
+
+    let selectedResult = null;
+
+    defenseTable.forEach(row => {
+        const [min, max] = row.range.includes('-') ? row.range.split('-').map(Number) : [parseInt(row.range), parseInt(row.range)];
+        const isMatch = diceValue >= min && diceValue <= max;
+        const highlightStyle = isMatch ? 
+            'background-color: #dc2626 !important; color: #ffffff !important; font-weight: bold; border: 2px solid #fbbf24;' : 
+            '';
+
+        html += `<tr style="${highlightStyle}">
+            <td style="padding: 0.5rem; text-align: center; color: white;">${row.range}</td>
+            <td style="padding: 0.5rem; color: white;">${row.result}</td>
+        </tr>`;
+
+        if (isMatch) {
+            selectedResult = row.result;
+        }
+    });
+
+    html += '</table>';
+    displayDiv.innerHTML = html;
+
+    cascadeState.finalResult = selectedResult;
+    
+    const confirmBtn = document.getElementById('confirm-defense-btn');
+    if (confirmBtn) {
+        confirmBtn.style.display = 'inline-block';
+    }
+    
+    console.log(`🛡️ Defense result: ${selectedResult}`);
+}
+
+// Confirmar resultado de defensa
+function confirmDefenseResult() {
+    console.log(`✅ Confirmando resultado de defensa`);
+    confirmSecondaryResult();
+}
+
+// Aplicar resultado de Defense Table al hit original
+function applyDefenseResult(hitResult, defenseResult) {
+    console.log(`🔧 Aplicando defensa: Hit="${hitResult}", Defense="${defenseResult}"`);
+    
+    const defenseLower = defenseResult.toLowerCase();
+    
+    if (defenseLower.includes('error')) {
+        return hitResult + " + Error (extra base)";
+    } else if (defenseLower.includes('double → single')) {
+        return 'Single (downgraded from Double)';
+    } else if (defenseLower.includes('hit → out')) {
+        return 'Out (great defensive play)';
+    } else {
+        return hitResult; // No change
+    }
+}
+
+// Procesar el resultado final de la tirada
+function processFinalResult(result) {
+    console.log(`📊 Procesando resultado final: ${result}`);
+
+    let hitType = null;
+    let runnerAdvancement = 0;
+    let isOut = false;
+    let isWalk = false;
+    let isError = false;
+    const resultLower = result.toLowerCase();
+
+    // ANÁLISIS EXHAUSTIVO DEL RESULTADO
+    if (resultLower.includes('single')) {
+        hitType = 'single';
+        
+        // Detectar avances especiales
+        if (resultLower.includes('runners adv. 2') || resultLower.includes('runners advance 2')) {
+            runnerAdvancement = 2; // Corredores avanzan 2, bateador a 1B
+            console.log(`📊 Single con corredores avanzando 2 bases`);
+        } else if (resultLower.includes('downgraded from double')) {
+            runnerAdvancement = 1; // Single normal (rebajado)
+        } else {
+            runnerAdvancement = 1;
+        }
+    } else if (resultLower.includes('double')) {
+        hitType = 'double';
+        
+        if (resultLower.includes('runners adv. 3') || resultLower.includes('runners advance 3')) {
+            runnerAdvancement = 3; // Corredores avanzan 3, bateador a 2B
+            console.log(`📊 Double con corredores avanzando 3 bases`);
+        } else {
+            runnerAdvancement = 2;
+        }
+    } else if (resultLower.includes('triple')) {
+        hitType = 'triple';
+        runnerAdvancement = 3;
+    } else if (resultLower.includes('home run')) {
+        hitType = 'homerun';
+        runnerAdvancement = 4;
+    } else if (resultLower.includes('walk') || resultLower.includes('hit by pitch') || resultLower.includes('interference')) {
+        hitType = 'walk';
+        runnerAdvancement = 1;
+        isWalk = true;
+    } else if (resultLower.includes('error') || resultLower.includes('extra base')) {
+        hitType = 'error';
+        isError = true;
+        
+        if (resultLower.includes('extra base')) {
+            runnerAdvancement = 2; // Error da base extra
+        } else {
+            runnerAdvancement = 1;
+        }
+    } else if (resultLower.includes('out')) {
+        isOut = true;
+
+        // OUTS PRODUCTIVOS - Detectar avance de corredores
+        if (resultLower.includes('runner on 3rd scores') || resultLower.includes('scores')) {
+            runnerAdvancement = 1; // Solo corredor de 3ra anota
+            console.log(`📊 Out productivo: Corredor de 3ra anota`);
+        } else if (resultLower.includes('runners on 2nd and 3rd advance')) {
+            runnerAdvancement = 1; // Corredores de 2da y 3ra avanzan
+            console.log(`📊 Out productivo: Corredores de 2da y 3ra avanzan`);
+        } else if (resultLower.includes('great defensive play')) {
+            runnerAdvancement = 0; // No avanzan
+            console.log(`🥊 Gran jugada defensiva - Corredores no avanzan`);
+        }
+    }
+
+    console.log(`📊 Tipo: ${hitType || 'out'}, Avance: ${runnerAdvancement}, Out: ${isOut}`);
+
+    // ACTUALIZAR ESTADÍSTICAS
+    if (isOut) {
+        console.log('⚾ Out registrado');
+        // Procesar outs productivos
+        if (runnerAdvancement > 0) {
+            advanceRunnersOnOut(runnerAdvancement);
+        }
+    } else {
+        // Es un hit o walk
+        gameState.hits[gameState.isTopHalf ? 'visitante' : 'local']++;
+
+        if (isError) {
+            gameState.errors[gameState.isTopHalf ? 'local' : 'visitante']++;
+        }
+
+        console.log(`✅ ${hitType.toUpperCase()}! Avance: ${runnerAdvancement} base(s)`);
+
+        // MOVER TOKENS Y AVANZAR CORREDORES
+        advanceRunners(runnerAdvancement, true);
+        
+        // Actualizar display
+        updateGameDisplay();
+        updateBasesDisplay();
+
+        console.log('⏸️ Esperando confirmación del usuario para avanzar...');
+    }
+
+    // Mostrar animación en el campo
+    animateFieldResult(hitType, runnerAdvancement, isOut);
+}
+
+// Avanzar corredores solo en outs productivos (sin incluir bateador)
+function advanceRunnersOnOut(advancement) {
+    console.log(`🏃 Out productivo - Avanzando corredores ${advancement} base(s)`);
+
+    const newBases = {
+        first: null,
+        second: null,
+        third: null
+    };
+
+    // Solo mover corredores existentes, NO agregar bateador
+    if (gameState.bases.third && advancement >= 1) {
+        // Corredor de 3ra anota
+        const runner = gameState.bases.third;
+        const team = gameState.isTopHalf ? 'visitante' : 'local';
+        
+        if (gameState.isTopHalf) {
+            gameState.score.totalVisitante++;
+            gameState.score.visitante[gameState.currentInning - 1]++;
+        } else {
+            gameState.score.totalLocal++;
+            gameState.score.local[gameState.currentInning - 1]++;
+        }
+        
+        console.log(`🏠 ¡Carrera anotada en out productivo! ${runner.name}`);
+        animateRunnerScoring('third');
+    }
+
+    if (gameState.bases.second && advancement >= 1) {
+        newBases.third = gameState.bases.second;
+        animateRunnerMoving('second', 'third');
+    }
+
+    if (gameState.bases.first && advancement >= 1) {
+        newBases.second = gameState.bases.first;
+        animateRunnerMoving('first', 'second');
+    }
+
+    gameState.bases = newBases;
+    updateGameDisplay();
+    updateBasesDisplay();
+}
+
+// Avanzar corredores en las bases
+// Avanzar corredores en las bases CON ANIMACIÓN Y RBIs
+function advanceRunners(bases, includeBatter = false) {
+    console.log(`🏃 Avanzando corredores ${bases} base(s), incluir bateador: ${includeBatter}`);
+
+    const battingTeam = getCurrentBattingTeam();
+    const currentBatter = getCurrentBatter();
+    let rbisScored = 0; // Contador de RBIs
+
+    // Calcular nuevas posiciones Y contar carreras
+    const newBases = {
+        first: null,
+        second: null,
+        third: null
+    };
+
+    // PASO 1: Procesar corredor en 3ra base
+    if (gameState.bases.third) {
+        const runner = gameState.bases.third;
+        if (bases >= 1) {
+            // Anota desde 3ra
+function advanceRunners(bases, includeBatter = false) {
+    console.log(`🏃 Avanzando corredores ${bases} base(s), incluir bateador: ${includeBatter}`);
+
+    // Calcular nuevas posiciones
+    const newBases = {
+        first: null,
+        second: null,
+        third: null
+    };
+
+    // Mover corredores existentes
+    if (gameState.bases.third) {
+        const runner = gameState.bases.third;
+        // Corredor de 3ra anota
+        const team = gameState.isTopHalf ? 'visitante' : 'local';
+        if (gameState.isTopHalf) {
+            gameState.score.totalVisitante++;
+            gameState.score.visitante[gameState.currentInning - 1]++;
+        } else {
+            gameState.score.totalLocal++;
+            gameState.score.local[gameState.currentInning - 1]++;
+        }
+        console.log(`🏠 ¡Carrera anotada! Score ${team}: ${gameState.score[team]}`);
+
+        // Animar desaparición del corredor de 3ra
+        animateRunnerScoring('third');
+    }
+
+    if (gameState.bases.second) {
+        const runner = gameState.bases.second;
+        if (bases >= 2) {
+            // Anota desde 2da
+            const team = gameState.isTopHalf ? 'visitante' : 'local';
+            if (gameState.isTopHalf) {
+                gameState.score.totalVisitante++;
+                gameState.score.visitante[gameState.currentInning - 1]++;
+            } else {
+                gameState.score.totalLocal++;
+                gameState.score.local[gameState.currentInning - 1]++;
+            }
+            animateRunnerScoring('second');
+        } else if (bases === 1) {
+            newBases.third = runner;
+            animateRunnerMoving('second', 'third');
+        }
+    }
+
+    if (gameState.bases.first) {
+        const runner = gameState.bases.first;
+        if (bases >= 3) {
+            // Anota desde 1ra
+            const team = gameState.isTopHalf ? 'visitante' : 'local';
+            if (gameState.isTopHalf) {
+                gameState.score.totalVisitante++;
+                gameState.score.visitante[gameState.currentInning - 1]++;
+            } else {
+                gameState.score.totalLocal++;
+                gameState.score.local[gameState.currentInning - 1]++;
+            }
+            animateRunnerScoring('first');
+        } else if (bases === 2) {
+            newBases.third = runner;
+            animateRunnerMoving('first', 'third');
+        } else if (bases === 1) {
+            newBases.second = runner;
+            animateRunnerMoving('first', 'second');
+        }
+    }
+
+    // Colocar bateador si corresponde
+    if (includeBatter) {
+        const currentBatter = getCurrentBatter();
+        const battingTeam = getCurrentBattingTeam();
+        
+        if (currentBatter) {
+            const batterData = {
+                id: currentBatter.id,
+                number: currentBatter.number,
+                name: currentBatter.name,
+                team: battingTeam,
+                mlbId: currentBatter.mlbId
+            };
+            
+            if (bases >= 4) {
+                // Home run del bateador
+                const team = gameState.isTopHalf ? 'visitante' : 'local';
+                if (gameState.isTopHalf) {
+                    gameState.score.totalVisitante++;
+                    gameState.score.visitante[gameState.currentInning - 1]++;
+                } else {
+                    gameState.score.totalLocal++;
+                    gameState.score.local[gameState.currentInning - 1]++;
+                }
+                animateRunnerScoring('batter');
+            } else if (bases === 3) {
+                newBases.third = batterData;
+                createRunnerToken(batterData, 'third');
+            } else if (bases === 2) {
+                newBases.second = batterData;
+                createRunnerToken(batterData, 'second');
+            } else if (bases === 1) {
+                newBases.first = batterData;
+                createRunnerToken(batterData, 'first');
+            }
+        }
+    }
+
+    // Actualizar estado
+    gameState.bases = newBases;
+}
+
+// Animar corredor anotando (desaparece con pop)
+function animateRunnerScoring(from) {
+    console.log(`🏠 Animando anotación desde ${from}`);
+    // TODO: Implementar animación visual con efecto pop
+    // Por ahora solo log
+}
+
+// Animar corredor moviéndose entre bases
+function animateRunnerMoving(from, to) {
+    console.log(`🏃 Animando movimiento: ${from} → ${to}`);
+    // TODO: Implementar animación visual de transición
+    // Por ahora solo log           style="background: #059669; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; margin-right: 0.5rem;">
+                    ✅ Confirmar
+                </button>
+                <button onclick="cancelCascade()" 
+                        style="background: #dc2626; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;">
+                    ❌ Cancelar
+                </button>
             </div>
         `;
     }
+}
+
+// Mostrar Defense Table como cascada adicional
+// Cancelar cascada
+function cancelCascade() {
+    closeCascade();
+    console.log('❌ Cascada cancelada');
+}
+
+// Cerrar cascada
+function closeCascade() {
+    const confirmation = document.getElementById('cascade-confirmation');
+    if (confirmation) {
+        confirmation.style.display = 'none';
+        confirmation.innerHTML = '';
+    }
+
+    // Resetear estado de cascada
+    cascadeState = {
+        currentTable: null,
+        firstRoll: null,
+        secondRoll: null,
+        eventType: null,
+        finalResult: null
+    };
 }
 
 // Función para cancelar selección
@@ -2454,7 +3830,7 @@ function confirmAndNextBatter() {
     console.log(`🔄 Confirmando jugada y avanzando al siguiente bateador...`);
 
     // Determinar si fue out para procesar outs/innings
-    const currentRoll = gameState.currentDiceRoll;
+    const currentRoll = gameState.currentDiceRoll || gameState.lastRollDetails?.total;
     let wasOut = false;
 
     if (currentRoll) {
@@ -2466,6 +3842,20 @@ function confirmAndNextBatter() {
             wasOut = true;
         }
     }
+
+    // LIMPIAR CASCADA Y DADOS ANTES DE AVANZAR
+    console.log('🧹 Limpiando cascada y dados antes de avanzar...');
+    resetCascadeSystemComplete();
+    
+    // Limpiar dados visualmente
+    const diceResults = document.querySelectorAll('[id*="dice-results-display"]');
+    diceResults.forEach(result => {
+        result.style.display = 'none';
+    });
+    
+    // Limpiar valores de dados
+    gameState.currentDiceRoll = null;
+    gameState.lastRollDetails = null;
 
     // Procesar outs si corresponde
     if (wasOut) {
@@ -2483,83 +3873,10 @@ function confirmAndNextBatter() {
         console.log(`➡️ Hit/Walk - Avanzar al siguiente bateador`);
         nextBatter();
     }
-
-    // LIMPIAR TIRADA ACTUAL (NO RESETEO COMPLETO)
-    console.log(`🧹 LIMPIANDO tirada actual - CONSERVANDO datos del juego...`);
-
-    // TODO: Más tarde - GUARDAR la tirada actual en un registro/historial de bateadores
-    // const baterRecord = {
-    //     batter: getCurrentBatter(),
-    //     diceRoll: gameState.currentDiceRoll,
-    //     result: selectedOption,
-    //     inning: gameState.currentInning,
-    //     timestamp: Date.now()
-    // };
-    // gameState.batterHistory.push(baterRecord); // IMPLEMENTAR MÁS TARDE
-
-    // 1. OCULTAR VISUALMENTE los dados (pero mantener datos)
-    hideCurrentDiceResults();
-
-    // 2. LIMPIAR campos de dados del lanzador y bateador (preparar para siguiente turno)
-    console.log(`🧹 Limpiando campos de dados para siguiente bateador...`);
-
-    const diceInputIds = [
-        'pitcher-dice-value',
-        'batter-dice-value',
-        'pitcher-dice-value-local',
-        'batter-dice-value-local'
-    ];
-
-    diceInputIds.forEach(id => {
-        const input = document.getElementById(id);
-        if (input) {
-            input.value = '';
-            console.log(`✅ Campo de dados limpiado: ${id}`);
-        }
-    });
-
-    // 3. LIMPIAR totales mostrados (el número grande que se ve)
-    const finalResultIds = [
-        'final-result',
-        'final-result-local'
-    ];
-
-    finalResultIds.forEach(id => {
-        const resultElement = document.getElementById(id);
-        if (resultElement) {
-            resultElement.textContent = '-';
-            console.log(`✅ Total limpiado: ${id}`);
-        }
-    });
-
-    // 4. RESETEAR descripciones de resultados (preparar para nueva tirada)
-    const resultDescriptionIds = [
-        'dice-result-description',
-        'dice-result-description-local'
-    ];
-
-    resultDescriptionIds.forEach(id => {
-        const description = document.getElementById(id);
-        if (description) {
-            description.textContent = 'Esperando tirada...';
-            console.log(`✅ Descripción limpiada: ${id}`);
-        }
-    });
-
-    // 4. LIMPIAR la cascada visual (pero conservar el estado del juego)
-    resetCascadeSystemComplete();
-
-    // 5. LIMPIAR variables de la tirada actual (preparar para siguiente bateador)
-    gameState.currentDiceRoll = null;
-    gameState.lastRollDetails = null;
-
-    // 6. ACTUALIZAR display (mantiene marcador, innings, etc.)
+    
+    // Actualizar display y mostrar selector de intenciones
     updateGameDisplay();
-    updateDiceSystemPosition();
-
-    // 7. MOSTRAR SELECTOR DE INTENCIONES para el próximo bateador
-    console.log('🎯 Mostrando selector de intenciones para el próximo bateador...');
-    resetIntentionSelector();
+    console.log('✅ Jugada confirmada y siguiente bateador listo');
 }
 
 // FUNCIÓN MEJORADA - Solo oculta dados específicos, NO elementos del DOM principal
@@ -2638,52 +3955,59 @@ function resetCascadeSystemComplete() {
         console.log(`✅ Confirmación ocultada`);
     }
 
-    // 2. OCULTAR Y RESETEAR DROPDOWN/CASCADA
-    hideCascadeSystem();
-    console.log(`✅ Sistema de cascada ocultado`);
+    // 2. SOLO OCULTAR CASCADA SI NO HAY TIRADA ACTIVA
+    if (!gameState.currentDiceRoll) {
+        hideCascadeSystem();
+        console.log(`✅ Sistema de cascada ocultado (no hay tirada activa)`);
+    } else {
+        console.log(`⏭️ Sistema de cascada PRESERVADO (hay tirada activa: ${gameState.currentDiceRoll})`);
+    }
 
-    // 3. RESETEAR RESULTADO INICIAL
+    // 3. RESETEAR RESULTADO INICIAL SOLO SI NO HAY TIRADA
     const initialResult = document.getElementById('initial-result');
-    if (initialResult) {
+    if (initialResult && !gameState.currentDiceRoll) {
         initialResult.textContent = '-';
         console.log(`✅ Resultado inicial reseteado`);
     }
 
-    // 4. RESETEAR ESTADO DE CASCADA
+    // 4. RESETEAR ESTADO DE CASCADA SOLO SI NO HAY TIRADA
     const cascadeStatus = document.getElementById('cascade-current-action');
-    if (cascadeStatus) {
+    if (cascadeStatus && !gameState.currentDiceRoll) {
         cascadeStatus.textContent = 'Sistema activo - Esperando tirada...';
         console.log(`✅ Estado de cascada reseteado`);
     }
 
-    // 5. LIMPIAR CONTENIDO DE OPCIONES DE CASCADA
+    // 5. LIMPIAR CONTENIDO DE OPCIONES DE CASCADA SOLO SI NO HAY TIRADA
     const cascadeOptions = document.getElementById('cascade-options');
-    if (cascadeOptions) {
+    if (cascadeOptions && !gameState.currentDiceRoll) {
         cascadeOptions.innerHTML = '';
         console.log(`✅ Opciones de cascada limpiadas`);
     }
 
     // 6. RESETEAR VARIABLES GLOBALES RELACIONADAS
-    if (window.currentCascadeLevel) {
+    if (window.currentCascadeLevel && !gameState.currentDiceRoll) {
         window.currentCascadeLevel = 0;
         console.log(`✅ Nivel de cascada reseteado`);
     }
 
-    // 7. OCULTAR CUALQUIER TABLA DE SWING RESULT
-    const swingTables = document.querySelectorAll('.swing-result-table');
-    swingTables.forEach(table => {
-        if (table.parentElement) {
-            table.parentElement.style.display = 'none';
-        }
-    });
-    console.log(`✅ Tablas de swing result ocultadas`);
+    // 7-8: NO OCULTAR NADA SI HAY TIRADA ACTIVA
+    if (!gameState.currentDiceRoll) {
+        // OCULTAR CUALQUIER TABLA DE SWING RESULT
+        const swingTables = document.querySelectorAll('.swing-result-table');
+        swingTables.forEach(table => {
+            if (table.parentElement) {
+                table.parentElement.style.display = 'none';
+            }
+        });
+        console.log(`✅ Tablas de swing result ocultadas`);
 
-    // 8. LIMPIAR CUALQUIER DROPDOWN ACTIVO
-    const cascadeDropdown = document.getElementById('cascade-dropdown');
-    if (cascadeDropdown) {
-        cascadeDropdown.style.display = 'none';
-        cascadeDropdown.innerHTML = '';
-        console.log(`✅ Dropdown de cascada limpiado`);
+        // LIMPIAR CUALQUIER DROPDOWN ACTIVO
+        const cascadeDropdown = document.getElementById('cascade-dropdown');
+        if (cascadeDropdown) {
+            cascadeDropdown.style.display = 'none';
+            cascadeDropdown.innerHTML = '';
+            console.log(`✅ Dropdown de cascada limpiado`);
+        }
     }
 
     console.log(`🎉 Reseteo completo finalizado`);
@@ -2744,55 +4068,35 @@ function selectIntention(intention) {
             break;
 
         case 'steal':
-            console.log('🏃‍♂️ Intención de robar base seleccionada');
-            showStealBaseSystem();
-            break;
+          OCULTAR Y RESETEAR DROPDOWN/CASCADA
+    hideCascadeSystem();
+    console.log(`✅ Sistema de cascada ocultado`);
 
-        case 'bunt':
-            console.log('🤏 Intención de toque/bunt seleccionada');
-            alert('🤏 Sistema de toque/bunt - Por implementar');
-            break;
-
-        case 'hitrun':
-            console.log('⚡ Intención de hit & run seleccionada');
-            alert('⚡ Sistema de hit & run - Por implementar');
-            break;
-
-        default:
-            console.error(`❌ Intención desconocida: ${intention}`);
-    }
-}
-
-/**
- * Función simple para mostrar el sistema de dados y ocultar el selector
- */
-function showDiceSystem() {
-    console.log('🎲 [FORZADO] Mostrando sistema de dados...');
-
-    const intentionContainer = document.getElementById('intention-container-visitante');
-    const diceContainer = document.getElementById('dice-container-visitante');
-
-    console.log('   - intentionContainer encontrado:', !!intentionContainer);
-    console.log('   - diceContainer encontrado:', !!diceContainer);
-
-    // PASO 1: Ocultar selector de manera agresiva
-    if (intentionContainer) {
-        intentionContainer.style.cssText = 'display: none !important; opacity: 0 !important; visibility: hidden !important;';
-        console.log('✅ Selector FORZADAMENTE ocultado');
+    // 3. RESETEAR RESULTADO INICIAL
+    const initialResult = document.getElementById('initial-result');
+    if (initialResult) {
+        initialResult.textContent = '-';
+        console.log(`✅ Resultado inicial reseteado`);
     }
 
-    // PASO 2: Mostrar dados de manera súper agresiva
-    if (diceContainer) {
-        // Remover cualquier estilo inline que pueda estar ocultando
-        diceContainer.removeAttribute('style');
+    // 4. RESETEAR ESTADO DE CASCADA
+    const cascadeStatus = document.getElementById('cascade-current-action');
+    if (cascadeStatus) {
+        cascadeStatus.textContent = 'Sistema activo - Esperando tirada...';
+        console.log(`✅ Estado de cascada reseteado`);
+    }
 
-        // Aplicar estilos forzados
-        diceContainer.style.cssText = `
-            display: block !important; 
-            opacity: 1 !important; 
-            visibility: visible !important; 
-            position: relative !important; 
-            z-index: 10 !important;
+    // 5. LIMPIAR CONTENIDO DE OPCIONES DE CASCADA
+    const cascadeOptions = document.getElementById('cascade-options');
+    if (cascadeOptions) {
+        cascadeOptions.innerHTML = '';
+        console.log(`✅ Opciones de cascada limpiadas`);
+    }
+
+    // 6. RESETEAR VARIABLES GLOBALES RELACIONADAS
+    if (window.currentCascadeLevel) {
+        window.currentCascadeLevel = 0;
+        console.log(`✅ Nivel de cascada reseteado`);   z-index: 10 !important;
             background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%) !important;
             border-radius: 20px !important;
             border: 3px solid #374151 !important;
@@ -2838,6 +4142,15 @@ function showDiceSystem() {
         similarContainers.forEach((container, index) => {
             console.log(`   - ${index}: ${container.id} (display: ${container.style.display})`);
         });
+    }
+
+    // Mostrar sistema de robo de base si hay corredores
+    const hasRunners = gameState.bases.first || gameState.bases.second || gameState.bases.third;
+    if (hasRunners) {
+        showStealBaseSystem();
+    } else {
+        const stealBtn = document.getElementById('steal-base-container');
+        if (stealBtn) stealBtn.style.display = 'none';
     }
 }
 
@@ -2957,7 +4270,684 @@ function resetIntentionSelector() {
     console.log('✅ Selector de intenciones reseteado');
 }
 
+// ===== TABLA DE BUNTING (D6) - TABLA OFICIAL DEADBALL =====
+// Usada cuando el bateador intenta un toque/bunt
+// TODOS los resultados son FINALES (no hay strikes/balls)
+const buntTable = [
+    { range: '1-2', event: 'Lead Runner Out', result: 'Corredor líder out, bateador safe en 1B', highlighted: false },
+    { range: '3', event: 'Situational', result: 'Si corredor en 1B/2B: corredor avanza, bateador out. Si corredor en 3B: corredor out, bateador safe', highlighted: false },
+    { range: '4-5', event: 'Sacrifice', result: 'Corredor líder avanza, bateador out', highlighted: false },
+    { range: '6', event: 'Hit Check', result: 'Si bateador 5+ hitting: Single DEF (-1B). Si no: corredor avanza, bateador out', highlighted: false }
+];
+
 // ===== SISTEMA DE ROBO DE BASES =====
+
+/**
+ * Actualiza la visibilidad del botón de Robar Base
+ * Se muestra solo si hay corredores en base
+ */
+function updateStealBaseButton() {
+    const stealContainer = document.getElementById('steal-base-container');
+    if (!stealContainer) return;
+
+    // Verificar si hay corredores en base
+    const hasRunners = gameState.bases.first !== null ||
+        gameState.bases.second !== null ||
+        gameState.bases.third !== null;
+
+    if (hasRunners && gameState.outs < 3) {
+        stealContainer.style.display = 'block';
+    } else {
+        stealContainer.style.display = 'none';
+    }
+}
+
+/**
+ * Abre el diálogo para seleccionar qué corredor(es) intentan robar
+ */
+function openStealBaseDialog() {
+    console.log('⚡ Abriendo diálogo de robo de bases...');
+
+    const runners = [];
+
+    // Detectar corredores disponibles para robo
+    if (gameState.bases.first !== null) {
+        runners.push({ base: 'first', target: 'second', name: gameState.bases.first.name });
+    }
+    if (gameState.bases.second !== null) {
+        runners.push({ base: 'second', target: 'third', name: gameState.bases.second.name, penalty: -1 });
+    }
+    if (gameState.bases.third !== null) {
+        runners.push({ base: 'third', target: 'home', name: gameState.bases.third.name });
+    }
+
+    if (runners.length === 0) {
+        alert('No hay corredores en base');
+        return;
+    }
+
+    // Mostrar diálogo de selección
+    showStealSelectionDialog(runners);
+}
+
+/**
+ * Muestra el diálogo para seleccionar corredor(es)
+ */
+function showStealSelectionDialog(runners) {
+    const cascadeContainer = document.getElementById('cascade-confirmation');
+    if (!cascadeContainer) return;
+
+    let html = `
+        <div style="background: #1e3a5f; color: white; padding: 1.5rem; border-radius: 12px; border: 3px solid #fbbf24; box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);">
+            <h2 style="margin: 0 0 1rem 0; color: #fbbf24;">⚡ ROBO DE BASES</h2>
+            <p style="margin: 0 0 1rem 0; opacity: 0.9;">Selecciona qué corredor(es) intentan robar:</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+    `;
+
+    runners.forEach((runner, index) => {
+        const penaltyText = runner.penalty ? ` <span style="color: #ef4444;">(${runner.penalty})</span>` : '';
+        html += `
+            <label style="display: flex; align-items: center; padding: 0.75rem; background: rgba(251, 191, 36, 0.1); border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;">
+                <input type="checkbox" id="steal-runner-${index}" value="${runner.base}" 
+                       style="width: 20px; height: 20px; margin-right: 0.75rem; cursor: pointer;">
+                <span style="flex: 1; font-size: 1.1rem;">
+                    <strong>${runner.name}</strong>: ${runner.base === 'first' ? '1ª' : runner.base === 'second' ? '2ª' : '3ª'} → 
+                    ${runner.target === 'second' ? '2ª' : runner.target === 'third' ? '3ª' : 'Home'}${penaltyText}
+                </span>
+            </label>
+        `;
+    });
+
+    html += `
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem;">
+                <button onclick="executeStealAttempt()" 
+                        style="flex: 1; background: #f59e0b; color: white; padding: 0.75rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    🎲 Intentar Robo
+                </button>
+                <button onclick="closeCascade()" 
+                        style="flex: 1; background: #dc2626; color: white; padding: 0.75rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                    ❌ Cancelar
+                </button>
+            </div>
+        </div>
+    `;
+
+    cascadeContainer.style.display = 'block';
+    cascadeContainer.innerHTML = html;
+}
+
+/**
+ * Ejecuta el intento de robo según la selección
+ */
+function executeStealAttempt() {
+    const selected = [];
+    const inputs = document.querySelectorAll('[id^="steal-runner-"]');
+
+    inputs.forEach((input, index) => {
+        if (input.checked) {
+            selected.push(input.value);
+        }
+    });
+
+    if (selected.length === 0) {
+        alert('⚠️ Selecciona al menos un corredor');
+        return;
+    }
+
+    console.log(`🏃 Intentando robo: ${selected.join(', ')}`);
+
+    // Determinar si es robo simple o doble
+    if (selected.length === 1) {
+        performSingleSteal(selected[0]);
+    } else if (selected.length === 2) {
+        performDoubleSteal(selected);
+    } else {
+        alert('⚠️ Solo puedes intentar robar con 1 o 2 corredores a la vez');
+    }
+}
+
+/**
+ * Realiza un robo simple
+ */
+function performSingleSteal(base) {
+    const runner = gameState.bases[base];
+    if (!runner) return;
+
+    // Aplicar penalizador si es de 2ª a 3ª
+    const penalty = base === 'second' ? -1 : 0;
+
+    // Tirar d8
+    const roll = Math.floor(Math.random() * 8) + 1;
+    const adjustedRoll = Math.max(1, Math.min(8, roll + penalty));
+
+    const result = baseStealingTable.find(r => r.roll === adjustedRoll);
+
+    console.log(`🎲 Robo simple: d8=${roll}${penalty !== 0 ? ` (${roll}${penalty}=${adjustedRoll})` : ''} → ${result.result}`);
+    
+    // Mostrar resultado
+    showStealResult(base, null, roll, penalty, adjustedRoll, result, false);
+}
+
+/**
+ * Realiza un robo doble
+ */
+function performDoubleSteal(bases) {
+    // Tirar d8
+    const roll = Math.floor(Math.random() * 8) + 1;
+    const result = doubleStealTable.find(r => r.roll === roll);
+    
+    console.log(`🎲 Robo doble: d8=${roll} → ${result.result}`);
+    
+    // Mostrar resultado
+    showStealResult(bases[0], bases[1], roll, 0, roll, result, true);
+}
+
+/**
+ * Muestra el resultado del intento de robo
+ */
+function showStealResult(base1, base2, originalRoll, penalty, finalRoll, result, isDouble) {
+    const cascadeContainer = document.getElementById('cascade-confirmation');
+    if (!cascadeContainer) return;
+    
+    const baseNames = {
+        'first': '1ª Base',
+        'second': '2ª Base',
+        'third': '3ª Base'
+    };
+    
+    const penaltyText = penalty !== 0 ? `<p style="margin: 0.5rem 0; color: #ef4444;">Penalizador 2ª→3ª: ${penalty}</p>` : '';
+    
+    let html = `
+        <div style="background: #1e3a5f; color: white; padding: 1.5rem; border-radius: 12px; border: 3px solid #fbbf24;">
+            <h2 style="margin: 0 0 1rem 0; color: #fbbf24;">⚡ RESULTADO DEL ROBO</h2>
+            
+            <div style="background: rgba(251, 191, 36, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <p style="margin: 0; font-size: 1.2rem;"><strong>Tirada:</strong> d8 = ${originalRoll}</p>
+                ${penaltyText}
+                ${penalty !== 0 ? `<p style="margin: 0.5rem 0; color: #fbbf24;"><strong>Tirada Final:</strong> ${finalRoll}</p>` : ''}
+            </div>
+            
+            <div style="background: ${result.result.includes('Success') || result.result.includes('Safe') ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <p style="margin: 0 0 0.5rem 0; font-size: 1.3rem; font-weight: bold; color: ${result.result.includes('Success') || result.result.includes('Safe') ? '#10b981' : '#ef4444'};">
+                    ${result.result}
+                </p>
+                <p style="margin: 0; opacity: 0.9;">${result.description}</p>
+            </div>
+            
+            <button onclick="applyStealResult('${base1}', '${base2}', '${result.result}', ${isDouble})" 
+                    style="width: 100%; background: #059669; color: white; padding: 0.75rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                ✅ Aplicar Resultado
+            </button>
+        </div>
+    `;
+    
+    cascadeContainer.innerHTML = html;
+}
+
+/**
+ * Aplica el resultado del robo al campo
+ */
+function applyStealResult(base1, base2, resultText, isDouble) {
+    console.log(`✅ Aplicando resultado de robo: ${resultText}`);
+    
+    if (!isDouble) {
+        // Robo simple
+        const runner = gameState.bases[base1];
+        if (!runner) return;
+        
+        if (resultText.includes('Success')) {
+            // Éxito - mover corredor
+            const targetBase = base1 === 'first' ? 'second' : base1 === 'second' ? 'third' : null;
+            if (targetBase) {
+                gameState.bases[targetBase] = runner;
+                gameState.bases[base1] = null;
+                console.log(`🏃 ${runner.name} roba ${targetBase}`);
+            } else if (base1 === 'third') {
+                // Robo de home - anota carrera
+                const team = gameState.isTopHalf ? 'visitante' : 'local';
+                gameState.score[team]++;
+                gameState.bases.third = null;
+                console.log(`⚾ ${runner.name} roba home y anota!`);
+            }
+        } else if (resultText.includes('Failure')) {
+            // Out - eliminar corredor
+            gameState.bases[base1] = null;
+            gameState.outs++;
+            console.log(`❌ ${runner.name} eliminado intentando robar`);
+            
+            if (gameState.outs >= 3) {
+                changeInning();
+            }
+        }
+    } else {
+        // Robo doble - lógica más compleja
+        // (implementación simplificada)
+        if (resultText.includes('Both Safe')) {
+            // Ambos seguros
+            console.log('✅ Robo doble exitoso');
+        } else if (resultText.includes('Both Out')) {
+            gameState.outs += 2;
+            if (gameState.outs >= 3) changeInning();
+        }
+    }
+    
+    // Actualizar displays
+    updateBasesDisplay();
+    updateGameDisplay();
+    updateStealBaseButton();
+    
+    // Cerrar diálogo
+    closeCascade();
+}
+
+// ===== SISTEMA DE BUNTING =====
+// El bunt se accede SOLO desde el selector de intenciones inicial
+// NO tiene botón durante el bateo normal
+
+function showBuntDiceSystem() {
+    console.log('🎯 Mostrando sistema de dados para BUNT (d6)...');
+
+    // Determinar qué equipo está bateando
+    const battingTeam = getCurrentBattingTeam();
+    console.log(`🎯 Equipo bateando: ${battingTeam}`);
+
+    // Ocultar selector de intenciones del equipo correspondiente
+    const intentionContainer = document.getElementById(`intention-container-${battingTeam}`);
+    if (intentionContainer) {
+        intentionContainer.style.cssText = 'display: none !important;';
+    }
+
+    // Crear interfaz de dados específica para bunt
+    const diceContainer = document.getElementById(`dice-container-${battingTeam}`);
+    if (!diceContainer) {
+        console.error(`❌ No se encontró dice-container-${battingTeam}`);
+        return;
+    }
+
+    // Forzar visibilidad
+    diceContainer.style.cssText = `
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+        border-radius: 20px !important;
+        border: 3px solid #a78bfa !important;
+        padding: 2rem !important;
+        margin-top: 1rem !important;
+    `;
+
+    diceContainer.innerHTML = `
+        <div class="bunt-dice-system" style="color: white;">
+            <div class="dice-header" style="text-align: center; margin-bottom: 1.5rem;">
+                <h3 style="color: #fbbf24; font-size: 1.8rem; margin-bottom: 0.5rem;">🎯 INTENTO DE TOQUE/BUNT</h3>
+                <p class="dice-instruction" style="font-size: 1.1rem; color: #e5e7eb;">Tira 1d6 para el resultado del bunt</p>
+            </div>
+            
+            <div class="dice-controls" style="margin-bottom: 1.5rem;">
+                <div class="dice-input-group" style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                    <label style="font-size: 1.1rem; font-weight: bold; color: white;">Resultado d6:</label>
+                    <div class="dice-input-wrapper" style="display: flex; gap: 0.5rem;">
+                        <input type="number" id="bunt-dice-value" min="1" max="6" value="1" 
+                               class="dice-input" 
+                               style="width: 80px; padding: 0.5rem; font-size: 1.2rem; border-radius: 8px; border: 2px solid #a78bfa; text-align: center;">
+                        <button onclick="rollBuntDice()" class="mini-dice-btn" 
+                                style="padding: 0.5rem 1rem; font-size: 1.5rem; background: #fbbf24; border: none; border-radius: 8px; cursor: pointer;">🎲</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dice-actions" style="display: flex; justify-content: center; gap: 1rem;">
+                <button onclick="processBuntRoll()" 
+                        class="roll-dice-btn" 
+                        style="background: #10b981; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;">✓ Ver Resultado</button>
+                <button onclick="cancelBunt()" 
+                        class="cancel-btn" 
+                        style="background: #6c757d; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer;">✗ Cancelar</button>
+            </div>
+        </div>
+    `;
+
+    console.log('✅ Sistema de dados de bunt mostrado');
+}
+
+function rollBuntDice() {
+    const roll = Math.floor(Math.random() * 6) + 1;
+    const input = document.getElementById('bunt-dice-value');
+    if (input) {
+        input.value = roll;
+    }
+    console.log(`🎲 Tirada de bunt: ${roll}`);
+}
+
+function cancelBunt() {
+    console.log('❌ Bunt cancelado');
+    
+    // Determinar qué equipo está bateando
+    const battingTeam = getCurrentBattingTeam();
+    
+    // Volver a mostrar el selector de intenciones
+    const intentionContainer = document.getElementById(`intention-container-${battingTeam}`);
+    if (intentionContainer) {
+        intentionContainer.style.display = 'block';
+    }
+    
+    const diceContainer = document.getElementById(`dice-container-${battingTeam}`);
+    if (diceContainer) {
+        diceContainer.style.display = 'none';
+        diceContainer.innerHTML = '';
+    }
+}
+
+function processBuntRoll() {
+    const input = document.getElementById('bunt-dice-value');
+    if (!input) return;
+
+    const diceRoll = parseInt(input.value);
+    if (isNaN(diceRoll) || diceRoll < 1 || diceRoll > 6) {
+        alert('⚠️ Por favor ingresa un valor válido entre 1 y 6');
+        return;
+    }
+
+    console.log(`🎯 Procesando tirada de bunt: ${diceRoll}`);
+
+    // Buscar resultado en la tabla
+    const result = buntTable.find(row => {
+        const [min, max] = row.range.includes('-') 
+            ? row.range.split('-').map(Number) 
+            : [Number(row.range), Number(row.range)];
+        return diceRoll >= min && diceRoll <= max;
+    });
+
+    if (result) {
+        console.log(`✅ Resultado de bunt: ${result.event} - ${result.result}`);
+        showBuntResult(diceRoll, result);
+    }
+}
+
+function openBuntDialog() {
+    console.log('🎯 Abriendo diálogo de Bunt');
+
+    const modal = document.createElement('div');
+    modal.className = 'steal-base-modal';
+    modal.id = 'bunt-modal';
+
+    modal.innerHTML = `
+        <div class="steal-base-dialog">
+            <div class="steal-dialog-header">
+                <h3>🎯 Intentar Bunt</h3>
+                <button class="close-btn" onclick="closeBuntDialog()">×</button>
+            </div>
+            <div class="steal-dialog-content">
+                <p class="steal-info">El bateador intentará un bunt.</p>
+                <p class="steal-warning">⚠️ Se tirará d20 en la tabla de Bunting</p>
+                <div class="steal-actions">
+                    <button class="steal-confirm-btn" onclick="executeBunt()">
+                        ✓ Ejecutar Bunt
+                    </button>
+                    <button class="steal-cancel-btn" onclick="closeBuntDialog()">
+                        ✗ Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Animación de entrada
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+}
+
+function closeBuntDialog() {
+    const modal = document.getElementById('bunt-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+function executeBunt() {
+    console.log('🎯 Ejecutando bunt desde diálogo...');
+    closeBuntDialog();
+
+    // Tirar d6 para la tabla de bunting
+    const diceRoll = Math.floor(Math.random() * 6) + 1;
+    console.log(`🎲 Tirada de bunt: ${diceRoll}`);
+
+    // Buscar resultado en la tabla
+    const result = buntTable.find(row => {
+        const [min, max] = row.range.includes('-') 
+            ? row.range.split('-').map(Number) 
+            : [Number(row.range), Number(row.range)];
+        return diceRoll >= min && diceRoll <= max;
+    });
+
+    if (result) {
+        console.log(`✅ Resultado de bunt: ${result.event} - ${result.result}`);
+        showBuntResult(diceRoll, result);
+    }
+}
+
+function showBuntResult(diceRoll, result) {
+    const cascadeContainer = document.getElementById('cascade-confirmation');
+    if (!cascadeContainer) return;
+
+    cascadeContainer.style.display = 'block';
+
+    // Crear tabla HTML para mostrar resultado
+    const highlightedTable = buntTable.map(row => {
+        const [min, max] = row.range.includes('-') 
+            ? row.range.split('-').map(Number) 
+            : [Number(row.range), Number(row.range)];
+        const isHighlighted = diceRoll >= min && diceRoll <= max;
+        return `
+            <tr class="${isHighlighted ? 'highlighted' : ''}">
+                <td class="range-column">${row.range}</td>
+                <td class="event-column">${row.event}</td>
+                <td class="result-column">${row.result}</td>
+            </tr>
+        `;
+    }).join('');
+
+    cascadeContainer.innerHTML = `
+        <div class="cascade-header">
+            <h4>🎯 Resultado del Bunt (d6: ${diceRoll})</h4>
+        </div>
+        <div class="cascade-table-container">
+            <table class="cascade-table">
+                <thead>
+                    <tr>
+                        <th>Tirada</th>
+                        <th>Evento</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${highlightedTable}
+                </tbody>
+            </table>
+        </div>
+        <div class="cascade-actions">
+            <button class="cascade-confirm-btn" onclick="processBuntResult('${result.event}', '${result.result.replace(/'/g, "\\'")}')">✓ Aplicar Resultado</button>
+        </div>
+    `;
+}
+
+function processBuntResult(event, result) {
+    console.log(`🎯 Procesando resultado de bunt: ${event}`);
+
+    // Obtener información del bateador actual y equipo
+    const currentBatter = getCurrentBatter();
+    const battingTeam = getCurrentBattingTeam();
+    const battingAvg = currentBatter ? currentBatter.battingAvg : 0;
+
+    // Variables para estadísticas
+    let isOut = false;
+    let isHit = false;
+    let hitType = null;
+
+    // Identificar corredor líder
+    const leadRunner = getLeadRunner();
+    const leadRunnerBase = leadRunner;
+
+    // Procesar según el tipo de resultado (TABLA OFICIAL)
+    switch (event) {
+        case 'Lead Runner Out':
+            // 1-2: Corredor líder out, bateador safe en 1B
+            if (leadRunner) {
+                eliminateRunner(leadRunner);
+                gameState.outs++;
+                console.log(`❌ Corredor de ${leadRunner} out`);
+            }
+            moveBatterToBase('first');
+            isHit = true;
+            hitType = 'Single';
+            console.log('✅ Bateador safe en 1B');
+            break;
+
+        case 'Situational':
+            // 3: Depende de dónde está el corredor líder
+            if (leadRunnerBase === 'third') {
+                // Corredor en 3B: corredor out, bateador safe
+                eliminateRunner('third');
+                gameState.outs++;
+                moveBatterToBase('first');
+                isHit = true;
+                hitType = 'Single';
+                console.log('❌ Corredor de 3B out, ✅ bateador safe en 1B');
+            } else if (leadRunnerBase === 'second' || leadRunnerBase === 'first') {
+                // Corredor en 1B/2B: corredor avanza, bateador out
+                advanceAllRunners(1);
+                eliminateBatter();
+                gameState.outs++;
+                isOut = true;
+                console.log('✅ Corredor avanza, ❌ bateador out');
+            } else {
+                // Sin corredores: bateador out
+                eliminateBatter();
+                gameState.outs++;
+                isOut = true;
+                console.log('❌ Bateador out');
+            }
+            break;
+
+        case 'Sacrifice':
+            // 4-5: Corredor líder avanza, bateador out
+            advanceAllRunners(1);
+            eliminateBatter();
+            gameState.outs++;
+            isOut = true;
+            console.log('✅ Corredor avanza, ❌ bateador out (sacrifice)');
+            break;
+
+        case 'Hit Check':
+            // 6: Verificar hitting del bateador
+            if (battingAvg >= 0.285) { // 5+ en la escala de DEADBALL ≈ .285+
+                // Single DEF (-1B): Es un hit, todos avanzan
+                advanceAllRunners(1);
+                moveBatterToBase('first');
+                isHit = true;
+                hitType = 'Single';
+                console.log('✅ SINGLE! Bateador tiene 5+ hitting');
+            } else {
+                // Corredor avanza, bateador out
+                advanceAllRunners(1);
+                eliminateBatter();
+                gameState.outs++;
+                isOut = true;
+                console.log('✅ Corredor avanza, ❌ bateador out (menos de 5+ hitting)');
+            }
+            break;
+
+        default:
+            console.error(`❌ Evento de bunt desconocido: ${event}`);
+    }
+
+    // Actualizar estadísticas del jugador
+    if (currentBatter && battingTeam) {
+        updatePlayerStats(currentBatter.name, battingTeam, {
+            isOut: isOut,
+            isHit: isHit,
+            isWalk: false,
+            hitType: hitType
+        });
+        console.log(`📊 Estadísticas actualizadas para ${currentBatter.name}`);
+    }
+
+    updateGameDisplay();
+
+    // Cerrar cascada con delay (TODO ES FINAL, siempre avanzar)
+    setTimeout(() => {
+        const cascadeContainer = document.getElementById('cascade-confirmation');
+        if (cascadeContainer) {
+            cascadeContainer.style.display = 'none';
+            cascadeContainer.innerHTML = '';
+        }
+
+        // Si hay 3 outs, cambiar de inning
+        if (gameState.outs >= 3) {
+            changeInning();
+        } else {
+            nextBatter();
+        }
+    }, 2500);
+}
+
+// Funciones auxiliares para bunting
+function getLeadRunner() {
+    const bases = ['third', 'second', 'first'];
+    for (const base of bases) {
+        if (gameState.bases[base]) {
+            return base;
+        }
+    }
+    return null;
+}
+
+function eliminateRunner(base) {
+    const token = document.querySelector(`[data-current-base="${base}"]`);
+    if (token) {
+        token.remove();
+    }
+    gameState.bases[base] = null;
+}
+
+function scoreRunnerFromThird() {
+    if (gameState.bases.third) {
+        const battingTeam = getCurrentBattingTeam();
+        const currentInning = gameState.currentInning - 1; // Array indexing (0-based)
+        
+        if (battingTeam === 'visitante') {
+            gameState.score.visitante[currentInning]++;
+            gameState.score.totalVisitante++;
+        } else {
+            gameState.score.local[currentInning]++;
+            gameState.score.totalLocal++;
+        }
+        eliminateRunner('third');
+        console.log('🏃💨 Corredor de 3B anota!');
+        
+        // Actualizar marcador visual
+        updateScoreboard();
+    }
+}
+
+function advanceOtherRunners(bases) {
+    // Avanzar todos los corredores excepto el que está en 3B
+    if (gameState.bases.second && !gameState.bases.third) {
+        moveRunner('second', 'third');
+    }
+    if (gameState.bases.first && !gameState.bases.second) {
+        moveRunner('first', 'second');
+    }
+}
 
 /**
  * Sistema principal de robo de bases
@@ -3593,4 +5583,217 @@ function createStealDiceHTML(fromBase, toBase) {
             </div>
         </div>
     `;
+}
+
+// ===== SISTEMA DE ESTADÍSTICAS DE JUGADORES =====
+
+/**
+ * Inicializa las estadísticas de un jugador
+ */
+function initPlayerStats(playerName, team) {
+    if (!gameState.playerStats[team][playerName]) {
+        gameState.playerStats[team][playerName] = {
+            AB: 0,  // At Bats (turnos al bate)
+            H: 0,   // Hits
+            R: 0,   // Runs (carreras anotadas)
+            RBI: 0, // Runs Batted In (carreras impulsadas)
+            BB: 0,  // Bases on Balls (walks)
+            K: 0,   // Strikeouts
+            AVG: '.000' // Batting Average
+        };
+    }
+}
+
+/**
+ * Actualiza las estadísticas del jugador después de cada turno al bate
+ */
+function updatePlayerStats(player, team, outcome) {
+    if (!player) return;
+    
+    initPlayerStats(player.name, team);
+    const stats = gameState.playerStats[team][player.name];
+    
+    // Actualizar At Bats (se cuenta todo excepto walks)
+    if (!outcome.isWalk) {
+        stats.AB++;
+    }
+    
+    // Actualizar Hits
+    if (outcome.isHit) {
+        stats.H++;
+    }
+    
+    // Actualizar Walks
+    if (outcome.isWalk) {
+        stats.BB++;
+    }
+    
+    // Actualizar Strikeouts
+    if (outcome.isOut && outcome.hitType === 'strikeout') {
+        stats.K++;
+    }
+    
+    // Calcular Average
+    if (stats.AB > 0) {
+        const avg = (stats.H / stats.AB).toFixed(3);
+        stats.AVG = avg;
+    }
+    
+    console.log(`📊 Estadísticas actualizadas para ${player.name}:`, stats);
+}
+
+/**
+ * Muestra un resumen de estadísticas del partido en consola
+ */
+function showGameStats() {
+    console.log('');
+    console.log('═══════════════════════════════════════');
+    console.log('📊 ESTADÍSTICAS DEL PARTIDO');
+    console.log('═══════════════════════════════════════');
+    
+    ['visitante', 'local'].forEach(team => {
+        console.log('');
+        console.log(`🏟️ Equipo ${team.toUpperCase()}:`);
+        console.log('───────────────────────────────────────');
+        console.log('Jugador          AB  H  BB  K   AVG');
+        console.log('───────────────────────────────────────');
+        
+        const stats = gameState.playerStats[team];
+        Object.keys(stats).forEach(playerName => {
+            const s = stats[playerName];
+            console.log(
+                `${playerName.padEnd(15)} ${String(s.AB).padStart(2)} ` +
+                `${String(s.H).padStart(2)} ${String(s.BB).padStart(2)} ` +
+                `${String(s.K).padStart(2)}  ${s.AVG}`
+            );
+        });
+    });
+    
+    console.log('═══════════════════════════════════════');
+    
+    // Actualizar también el panel visual
+    updateStatsPanel();
+}
+
+/**
+ * Alterna la visibilidad del panel de estadísticas
+ */
+function toggleStatsPanel() {
+    const panel = document.getElementById('stats-panel');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        updateStatsPanel();
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+/**
+ * Actualiza el contenido visual del panel de estadísticas
+ */
+function updateStatsPanel() {
+    const content = document.getElementById('stats-content');
+    if (!content) return;
+    
+    let html = '';
+    
+    // Información del juego
+    html += `
+        <div style="background: rgba(251, 191, 36, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+            <h3 style="margin: 0 0 0.5rem 0; color: #fbbf24;">Información del Partido</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                <div>
+                    <strong>Inning:</strong> ${gameState.currentInning}° 
+                    ${gameState.isTopHalf ? '⬆️ (Arriba)' : '⬇️ (Abajo)'}
+                </div>
+                <div><strong>Outs:</strong> ${gameState.outs}</div>
+                <div><strong>Score:</strong> ${gameState.score.totalVisitante} - ${gameState.score.totalLocal}</div>
+            </div>
+        </div>
+    `;
+    
+    ['visitante', 'local'].forEach(team => {
+        const teamIcon = team === 'visitante' ? '🛫' : '🏠';
+        const teamColor = team === 'visitante' ? '#3b82f6' : '#ef4444';
+        const stats = gameState.playerStats[team];
+        
+        html += `
+            <div style="margin-bottom: 2rem;">
+                <h3 style="margin: 0 0 1rem 0; color: ${teamColor};">${teamIcon} Equipo ${team.charAt(0).toUpperCase() + team.slice(1)}</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; background: rgba(0, 0, 0, 0.3); border-radius: 8px; overflow: hidden;">
+                        <thead style="background: ${teamColor};">
+                            <tr>
+                                <th style="padding: 0.75rem; text-align: left;">Jugador</th>
+                                <th style="padding: 0.75rem; text-align: center;">AB</th>
+                                <th style="padding: 0.75rem; text-align: center;">H</th>
+                                <th style="padding: 0.75rem; text-align: center;">BB</th>
+                                <th style="padding: 0.75rem; text-align: center;">K</th>
+                                <th style="padding: 0.75rem; text-align: center;">AVG</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        if (Object.keys(stats).length === 0) {
+            html += `
+                <tr>
+                    <td colspan="6" style="padding: 1rem; text-align: center; opacity: 0.6;">
+                        No hay estadísticas aún
+                    </td>
+                </tr>
+            `;
+        } else {
+            Object.keys(stats).forEach((playerName, index) => {
+                const s = stats[playerName];
+                const rowBg = index % 2 === 0 ? 'rgba(255, 255, 255, 0.05)' : 'transparent';
+                html += `
+                    <tr style="background: ${rowBg};">
+                        <td style="padding: 0.75rem;">${playerName}</td>
+                        <td style="padding: 0.75rem; text-align: center;">${s.AB}</td>
+                        <td style="padding: 0.75rem; text-align: center;">${s.H}</td>
+                        <td style="padding: 0.75rem; text-align: center;">${s.BB}</td>
+                        <td style="padding: 0.75rem; text-align: center;">${s.K}</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: ${s.AVG >= '.300' ? '#4ade80' : s.AVG >= '.250' ? '#fbbf24' : 'white'};">
+                            ${s.AVG}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    });
+    
+    content.innerHTML = html;
+}
+
+/**
+ * Guarda las estadísticas del partido en localStorage
+ */
+function saveGameStats() {
+    const gameData = {
+        date: new Date().toISOString(),
+        score: gameState.score,
+        playerStats: gameState.playerStats,
+        playByPlay: gameState.playByPlay,
+        innings: gameState.currentInning
+    };
+    
+    // Guardar en localStorage
+    const savedGames = JSON.parse(localStorage.getItem('deadballGames') || '[]');
+    savedGames.push(gameData);
+    
+    // Mantener solo los últimos 10 juegos
+    if (savedGames.length > 10) {
+        savedGames.shift();
+    }
+    
+    localStorage.setItem('deadballGames', JSON.stringify(savedGames));
+    console.log('💾 Estadísticas del juego guardadas');
 }

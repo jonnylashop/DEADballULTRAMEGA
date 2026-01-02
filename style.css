@@ -292,6 +292,39 @@
     font-size: 0.8rem;
 }
 
+.pitch-die-display {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    border: 2px solid #3b82f6;
+    margin: 0.5rem 0;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+.pitch-die-label {
+    display: inline-block;
+    font-weight: bold;
+    color: #93c5fd;
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pitch-die-value {
+    display: inline-block;
+    font-weight: bold;
+    color: #60a5fa;
+    font-size: 1.1rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(59, 130, 246, 0.2);
+    border-radius: 6px;
+    border: 1px solid #3b82f6;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
 .dice-controls {
     display: flex;
     flex-direction: column;
@@ -1658,12 +1691,104 @@ body {
 }
 
 
+/* Estado de botón de reanudar (azul) */
+
+.start-game-btn.resume-mode {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(59, 130, 246, 0.6);
+}
+
+.start-game-btn.resume-mode:hover {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    border-color: #60a5fa;
+}
+
+
 /*
-  BOTÓN PARA REINICIAR JUEGO
-  Botón secundario para reiniciar la partida
+  BOTÓN PARA RESETEAR PARTIDO
+  Botón de advertencia para reiniciar completamente el juego
 */
 
+
+/* Botón de reset pequeño en esquina */
+
+.reset-game-btn-corner {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9998;
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reset-game-btn-corner:hover {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.8);
+}
+
+.reset-game-btn-corner:active {
+    transform: scale(0.95) rotate(90deg);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+}
+
+
+/* Estilos antiguos del reset para compatibilidad */
+
 .reset-game-btn {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    /* Gradiente rojo */
+    color: white;
+    /* Texto blanco */
+    border: none;
+    border-radius: 15px;
+    padding: 1rem 2rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(220, 38, 38, 0.6);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(2px);
+    margin-left: 1rem;
+}
+
+.reset-game-btn:hover {
+    background: linear-gradient(135deg, #991b1b, #dc2626);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+    border-color: #ef4444;
+}
+
+.reset-game-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+
+/* Contenedor flexible para los botones */
+
+.start-game-container {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.old-reset-game-btn {
     background: linear-gradient(135deg, #f59e0b, #d97706);
     /* Gradiente naranja */
     color: white;
@@ -3150,4 +3275,142 @@ body {
 [contenteditable="true"]:focus {
     background: rgba(251, 191, 36, 0.2);
     outline: 2px solid #fbbf24;
+}
+
+
+/* ========================================
+   HIT & RUN SYSTEM STYLES
+   ======================================== */
+
+#hitrun-overlay .table-container {
+    max-width: 700px;
+    width: 90%;
+}
+
+#hitrun-overlay .dice-section {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #3b82f6;
+}
+
+#hitrun-overlay .dice-row {
+    display: flex;
+    gap: 20px;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+#hitrun-overlay .dice-column {
+    flex: 1;
+    min-width: 280px;
+    background: #0f172a;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+}
+
+#hitrun-overlay .dice-column h4 {
+    color: #60a5fa;
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    text-align: center;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 8px;
+}
+
+#hitrun-overlay .dice-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#hitrun-overlay .dice-controls label {
+    flex: 0 0 auto;
+    font-weight: 600;
+    color: #94a3b8;
+    min-width: 80px;
+}
+
+#hitrun-overlay .dice-controls input {
+    flex: 1;
+    padding: 8px 12px;
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    color: white;
+    font-size: 1.1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+#hitrun-overlay .mini-roll-btn {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#hitrun-overlay .mini-roll-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+#hitrun-overlay .dice-result {
+    margin-top: 15px;
+    padding: 12px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 6px;
+    border: 1px solid #3b82f6;
+    text-align: center;
+}
+
+#hitrun-overlay .dice-result strong {
+    color: #93c5fd;
+    margin-right: 10px;
+}
+
+#hitrun-overlay .dice-result span {
+    color: #60a5fa;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+#hitrun-overlay .confirm-btn {
+    width: 100%;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#hitrun-overlay .confirm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+#hitrun-result-section {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

@@ -127,6 +127,8 @@ function getCurrentBatter() {
     const playerId = playerRow.getAttribute('data-player-id') || (batterIndex + 1).toString();
     const playerNumber = cells[1].textContent.trim(); // Columna '#'
     const mlbId = playerRow.getAttribute('data-mlb-id') || null;
+    const isCustomTeam = teamTable.getAttribute('data-is-custom-team') === 'true';
+    const customPhotoUrl = playerRow.getAttribute('data-custom-photo') || null;
 
     // Crear objeto jugador con los datos de la tabla
     return {
@@ -137,7 +139,9 @@ function getCurrentBatter() {
         battingAvg: parseFloat(cells[6].textContent.trim()) || 0, // Columna 'BT'
         onBasePct: parseFloat(cells[7].textContent.trim()) || 0, // Columna 'OBT'
         traits: cells[8].textContent.trim(), // Columna 'Traits'
-        mlbId: mlbId
+        mlbId: mlbId,
+        isCustomTeam: isCustomTeam,
+        customPhotoUrl: customPhotoUrl
     };
 }
 
@@ -191,12 +195,18 @@ function initializeFirstBatter() {
             number: currentBatter.number || '1',
             name: currentBatter.name,
             team: battingTeam,
-            mlbId: currentBatter.mlbId || null
+            mlbId: currentBatter.mlbId || null,
+            isCustomTeam: currentBatter.isCustomTeam || false,
+            customPhotoUrl: currentBatter.customPhotoUrl || null
         };
         console.log('🎯 Datos del token a crear:', batterData);
         console.log('🎯 Posición home:', basePositions.home);
 
         const createdToken = createRunnerToken(batterData, 'home');
+        if (createdToken) {
+            createdToken.classList.add('current-batter');
+            console.log('✅ Clase current-batter añadida al token del bateador');
+        }
         console.log(`⚾ createRunnerToken() completado - Token devuelto:`, createdToken);
 
         // Verificar que el token se creó
@@ -274,10 +284,16 @@ function nextBatter() {
             number: currentBatter.number,
             name: currentBatter.name,
             team: battingTeam,
-            mlbId: currentBatter.mlbId
+            mlbId: currentBatter.mlbId,
+            isCustomTeam: currentBatter.isCustomTeam || false,
+            customPhotoUrl: currentBatter.customPhotoUrl || null
         };
         console.log('🎯 Creando token con datos:', batterData);
-        createRunnerToken(batterData, 'home');
+        const batterToken = createRunnerToken(batterData, 'home');
+        if (batterToken) {
+            batterToken.classList.add('current-batter');
+            console.log('✅ Clase current-batter añadida al token del siguiente bateador');
+        }
         console.log(`⚾ Token del bateador creado en home: ${currentBatter.name}`);
     }
 
@@ -969,7 +985,7 @@ function createRunnerToken(player, base) {
     const playerImg = document.createElement('div');
     playerImg.className = 'runner-photo';
 
-    // Obtener foto del jugador (usar API MLB o fotos locales)
+    // Obtener foto del jugador (usar API MLB, fotos custom o fotos locales)
     const photoUrl = getPlayerPhotoUrl(player);
     console.log(`🖼️ URL de foto obtenida: ${photoUrl}`);
 
@@ -1004,6 +1020,21 @@ function createRunnerToken(player, base) {
 
     token.appendChild(playerImg);
     console.log(`✅ Imagen añadida al token`);
+
+    // Si es equipo custom, añadir botón para cambiar foto
+    if (player.isCustomTeam) {
+        token.classList.add('custom-team');
+        const changePhotoBtn = document.createElement('div');
+        changePhotoBtn.className = 'change-photo-btn';
+        changePhotoBtn.innerHTML = '📷';
+        changePhotoBtn.title = 'Cambiar foto';
+        changePhotoBtn.onclick = (e) => {
+            e.stopPropagation();
+            openPhotoSelector(player, token);
+        };
+        token.appendChild(changePhotoBtn);
+        console.log(`✅ Botón de cambio de foto añadido para jugador custom`);
+    }
 
     // Añadir nombre debajo del token
     const nameLabel = document.createElement('div');
@@ -1070,13 +1101,93 @@ function createRunnerToken(player, base) {
  * @param {Object} player - Objeto del jugador
  * @returns {string|null} - URL de la foto o null
  */
+/**
+ * Abre el selector de fotos para jugadores de equipos custom
+ * @param {Object} player - Objeto del jugador
+ * @param {HTMLElement} token - Elemento del token
+ */
+function openPhotoSelector(player, token) {
+    const newUrl = prompt(
+        `Cambiar foto de ${player.name}\n\nIntroduce la URL de la nueva foto:`,
+        player.customPhotoUrl || ''
+    );
+
+    if (newUrl !== null && newUrl.trim() !== '') {
+        // Guardar la URL custom en el jugador
+        player.customPhotoUrl = newUrl.trim();
+
+        // Actualizar la foto del token
+        const photoDiv = token.querySelector('.runner-photo');
+        if (photoDiv) {
+            photoDiv.style.backgroundImage = `url('${newUrl.trim()}')`;
+
+            // Limpiar iniciales si existían
+            const initials = photoDiv.querySelector('.player-initials');
+            if (initials) {
+                initials.remove();
+            }
+
+            // Verificar si la imagen carga correctamente
+            const testImg = new Image();
+            testImg.onerror = () => {
+                alert('⚠️ No se pudo cargar la imagen. Verifica la URL.');
+                photoDiv.style.backgroundImage = 'none';
+                const playerNumberSpan = document.createElement('span');
+                playerNumberSpan.className = 'player-initials';
+                playerNumberSpan.textContent = player.number ? `J${player.number}` : getPlayerInitials(player.name);
+                photoDiv.appendChild(playerNumberSpan);
+            };
+            testImg.onload = () => {
+                console.log(`✅ Foto custom actualizada para ${player.name}`);
+            };
+            testImg.src = newUrl.trim();
+        }
+    }
+}
+
 function getPlayerPhotoUrl(player) {
+    console.log(`🔍 getPlayerPhotoUrl llamada para: ${player.name}`);
+
+    // Si tiene foto custom (equipos custom), usarla primero
+    if (player.customPhotoUrl) {
+        console.log(`✅ Foto custom encontrada: ${player.customPhotoUrl}`);
+        return player.customPhotoUrl;
+    }
+
     // Base de datos de fotos de jugadores MLB (ejemplos populares)
     const mlbPhotos = {
-        // Estrellas actuales
-        'Shohei Ohtani': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/660271/headshot/67/current',
+        // Yankees
         'Aaron Judge': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/592450/headshot/67/current',
+        'Gleyber Torres': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/650402/headshot/67/current',
+        'Anthony Rizzo': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/519203/headshot/67/current',
+        'Giancarlo Stanton': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/519317/headshot/67/current',
+        'DJ LeMahieu': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/518934/headshot/67/current',
+        'Jose Trevino': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/624431/headshot/67/current',
+        'Andrew Benintendi': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/643217/headshot/67/current',
+        'Harrison Bader': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/664056/headshot/67/current',
+        'Isiah Kiner-Falefa': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/643396/headshot/67/current',
+        // Dodgers
         'Mookie Betts': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/605141/headshot/67/current',
+        'Freddie Freeman': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/518692/headshot/67/current',
+        'Trea Turner': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/607208/headshot/67/current',
+        'Will Smith': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/669257/headshot/67/current',
+        'Max Muncy': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/571970/headshot/67/current',
+        'Justin Turner': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/457759/headshot/67/current',
+        'Chris Taylor': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/621035/headshot/67/current',
+        'Cody Bellinger': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/641355/headshot/67/current',
+        'Gavin Lux': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/666158/headshot/67/current',
+        // Red Sox
+        'Rafael Devers': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/646240/headshot/67/current',
+        'Xander Bogaerts': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/593428/headshot/67/current',
+        'Trevor Story': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/596115/headshot/67/current',
+        'J.D. Martinez': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/502110/headshot/67/current',
+        'Alex Verdugo': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/657077/headshot/67/current',
+        'Christian Vazquez': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/543877/headshot/67/current',
+        'Kike Hernandez': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/571771/headshot/67/current',
+        'Franchy Cordero': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/614173/headshot/67/current',
+        'Bobby Dalbec': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/666915/headshot/67/current',
+        // Otros jugadores populares
+        'Shohei Ohtani': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/660271/headshot/67/current',
         'Juan Soto': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/665742/headshot/67/current',
         'Ronald Acuña Jr.': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/660670/headshot/67/current',
         'Fernando Tatis Jr.': 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/665487/headshot/67/current',
@@ -1088,22 +1199,65 @@ function getPlayerPhotoUrl(player) {
 
     // Buscar por nombre exacto
     if (mlbPhotos[player.name]) {
+        console.log(`✅ Foto encontrada por nombre exacto: ${player.name}`);
         return mlbPhotos[player.name];
     }
 
     // Si el jugador tiene un ID MLB, construir URL
     if (player.mlbId) {
-        return `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${player.mlbId}/headshot/67/current`;
+        const url = `https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_213,q_auto:best/v1/people/${player.mlbId}/headshot/67/current`;
+        console.log(`✅ URL construida con mlbId: ${url}`);
+        return url;
     }
 
     // Fallback: intentar buscar por apellido
     const lastName = player.name.split(' ').pop();
     const match = Object.keys(mlbPhotos).find(name => name.includes(lastName));
     if (match) {
+        console.log(`✅ Foto encontrada por apellido (${lastName}): ${match}`);
         return mlbPhotos[match];
     }
 
-    return null;
+    console.log(`⚠️ No se encontró foto para: ${player.name}`);
+    
+    // Fallback final: generar avatar con iniciales usando UI Avatars
+    return generateAvatarUrl(player.name);
+}
+
+/**
+ * Genera una URL de avatar con las iniciales del jugador
+ * Usa el servicio UI Avatars como alternativa cuando no hay foto de MLB
+ * @param {string} playerName - Nombre del jugador
+ * @returns {string} - URL del avatar generado
+ */
+function generateAvatarUrl(playerName) {
+    // Extraer iniciales del nombre
+    const nameParts = playerName.trim().split(' ');
+    const initials = nameParts.length >= 2 
+        ? `${nameParts[0].charAt(0)}${nameParts[nameParts.length - 1].charAt(0)}`
+        : nameParts[0].substring(0, 2);
+    
+    // Colores aleatorios pero consistentes basados en el nombre
+    const colors = [
+        { bg: '3B82F6', fg: 'FFFFFF' }, // Azul
+        { bg: 'EF4444', fg: 'FFFFFF' }, // Rojo
+        { bg: '10B981', fg: 'FFFFFF' }, // Verde
+        { bg: 'F59E0B', fg: 'FFFFFF' }, // Amarillo/Naranja
+        { bg: '8B5CF6', fg: 'FFFFFF' }, // Púrpura
+        { bg: 'EC4899', fg: 'FFFFFF' }, // Rosa
+        { bg: '06B6D4', fg: 'FFFFFF' }, // Cyan
+        { bg: 'F97316', fg: 'FFFFFF' }  // Naranja
+    ];
+    
+    // Seleccionar color basado en el primer caracter del nombre
+    const colorIndex = playerName.charCodeAt(0) % colors.length;
+    const color = colors[colorIndex];
+    
+    // Generar URL de UI Avatars
+    const url = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${color.bg}&color=${color.fg}&size=128&bold=true&format=png`;
+    
+    console.log(`🎨 Avatar generado para ${playerName}: ${url}`);
+    return url;
 }
 
 /**
@@ -2035,6 +2189,9 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePitcherDiceRange('visitante');
         updatePitcherDiceRange('local');
         console.log('🎲 Rangos de dados inicializados con timeout');
+
+        // Actualizar fotos de los jugadores
+        refreshPlayerPhotos();
     }, 100);
 
     console.log('🎲 Intentando inicializar rangos de dados...');
@@ -2246,8 +2403,130 @@ function loadPresetTeam() {
 
 function createCustomTeam() {
     console.log('🎨 Creando equipo personalizado...');
-    // PLACEHOLDER: Aquí se abriría el editor de equipo personalizado
-    alert('Función de equipo personalizado en desarrollo');
+
+    const teamName = prompt('Introduce el nombre del equipo custom:', 'Mi Equipo');
+    if (!teamName) return;
+
+    // Crear equipo con jugadores genéricos
+    const customTeam = {
+        name: teamName,
+        isCustom: true,
+        players: []
+    };
+
+    // Crear 9 jugadores genéricos
+    for (let i = 1; i <= 9; i++) {
+        const playerName = prompt(`Jugador ${i} - Nombre:`, `Jugador ${i}`);
+        if (!playerName) continue;
+
+        customTeam.players.push({
+            id: `custom_${i}`,
+            name: playerName,
+            number: i,
+            position: i === 1 ? 'P' : i === 2 ? 'C' : i === 3 ? '1B' : i === 4 ? '2B' : i === 5 ? '3B' : i === 6 ? 'SS' : i === 7 ? 'LF' : i === 8 ? 'CF' : 'RF',
+            handedness: 'R',
+            battingAvg: 0.250,
+            onBasePct: 0.320,
+            traits: ['Balanced'],
+            mlbId: null,
+            customPhotoUrl: null
+        });
+    }
+
+    // Aplicar el equipo custom a la tabla
+    applyCustomTeamToTable(currentTeamType, customTeam);
+    closeTeamConfig();
+}
+
+function applyCustomTeamToTable(teamType, teamData) {
+    console.log(`🎨 Aplicando equipo custom ${teamData.name} a tabla ${teamType}`);
+
+    const tableId = `roster-${teamType}`;
+    const table = document.getElementById(tableId);
+
+    if (!table) {
+        console.error(`❌ No se encontró la tabla ${tableId}`);
+        return;
+    }
+
+    // Marcar la tabla como equipo custom
+    table.setAttribute('data-is-custom-team', 'true');
+
+    const tbody = table.querySelector('tbody');
+    if (!tbody) {
+        console.error(`❌ No se encontró tbody en tabla ${tableId}`);
+        return;
+    }
+
+    // Limpiar filas existentes
+    tbody.innerHTML = '';
+
+    // Agregar cada jugador
+    teamData.players.forEach((player, index) => {
+        const row = document.createElement('tr');
+        row.className = 'player-row';
+        row.draggable = true;
+        row.setAttribute('data-player-id', player.id || `custom_${index + 1}`);
+        if (player.customPhotoUrl) {
+            row.setAttribute('data-custom-photo', player.customPhotoUrl);
+        }
+
+        // Token con opción de foto custom
+        const photoHTML = `<div class="roster-player-token custom-photo-token" onclick="changePlayerPhoto(this, '${player.id}', '${teamType}')"><span>📷</span></div>`;
+
+        row.innerHTML = `
+            <td class="drag-handle">⋮⋮</td>
+            <td class="player-number">${index + 1}</td>
+            <td class="player-photo">${photoHTML}</td>
+            <td class="player-name">${player.name}</td>
+            <td>
+                <select class="position-select" data-player="${player.id}">
+                    <option value="P" ${player.position === 'P' ? 'selected' : ''}>P</option>
+                    <option value="C" ${player.position === 'C' ? 'selected' : ''}>C</option>
+                    <option value="1B" ${player.position === '1B' ? 'selected' : ''}>1B</option>
+                    <option value="2B" ${player.position === '2B' ? 'selected' : ''}>2B</option>
+                    <option value="3B" ${player.position === '3B' ? 'selected' : ''}>3B</option>
+                    <option value="SS" ${player.position === 'SS' ? 'selected' : ''}>SS</option>
+                    <option value="LF" ${player.position === 'LF' ? 'selected' : ''}>LF</option>
+                    <option value="CF" ${player.position === 'CF' ? 'selected' : ''}>CF</option>
+                    <option value="RF" ${player.position === 'RF' ? 'selected' : ''}>RF</option>
+                    <option value="DH" ${player.position === 'DH' ? 'selected' : ''}>DH</option>
+                </select>
+            </td>
+            <td class="handedness">${player.handedness || 'R'}</td>
+            <td class="batting-avg">${player.battingAvg}</td>
+            <td class="on-base-pct">${player.onBasePct}</td>
+            <td>${generateTraitTags(player.traits)}</td>
+            <td class="game-status">⚾</td>
+        `;
+
+        tbody.appendChild(row);
+    });
+
+    // Actualizar nombre del equipo en el encabezado
+    const teamHeader = table.closest('.col').querySelector('.team-header h2');
+    if (teamHeader) {
+        const icon = teamType === 'visitante' ? '🛫' : '🏠';
+        teamHeader.textContent = `${icon} ${teamData.name} 🎨`;
+    }
+
+    console.log(`✅ Equipo custom con ${teamData.players.length} jugadores creado`);
+}
+
+// Función para cambiar foto desde el roster (equipos custom)
+function changePlayerPhoto(element, playerId, teamType) {
+    const newUrl = prompt('Introduce la URL de la foto del jugador:', '');
+    if (!newUrl || newUrl.trim() === '') return;
+
+    // Actualizar el elemento visual del roster
+    element.innerHTML = `<img src="${newUrl.trim()}" onerror="this.parentElement.innerHTML='<span>❌</span>';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />`;
+
+    // Guardar la URL en el atributo data de la fila
+    const row = element.closest('tr');
+    if (row) {
+        row.setAttribute('data-custom-photo', newUrl.trim());
+        console.log(`✅ Foto actualizada para jugador ${playerId}: ${newUrl.trim()}`);
+    }
 }
 
 function saveTeamConfig() {
@@ -2309,16 +2588,12 @@ function applyTeamToTable(teamType, teamData) {
         row.setAttribute('data-player-id', player.id || (index + 1));
 
         // Crear la estructura HTML completa con todas las clases CSS
-        // Generar token con foto para el roster
+        // Generar token con foto para el roster (ahora siempre hay URL: MLB o avatar)
         const photoUrl = getPlayerPhotoUrl(player);
-        let photoHTML = '';
-        if (photoUrl) {
-            // Usar <img> en lugar de background-image para mejor carga
-            photoHTML = `<div class="roster-player-token"><img src="${photoUrl}" onerror="this.parentElement.innerHTML='<span>J${index + 1}</span>';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" /></div>`;
-        } else {
-            // Si no hay foto, mostrar J# como en el campo
-            photoHTML = `<div class="roster-player-token"><span>J${index + 1}</span></div>`;
-        }
+        console.log(`📸 Jugador: ${player.name}, URL: ${photoUrl}`);
+        
+        const initials = `${player.name.split(' ')[0].charAt(0)}${player.name.split(' ').pop().charAt(0)}`;
+        const photoHTML = `<div class="roster-player-token"><img src="${photoUrl}" onerror="console.error('Error cargando: ${player.name}'); this.style.display='none'; this.parentElement.innerHTML='<span style=\\"font-size: 14px; font-weight: bold\\">${initials}</span>';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="${player.name}" /></div>`;
 
         row.innerHTML = `
             <td class="drag-handle">⋮⋮</td>
@@ -2366,6 +2641,49 @@ function generateTraitTags(traits) {
         const traitClass = `trait-${trait.toLowerCase()}`;
         return `<span class="trait-tag ${traitClass}">${trait}</span>`;
     }).join(' ');
+}
+
+// Función para actualizar las fotos de los jugadores en las tablas existentes
+function refreshPlayerPhotos() {
+    console.log('🔄 Actualizando fotos de jugadores en las tablas...');
+
+    const tables = ['roster-visitante', 'roster-local'];
+
+    tables.forEach(tableId => {
+        const table = document.getElementById(tableId);
+        if (!table) {
+            console.warn(`⚠️ No se encontró la tabla ${tableId}`);
+            return;
+        }
+
+        const rows = table.querySelectorAll('tbody tr.player-row');
+        console.log(`📊 Procesando ${rows.length} jugadores en ${tableId}`);
+
+        rows.forEach((row, index) => {
+            const playerNameCell = row.querySelector('.player-name');
+            if (!playerNameCell) return;
+
+            const playerName = playerNameCell.textContent.trim();
+            const photoCell = row.querySelector('.player-photo');
+            if (!photoCell) return;
+
+            // Crear objeto player temporal para buscar foto
+            const player = {
+                name: playerName,
+                mlbId: row.getAttribute('data-mlb-id') || null,
+                customPhotoUrl: row.getAttribute('data-custom-photo') || null
+            };
+
+            const photoUrl = getPlayerPhotoUrl(player);
+            const initials = `${playerName.split(' ')[0].charAt(0)}${playerName.split(' ').pop().charAt(0)}`;
+            
+            // Ahora siempre tenemos una URL (foto MLB o avatar generado)
+            photoCell.innerHTML = `<div class="roster-player-token"><img src="${photoUrl}" onerror="console.error('Error cargando foto: ${playerName}'); this.style.display='none'; this.parentElement.innerHTML='<span style=\\"font-size: 14px; font-weight: bold\\">${initials}</span>';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="${playerName}" /></div>`;
+            console.log(`✅ Foto/Avatar actualizado para ${playerName}: ${photoUrl}`);
+        });
+    });
+
+    console.log('✅ Fotos actualizadas');
 }
 
 // ===== SISTEMA DE CASCADA DE RESOLUCIÓN =====
@@ -3539,7 +3857,12 @@ function processFinalResult(result) {
         console.log(`✅ ${hitType.toUpperCase()}! Avance: ${runnerAdvancement} base(s)`);
 
         // MOVER TOKENS Y AVANZAR CORREDORES
-        advanceRunners(runnerAdvancement, true);
+        // Si hay "extra base", los corredores avanzan una base adicional
+        if (resultLower.includes('extra base') && !resultLower.includes('out')) {
+            advanceRunnersWithExtraBase(runnerAdvancement, true);
+        } else {
+            advanceRunners(runnerAdvancement, true);
+        }
         
         // Actualizar display
         updateGameDisplay();
@@ -3590,6 +3913,147 @@ function advanceRunnersOnOut(advancement) {
         animateRunnerMoving('first', 'second');
     }
 
+    gameState.bases = newBases;
+    updateGameDisplay();
+    updateBasesDisplay();
+}
+
+// Avanzar corredores CON BASE EXTRA (Defense Table: "Runners take an extra base")
+// Los corredores existentes avanzan una base ADICIONAL, el bateador va a su base normal
+function advanceRunnersWithExtraBase(batterAdvancement, includeBatter = false) {
+    console.log(`🏃💨 AVANCE CON BASE EXTRA: Bateador ${batterAdvancement} base(s), Corredores ${batterAdvancement + 1} base(s)`);
+
+    const battingTeam = getCurrentBattingTeam();
+    const currentBatter = getCurrentBatter();
+    let rbisScored = 0;
+
+    const newBases = {
+        first: null,
+        second: null,
+        third: null
+    };
+
+    // CORREDORES AVANZAN UNA BASE EXTRA (batterAdvancement + 1)
+    const runnerAdvancement = batterAdvancement + 1;
+
+    // Procesar corredor en 3ra
+    if (gameState.bases.third) {
+        const runner = gameState.bases.third;
+        if (runnerAdvancement >= 1) {
+            // Anota desde 3ra
+            const team = gameState.isTopHalf ? 'visitante' : 'local';
+            if (gameState.isTopHalf) {
+                gameState.score.totalVisitante++;
+                gameState.score.visitante[gameState.currentInning - 1]++;
+            } else {
+                gameState.score.totalLocal++;
+                gameState.score.local[gameState.currentInning - 1]++;
+            }
+            rbisScored++;
+            console.log(`🏠 ¡Carrera anotada desde 3ra! ${runner.name} (RBI)`);
+            animateRunnerScoring('third');
+        }
+    }
+
+    // Procesar corredor en 2da
+    if (gameState.bases.second) {
+        const runner = gameState.bases.second;
+        if (runnerAdvancement >= 2) {
+            // Anota desde 2da (con base extra)
+            const team = gameState.isTopHalf ? 'visitante' : 'local';
+            if (gameState.isTopHalf) {
+                gameState.score.totalVisitante++;
+                gameState.score.visitante[gameState.currentInning - 1]++;
+            } else {
+                gameState.score.totalLocal++;
+                gameState.score.local[gameState.currentInning - 1]++;
+            }
+            rbisScored++;
+            console.log(`🏠 ¡Carrera anotada desde 2da con base extra! ${runner.name} (RBI)`);
+            animateRunnerScoring('second');
+        } else if (runnerAdvancement === 1) {
+            newBases.third = runner;
+            animateRunnerMoving('second', 'third');
+        }
+    }
+
+    // Procesar corredor en 1ra
+    if (gameState.bases.first) {
+        const runner = gameState.bases.first;
+        if (runnerAdvancement >= 3) {
+            // Anota desde 1ra (con base extra)
+            const team = gameState.isTopHalf ? 'visitante' : 'local';
+            if (gameState.isTopHalf) {
+                gameState.score.totalVisitante++;
+                gameState.score.visitante[gameState.currentInning - 1]++;
+            } else {
+                gameState.score.totalLocal++;
+                gameState.score.local[gameState.currentInning - 1]++;
+            }
+            rbisScored++;
+            console.log(`🏠 ¡Carrera anotada desde 1ra con base extra! ${runner.name} (RBI)`);
+            animateRunnerScoring('first');
+        } else if (runnerAdvancement === 2) {
+            newBases.third = runner;
+            animateRunnerMoving('first', 'third');
+        } else if (runnerAdvancement === 1) {
+            newBases.second = runner;
+            animateRunnerMoving('first', 'second');
+        }
+    }
+
+    // BATEADOR va a su base NORMAL (sin base extra)
+    if (includeBatter && currentBatter) {
+        // Eliminar token del bateador de home antes de moverlo
+        const runnersContainer = document.getElementById('runners-container');
+        if (runnersContainer) {
+            const batterToken = runnersContainer.querySelector('[data-current-base="home"]');
+            if (batterToken) {
+                batterToken.remove();
+                console.log('✅ Token del bateador removido de home (extra base)');
+            }
+        }
+        
+        const batterData = {
+            id: currentBatter.id,
+            number: currentBatter.number,
+            name: currentBatter.name,
+            team: battingTeam,
+            mlbId: currentBatter.mlbId,
+            isCustomTeam: currentBatter.isCustomTeam || false,
+            customPhotoUrl: currentBatter.customPhotoUrl || null
+        };
+
+        if (batterAdvancement >= 4) {
+            // Home run del bateador
+            const team = gameState.isTopHalf ? 'visitante' : 'local';
+            if (gameState.isTopHalf) {
+                gameState.score.totalVisitante++;
+                gameState.score.visitante[gameState.currentInning - 1]++;
+            } else {
+                gameState.score.totalLocal++;
+                gameState.score.local[gameState.currentInning - 1]++;
+            }
+            rbisScored++;
+            animateRunnerScoring('batter');
+        } else if (batterAdvancement === 3) {
+            newBases.third = batterData;
+            createRunnerToken(batterData, 'third');
+        } else if (batterAdvancement === 2) {
+            newBases.second = batterData;
+            createRunnerToken(batterData, 'second');
+        } else if (batterAdvancement === 1) {
+            newBases.first = batterData;
+            createRunnerToken(batterData, 'first');
+        }
+    }
+
+    // Actualizar RBIs del bateador
+    if (rbisScored > 0 && currentBatter) {
+        console.log(`📊 ${rbisScored} RBI(s) para ${currentBatter.name}`);
+    }
+
+    // Actualizar estado
     gameState.bases = newBases;
     updateGameDisplay();
     updateBasesDisplay();
@@ -3690,13 +4154,25 @@ function advanceRunners(bases, includeBatter = false) {
         const currentBatter = getCurrentBatter();
         const battingTeam = getCurrentBattingTeam();
         
+        // Eliminar token del bateador de home antes de moverlo
+        const runnersContainer = document.getElementById('runners-container');
+        if (runnersContainer) {
+            const batterToken = runnersContainer.querySelector('[data-current-base="home"]');
+            if (batterToken) {
+                batterToken.remove();
+                console.log('✅ Token del bateador removido de home');
+            }
+        }
+        
         if (currentBatter) {
             const batterData = {
                 id: currentBatter.id,
                 number: currentBatter.number,
                 name: currentBatter.name,
                 team: battingTeam,
-                mlbId: currentBatter.mlbId
+                mlbId: currentBatter.mlbId,
+                isCustomTeam: currentBatter.isCustomTeam || false,
+                customPhotoUrl: currentBatter.customPhotoUrl || null
             };
             
             if (bases >= 4) {

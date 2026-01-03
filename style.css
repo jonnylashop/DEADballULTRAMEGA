@@ -101,7 +101,8 @@
     animation: slideIn 0.5s ease-out;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
-    overflow: hidden;
+    overflow-y: auto;
+    max-height: calc(100vh - 150px);
 }
 
 
@@ -894,7 +895,7 @@ body {
 
 .roster-table th:nth-child(1),
 .roster-table td:nth-child(1) {
-    width: 7%;
+    width: 5%;
 }
 
 
@@ -902,7 +903,7 @@ body {
 
 .roster-table th:nth-child(2),
 .roster-table td:nth-child(2) {
-    width: 6%;
+    width: 5%;
 }
 
 
@@ -910,7 +911,8 @@ body {
 
 .roster-table th:nth-child(3),
 .roster-table td:nth-child(3) {
-    width: 6%;
+    width: 10%;
+    min-width: 70px;
 }
 
 
@@ -918,7 +920,7 @@ body {
 
 .roster-table th:nth-child(4),
 .roster-table td:nth-child(4) {
-    width: 27%;
+    width: 15%;
 }
 
 
@@ -926,7 +928,7 @@ body {
 
 .roster-table th:nth-child(5),
 .roster-table td:nth-child(5) {
-    width: 12%;
+    width: 8%;
 }
 
 
@@ -934,31 +936,31 @@ body {
 
 .roster-table th:nth-child(6),
 .roster-table td:nth-child(6) {
-    width: 6%;
+    width: 8%;
 }
 
 
-/* L/R */
+/* L/R (Mano) */
 
 .roster-table th:nth-child(7),
 .roster-table td:nth-child(7) {
-    width: 13.5%;
+    width: 10%;
 }
 
 
-/* BT */
+/* AVG */
 
 .roster-table th:nth-child(8),
 .roster-table td:nth-child(8) {
-    width: 13.5%;
+    width: 10%;
 }
 
 
-/* OBT */
+/* OBP */
 
 .roster-table th:nth-child(9),
 .roster-table td:nth-child(9) {
-    width: 8%;
+    width: 10%;
 }
 
 
@@ -966,7 +968,15 @@ body {
 
 .roster-table th:nth-child(10),
 .roster-table td:nth-child(10) {
-    width: 6%;
+    width: 10%;
+}
+
+
+/* Estado */
+
+.roster-table th:nth-child(11),
+.roster-table td:nth-child(11) {
+    width: 9%;
 }
 
 
@@ -2933,14 +2943,15 @@ body {
 
 .runner-token {
     position: absolute;
-    width: 32px;
-    height: 32px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     /* Token circular */
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 14px;
     font-weight: bold;
     color: white;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
@@ -2951,10 +2962,11 @@ body {
     cursor: pointer;
     pointer-events: auto;
     /* Permitir interacción con tokens */
-    border: 2px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     z-index: 15;
     /* Encima de los marcadores de base */
+    overflow: hidden;
 }
 
 
@@ -3021,13 +3033,13 @@ body {
 
 @media (max-width: 768px) {
     .runner-token {
-        width: 28px;
-        height: 28px;
-        font-size: 9px;
+        width: 50px;
+        height: 50px;
+        font-size: 12px;
     }
     .runner-token .runner-name {
-        font-size: 8px;
-        max-width: 24px;
+        font-size: 10px;
+        max-width: 46px;
     }
     .base-marker {
         width: 6px;
@@ -3069,24 +3081,104 @@ body {
 }
 
 
-/* Animación especial para el bateador actual */
+/* Animación especial para el bateador actual - EFECTO AMARILLO PARPADEANTE */
 
 .runner-token.current-batter {
-    animation: batterPulse 2s ease-in-out infinite;
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
-    border: 3px solid #fbbf24;
+    animation: batterPulseGold 1.5s ease-in-out infinite;
+    border: 4px solid #fbbf24 !important;
+    box-shadow: 0 0 25px rgba(251, 191, 36, 1), 0 0 40px rgba(251, 191, 36, 0.6) !important;
+    z-index: 25 !important;
 }
 
-@keyframes batterPulse {
-    0%,
-    100% {
+@keyframes batterPulseGold {
+    0% {
         transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 35px rgba(251, 191, 36, 0.4);
+        border-color: #fbbf24;
     }
     50% {
-        transform: translate(-50%, -50%) scale(1.1);
-        box-shadow: 0 0 25px rgba(251, 191, 36, 1);
+        transform: translate(-50%, -50%) scale(1.15);
+        box-shadow: 0 0 35px rgba(251, 191, 36, 1), 0 0 50px rgba(251, 191, 36, 0.8), 0 0 70px rgba(251, 191, 36, 0.4);
+        border-color: #facc15;
     }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 35px rgba(251, 191, 36, 0.4);
+        border-color: #fbbf24;
+    }
+}
+
+
+/* Foto del jugador dentro del token */
+
+.runner-token .runner-photo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.runner-token .runner-photo .player-initials {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 1;
+}
+
+
+/* Etiqueta debajo del token */
+
+.runner-token .runner-label {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+
+/* Botón para cambiar foto (solo custom team) */
+
+.runner-token .change-photo-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background: #fbbf24;
+    border: 2px solid white;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    z-index: 20;
+    transition: all 0.2s;
+}
+
+.runner-token.custom-team:hover .change-photo-btn {
+    display: flex;
+}
+
+.runner-token .change-photo-btn:hover {
+    transform: scale(1.2);
+    background: #f59e0b;
 }
 
 
@@ -3584,4 +3676,230 @@ body {
 
 .players-list::-webkit-scrollbar-thumb:hover {
     background: #2563eb;
+}
+
+
+/* ===== TOKENS DE FOTOS EN EL ROSTER ===== */
+
+
+/* Token de foto del jugador en la tabla del roster */
+
+.roster-player-token {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 auto;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+}
+
+
+/* Token custom con opción de cambiar foto */
+
+.custom-photo-token {
+    cursor: pointer;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    position: relative;
+}
+
+.custom-photo-token:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.6);
+}
+
+.custom-photo-token span {
+    font-size: 16px;
+}
+
+
+/* Imagen dentro del token del roster */
+
+.roster-player-token img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+
+/* ===== CONTROLES DE AUDIO ===== */
+
+.audio-controls-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.audio-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.audio-icon {
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.audio-icon:hover {
+    transform: scale(1.2);
+}
+
+
+/* Switch de activación de audio */
+
+.audio-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.audio-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.audio-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #475569;
+    transition: 0.4s;
+    border-radius: 24px;
+}
+
+.audio-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked+.audio-slider {
+    background-color: #3b82f6;
+}
+
+input:checked+.audio-slider:before {
+    transform: translateX(26px);
+}
+
+
+/* Controles de volumen */
+
+.volume-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.volume-control label {
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+.volume-control input[type="range"] {
+    width: 100px;
+    height: 6px;
+    background: #475569;
+    border-radius: 5px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.volume-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #3b82f6;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid white;
+    transition: all 0.2s;
+}
+
+.volume-control input[type="range"]::-webkit-slider-thumb:hover {
+    background: #2563eb;
+    transform: scale(1.2);
+}
+
+.volume-control input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #3b82f6;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid white;
+    transition: all 0.2s;
+}
+
+.volume-control input[type="range"]::-moz-range-thumb:hover {
+    background: #2563eb;
+    transform: scale(1.2);
+}
+
+
+/* Responsive para pantallas pequeñas */
+
+@media (max-width: 768px) {
+    .audio-controls-container {
+        top: 5px;
+        right: 5px;
+        padding: 8px 12px;
+    }
+    .audio-controls {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .volume-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .volume-control label {
+        min-width: 60px;
+        font-size: 12px;
+    }
+    .volume-control input[type="range"] {
+        width: 80px;
+    }
 }

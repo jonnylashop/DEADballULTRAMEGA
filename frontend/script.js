@@ -1219,7 +1219,7 @@ function getPlayerPhotoUrl(player) {
     }
 
     console.log(`⚠️ No se encontró foto para: ${player.name}`);
-    
+
     // Fallback final: generar avatar con iniciales usando UI Avatars
     return generateAvatarUrl(player.name);
 }
@@ -1233,10 +1233,10 @@ function getPlayerPhotoUrl(player) {
 function generateAvatarUrl(playerName) {
     // Extraer iniciales del nombre
     const nameParts = playerName.trim().split(' ');
-    const initials = nameParts.length >= 2 
-        ? `${nameParts[0].charAt(0)}${nameParts[nameParts.length - 1].charAt(0)}`
-        : nameParts[0].substring(0, 2);
-    
+    const initials = nameParts.length >= 2 ?
+        `${nameParts[0].charAt(0)}${nameParts[nameParts.length - 1].charAt(0)}` :
+        nameParts[0].substring(0, 2);
+
     // Colores aleatorios pero consistentes basados en el nombre
     const colors = [
         { bg: '3B82F6', fg: 'FFFFFF' }, // Azul
@@ -1246,16 +1246,16 @@ function generateAvatarUrl(playerName) {
         { bg: '8B5CF6', fg: 'FFFFFF' }, // Púrpura
         { bg: 'EC4899', fg: 'FFFFFF' }, // Rosa
         { bg: '06B6D4', fg: 'FFFFFF' }, // Cyan
-        { bg: 'F97316', fg: 'FFFFFF' }  // Naranja
+        { bg: 'F97316', fg: 'FFFFFF' } // Naranja
     ];
-    
+
     // Seleccionar color basado en el primer caracter del nombre
     const colorIndex = playerName.charCodeAt(0) % colors.length;
     const color = colors[colorIndex];
-    
+
     // Generar URL de UI Avatars
     const url = `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${color.bg}&color=${color.fg}&size=128&bold=true&format=png`;
-    
+
     console.log(`🎨 Avatar generado para ${playerName}: ${url}`);
     return url;
 }
@@ -2591,7 +2591,7 @@ function applyTeamToTable(teamType, teamData) {
         // Generar token con foto para el roster (ahora siempre hay URL: MLB o avatar)
         const photoUrl = getPlayerPhotoUrl(player);
         console.log(`📸 Jugador: ${player.name}, URL: ${photoUrl}`);
-        
+
         const initials = `${player.name.split(' ')[0].charAt(0)}${player.name.split(' ').pop().charAt(0)}`;
         const photoHTML = `<div class="roster-player-token"><img src="${photoUrl}" onerror="console.error('Error cargando: ${player.name}'); this.style.display='none'; this.parentElement.innerHTML='<span style=\\"font-size: 14px; font-weight: bold\\">${initials}</span>';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="${player.name}" /></div>`;
 
@@ -2676,7 +2676,7 @@ function refreshPlayerPhotos() {
 
             const photoUrl = getPlayerPhotoUrl(player);
             const initials = `${playerName.split(' ')[0].charAt(0)}${playerName.split(' ').pop().charAt(0)}`;
-            
+
             // Ahora siempre tenemos una URL (foto MLB o avatar generado)
             photoCell.innerHTML = `<div class="roster-player-token"><img src="${photoUrl}" onerror="console.error('Error cargando foto: ${playerName}'); this.style.display='none'; this.parentElement.innerHTML='<span style=\\"font-size: 14px; font-weight: bold\\">${initials}</span>';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="${playerName}" /></div>`;
             console.log(`✅ Foto/Avatar actualizado para ${playerName}: ${photoUrl}`);

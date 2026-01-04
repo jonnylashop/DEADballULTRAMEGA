@@ -1,0 +1,37 @@
+# ============================================
+# ARCHIVOS QUE NO SE SUBEN A GITHUB
+# ============================================
+
+# Node modules (librerías instaladas)
+node_modules/
+backend/node_modules/
+
+# Variables de entorno (SECRETAS)
+.env
+backend/.env
+
+# Base de datos (local)
+*.sqlite
+*.sqlite3
+database.sqlite
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Carpetas de IDE
+.vscode/
+.idea/
+
+# Archivos de respaldo
+*_backup.js
+*_OLD_*.js
+*.bak

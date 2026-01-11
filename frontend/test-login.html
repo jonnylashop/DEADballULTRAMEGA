@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login - DEADball</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #0f172a;
+            color: white;
+        }
+        
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        button {
+            background: #fbbf24;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #334155;
+        }
+        
+        .success {
+            background: #059669;
+        }
+        
+        .error {
+            background: #dc2626;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🔧 Test de Login</h1>
+
+        <h3>1. Probar Conexión al Backend</h3>
+        <button onclick="testBackend()">Test Backend</button>
+
+        <h3>2. Registrar Usuario de Prueba</h3>
+        <input type="text" id="regNombre" placeholder="Nombre" value="Test User">
+        <input type="email" id="regEmail" placeholder="Email" value="test@test.com">
+        <input type="password" id="regPassword" placeholder="Password" value="123456">
+        <button onclick="testRegister()">Registrar</button>
+
+        <h3>3. Hacer Login</h3>
+        <input type="email" id="loginEmail" placeholder="Email" value="test@test.com">
+        <input type="password" id="loginPassword" placeholder="Password" value="123456">
+        <button onclick="testLogin()">Login</button>
+
+        <h3>4. Verificar Token</h3>
+        <button onclick="testToken()">Ver Token Guardado</button>
+
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/auth';
+
+        function showResult(message, isError = false) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = 'result ' + (isError ? 'error' : 'success');
+        }
+
+        async function testBackend() {
+            try {
+                const response = await fetch('http://localhost:3000/api/test');
+                const data = await response.json();
+                showResult('✅ Backend funcionando: ' + JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResult('❌ Error conectando al backend: ' + error.message, true);
+            }
+        }
+
+        async function testRegister() {
+            const nombre = document.getElementById('regNombre').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al registrar');
+                }
+
+                showResult('✅ Usuario registrado exitosamente!\n' + JSON.stringify(data, null, 2));
+                localStorage.setItem('token', data.token);
+            } catch (error) {
+                showResult('❌ Error: ' + error.message, true);
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al hacer login');
+                }
+
+                showResult('✅ Login exitoso!\n' + JSON.stringify(data, null, 2));
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('usuario', JSON.stringify(data.usuario));
+            } catch (error) {
+                showResult('❌ Error: ' + error.message, true);
+            }
+        }
+
+        function testToken() {
+            const token = localStorage.getItem('token');
+            const usuario = localStorage.getItem('usuario');
+
+            if (token) {
+                showResult('✅ Token guardado:\n' + token + '\n\nUsuario:\n' + usuario);
+            } else {
+                showResult('❌ No hay token guardado. Haz login primero.', true);
+            }
+        }
+    </script>
+</body>
+
+</html>

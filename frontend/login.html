@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DEADball</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🎮 DEADball</h1>
+            <p>Inicia sesión para continuar</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn" id="loginBtn">Iniciar Sesión</button>
+        </form>
+
+        <div class="links" style="margin-top: 15px;">
+            <p><a href="recuperar-password.html">¿Olvidaste tu contraseña?</a></p>
+        </div>
+
+        <div class="divider">────── o ──────</div>
+
+        <div class="links">
+            <p>¿No tienes cuenta? <a href="register.html">Regístrate aquí</a></p>
+        </div>
+    </div>
+
+    <!-- ================================================== -->
+    <!-- IMPORTAR auth.js con las funciones de autenticación -->
+    <!-- ================================================== -->
+    <script src="auth.js"></script>
+
+    <!-- ================================================== -->
+    <!-- SCRIPT INLINE: Lógica del formulario de login -->
+    <!-- ================================================== -->
+    <script>
+        // ================================================
+        // MANEJAR EL FORMULARIO DE LOGIN
+        // ================================================
+        // addEventListener escucha el evento 'submit' (cuando se envía el formulario)
+        document.getElementById('loginForm').addEventListener('submit', async(e) => {
+            // ================================================
+            // PASO 1: Prevenir el comportamiento por defecto
+            // ================================================
+            // Por defecto, los formularios HTML recargan la página
+            // e.preventDefault() evita eso para que podamos manejarlo con JavaScript
+            e.preventDefault();
+
+            // ================================================
+            // PASO 2: Obtener los valores del formulario
+            // ================================================
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+
+            // ================================================
+            // PASO 3: Deshabilitar el botón para evitar múltiples clicks
+            // ================================================
+            btn.disabled = true;
+            btn.textContent = 'Iniciando sesión...';
+
+            try {
+                // ================================================
+                // PASO 4: Llamar a la función login() de auth.js
+                // ================================================
+                // Esta función:
+                // 1. Envía las credenciales al backend
+                // 2. Si son correctas, guarda el token en localStorage
+                // 3. Devuelve los datos del usuario
+                const resultado = await login(email, password);
+
+                // ================================================
+                // PASO 5: Mostrar mensaje de éxito
+                // ================================================
+                mostrarMensaje('success', '¡Login exitoso! Redirigiendo...');
+
+                // ================================================
+                // PASO 6: Redirigir al juego después de 1 segundo
+                // ================================================
+                // setTimeout ejecuta una función después de X milisegundos
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // Ir al juego
+                }, 1000);
+            } catch (error) {
+                // ================================================
+                // MANEJAR ERRORES (credenciales incorrectas, etc.)
+                // ================================================
+                mostrarMensaje('error', error.message);
+                // Rehabilitar el botón para que pueda intentar de nuevo
+                btn.disabled = false;
+                btn.textContent = 'Iniciar Sesión';
+            }
+        });
+
+        // ================================================
+        // FUNCIÓN AUXILIAR: Mostrar mensajes de éxito o error
+        // ================================================
+        function mostrarMensaje(tipo, mensaje) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+
+            if (tipo === 'error') {
+                // Mostrar mensaje de error en rojo
+                errorDiv.textContent = mensaje;
+                errorDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+            } else {
+                // Mostrar mensaje de éxito en verde
+                successDiv.textContent = mensaje;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

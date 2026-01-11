@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - DEADball</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .profile-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .profile-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+        }
+        
+        .info-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        
+        .info-group label {
+            display: block;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .info-group p {
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .nav-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="index.html" class="nav-link">← Volver al juego</a>
+
+        <div id="loading" class="loading">
+            Cargando perfil...
+        </div>
+
+        <div id="profileContent" style="display: none;">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="avatar" id="avatar">👤</div>
+                    <h1 id="userName">Usuario</h1>
+                </div>
+
+                <div class="info-group">
+                    <label>Email</label>
+                    <p id="userEmail">-</p>
+                </div>
+
+                <div class="info-group">
+                    <label>Miembro desde</label>
+                    <p id="userCreated">-</p>
+                </div>
+
+                <div class="info-group">
+                    <label>ID de usuario</label>
+                    <p id="userId">-</p>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="window.location.href='index.html'">
+                        🎮 Jugar
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.location.href='chat.html'">
+                        💬 Chat
+                    </button>
+                    <button class="btn btn-danger" onclick="cerrarSesion()">
+                        🚪 Cerrar Sesión
+                    </button>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee;">
+                    <button class="btn btn-danger" onclick="eliminarCuenta()" style="background: #dc3545;">
+                        🗑️ Eliminar Cuenta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <!-- ================================================== -->
+    <!-- SCRIPT INLINE: Lógica de la página de perfil -->
+    <!-- ================================================== -->
+    <script>
+        // ================================================
+        // VERIFICACIÓN DE AUTENTICACIÓN
+        // ================================================
+        // Si el usuario no está logueado, redirigir al login
+        if (!estaLogueado()) {
+            window.location.href = 'login.html';
+        }
+
+        // ================================================
+        // FUNCIÓN: CARGAR PERFIL DEL USUARIO
+        // ================================================
+        // Esta función obtiene los datos actualizados del usuario desde el backend
+        async function cargarPerfil() {
+            try {
+                // ================================================
+                // PASO 1: Obtener datos del perfil
+                // ================================================
+                // obtenerPerfil() hace una petición GET a /api/auth/profile
+                // con el token JWT en el header Authorization
+                const usuario = await obtenerPerfil();
+
+                // ================================================
+                // PASO 2: Ocultar el loading y mostrar el contenido
+                // ================================================
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('profileContent').style.display = 'block';
+
+                // ================================================
+                // PASO 3: Mostrar los datos en el HTML
+                // ================================================
+                document.getElementById('userName').textContent = usuario.username;
+                document.getElementById('userEmail').textContent = usuario.email;
+                document.getElementById('userId').textContent = usuario.id;
+
+                // ================================================
+                // PASO 4: Formatear y mostrar la fecha de registro
+                // ================================================
+                if (usuario.created_at) {
+                    // Convertir el string de fecha a objeto Date
+                    const fecha = new Date(usuario.created_at);
+                    // Formatear en español (ej: "15 de enero de 2025")
+                    document.getElementById('userCreated').textContent = fecha.toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
+
+                // ================================================
+                // PASO 5: Poner inicial del nombre en el avatar
+                // ================================================
+                // charAt(0) obtiene el primer carácter
+                // toUpperCase() lo convierte a mayúscula
+                const inicial = usuario.username.charAt(0).toUpperCase();
+                document.getElementById('avatar').textContent = inicial;
+
+            } catch (error) {
+                // Si hay error (token expirado, servidor caído, etc.)
+                console.error('Error al cargar perfil:', error);
+                document.getElementById('loading').innerHTML =
+                    '❌ Error al cargar el perfil<br><a href="login.html" style="color: white;">Volver al login</a>';
+            }
+        }
+
+        // ================================================
+        // FUNCIÓN: CERRAR SESIÓN
+        // ================================================
+        function cerrarSesion() {
+            // Pedir confirmación antes de cerrar sesión
+            if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+                // logout() de auth.js:
+                // 1. Elimina el token de localStorage
+                // 2. Elimina los datos del usuario de localStorage
+                // 3. Redirige a login.html
+                logout();
+            }
+        }
+
+        // ================================================
+        // FUNCIÓN: ELIMINAR CUENTA
+        // ================================================
+        // Esta es una función PELIGROSA que elimina permanentemente la cuenta
+        async function eliminarCuenta() {
+            // ================================================
+            // PASO 1: Doble confirmación
+            // ================================================
+            // Primera confirmación con advertencia clara
+            const confirmacion = confirm('⚠️ ¿ESTÁS SEGURO?\n\nEsta acción eliminará tu cuenta permanentemente junto con todas tus partidas guardadas.\n\nEsta acción NO se puede deshacer.');
+
+            if (!confirmacion) return; // Si cancela, salir
+
+            // ================================================
+            // PASO 2: Pedir contraseña como confirmación adicional
+            // ================================================
+            // Esto previene eliminaciones accidentales
+            const password = prompt('Por seguridad, ingresa tu contraseña para confirmar:');
+
+            if (!password) return; // Si cancela o deja vacío, salir
+
+            try {
+                // ================================================
+                // PASO 3: Hacer petición DELETE al backend
+                // ================================================
+                const token = getToken();
+                const response = await fetch('http://localhost:3000/api/auth/delete-account', {
+                    method: 'DELETE', // Método HTTP para ELIMINAR
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` // Autenticación
+                    },
+                    body: JSON.stringify({
+                        password // Enviar contraseña para verificar
+                    })
+                });
+
+                const data = await response.json();
+
+                // Verificar si hubo error
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al eliminar cuenta');
+                }
+
+                // ================================================
+                // PASO 4: Cuenta eliminada exitosamente
+                // ================================================
+                alert('✅ Cuenta eliminada exitosamente');
+
+                // Limpiar TODOS los datos de localStorage
+                localStorage.clear();
+
+                // Redirigir a la página de registro
+                window.location.href = 'register.html';
+            } catch (error) {
+                // Mostrar error (contraseña incorrecta, etc.)
+                alert('❌ ' + error.message);
+            }
+        }
+
+        // ================================================
+        // INICIALIZACIÓN
+        // ================================================
+        // Cargar el perfil cuando se carga la página
+        cargarPerfil();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚾ DEADball ULTRAMEGA - Menú Principal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Mostrar login por defecto, ocultar menú */
+        
+        .login-container {
+            display: block;
+        }
+        
+        .menu-container {
+            display: none;
+        }
+        /* Efecto de fondo animado */
+        
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(251, 191, 36, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: backgroundMove 20s linear infinite;
+            z-index: 0;
+        }
+        
+        @keyframes backgroundMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+        /* === ESTILOS DE LOGIN === */
+        
+        .login-container {
+            position: relative;
+            z-index: 1;
+            background: rgba(15, 23, 42, 0.95);
+            border: 3px solid #fbbf24;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(251, 191, 36, 0.2);
+            text-align: center;
+            min-width: 450px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .login-form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .login-form-group label {
+            display: block;
+            color: #fbbf24;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .login-form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #475569;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.8);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .login-form-group input:focus {
+            outline: none;
+            border-color: #fbbf24;
+            background: rgba(30, 41, 59, 1);
+        }
+        
+        .login-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .login-tab {
+            flex: 1;
+            padding: 0.8rem;
+            background: transparent;
+            border: 2px solid #475569;
+            border-radius: 8px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .login-tab.active {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0f172a;
+            border-color: #fbbf24;
+        }
+        
+        .login-form {
+            display: none;
+        }
+        
+        .login-form.active {
+            display: block;
+        }
+        
+        .error-msg {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid #dc2626;
+            color: #fca5a5;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .success-msg {
+            background: rgba(5, 150, 105, 0.2);
+            border: 1px solid #059669;
+            color: #6ee7b7;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        /* === ESTILOS DE MENÚ === */
+        
+        .menu-container {
+            position: relative;
+            z-index: 1;
+            background: rgba(15, 23, 42, 0.9);
+            border: 3px solid #fbbf24;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(251, 191, 36, 0.2);
+            text-align: center;
+            min-width: 500px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes logoFloat {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .welcome-user {
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .welcome-user strong {
+            color: #fbbf24;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
+        
+        h1 {
+            color: #fbbf24;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            font-style: italic;
+        }
+        
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .menu-btn {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0f172a;
+            border: none;
+            padding: 1.2rem 2rem;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .menu-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .menu-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(251, 191, 36, 0.5);
+        }
+        
+        .menu-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .menu-btn span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .menu-btn.secondary {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            color: #e2e8f0;
+        }
+        
+        .menu-btn.disabled {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            color: #64748b;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .menu-btn.disabled:hover {
+            transform: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- PANTALLA DE LOGIN -->
+    <div class="login-container" id="loginContainer">
+        <div class="logo">⚾</div>
+        <h1>DEADball ULTRAMEGA</h1>
+        <p class="subtitle">Inicia sesión para continuar</p>
+        <div id="errorMsg" class="error-msg"></div>
+        <div id="successMsg" class="success-msg"></div>
+        <div class="login-tabs"><button class="login-tab active" onclick="switchTab('login')">Iniciar Sesión</button><button class="login-tab" onclick="switchTab('register')">Registrarse</button></div>
+        <!-- FORMULARIO DE LOGIN -->
+        <form id="loginForm" class="login-form active" onsubmit="handleLogin(event)">
+            <div class="login-form-group"><label for="loginEmail">Email</label><input type="email" id="loginEmail" required></div>
+            <div class="login-form-group"><label for="loginPassword">Contraseña</label><input type="password" id="loginPassword" required></div><button type="submit" class="menu-btn"><span>Entrar</span></button></form>
+        <!-- FORMULARIO DE REGISTRO -->
+        <form id="registerForm" class="login-form" onsubmit="handleRegister(event)">
+            <div class="login-form-group"><label for="regName">Nombre</label><input type="text" id="regName" required></div>
+            <div class="login-form-group"><label for="regEmail">Email</label><input type="email" id="regEmail" required></div>
+            <div class="login-form-group"><label for="regPassword">Contraseña (mín. 6 caracteres)</label><input type="password" id="regPassword" minlength="6" required></div><button type="submit" class="menu-btn"><span>Crear Cuenta</span></button></form>
+        <div class="footer">
+            <p>Versión 1.0 - 2026</p>
+        </div>
+    </div>
+    <!-- MENÚ PRINCIPAL (después del login) -->
+    <div class="menu-container" id="menuContainer">
+        <div class="logo">⚾</div>
+        <h1>DEADball ULTRAMEGA</h1>
+        <p class="subtitle">Simulador de Béisbol con Dados</p>
+        <div class="welcome-user" id="welcomeMsg"></div>
+        <div class="menu-buttons"><button class="menu-btn" onclick="startNewGame()"><span>🎮 Nuevo Juego</span></button><button class="menu-btn secondary disabled"><span>💾 Cargar Partida</span></button><button class="menu-btn secondary disabled"><span>📊 Estadísticas</span></button>
+            <button class="menu-btn secondary disabled"><span>⚙️ Configuración</span></button><button class="menu-btn secondary" onclick="showCredits()"><span>ℹ️ Acerca de</span></button><button class="logout-btn" onclick="handleLogout()">🚪 Cerrar Sesión </button></div>
+        <div class="footer">
+            <p>Versión 1.0 - 2026</p>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+    <script>
+        // API_URL ya está definido en auth.js, no redeclarar
+
+        // Verificar si ya está logueado al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const usuario = localStorage.getItem('usuario');
+            if (token && usuario) {
+                showMenu(JSON.parse(usuario));
+            } else {
+                showLogin();
+            }
+        });
+
+        function showLogin() {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('menuContainer').style.display = 'none';
+        }
+
+        function showMenu(usuario) {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('menuContainer').style.display = 'block';
+            document.getElementById('welcomeMsg').innerHTML = `Bienvenido, <strong>${usuario.nombre}</strong>!`;
+        }
+
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabs = document.querySelectorAll('.login-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            if (tab === 'login') {
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+                tabs[0].classList.add('active');
+            } else {
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                tabs[1].classList.add('active');
+            }
+            hideMessages();
+        }
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al iniciar sesión');
+                }
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                showSuccess('¡Bienvenido! Redirigiendo...');
+                setTimeout(() => showMenu(data.usuario), 1000);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        async function handleRegister(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        email,
+                        password
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al registrar');
+                }
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                showSuccess('¡Cuenta creada! Redirigiendo...');
+                setTimeout(() => showMenu(data.usuario), 1000);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            showLogin();
+            showSuccess('Sesión cerrada correctamente');
+        }
+
+        function startNewGame() {
+            window.location.href = 'index.html';
+        }
+
+        function showCredits() {
+            alert('DEADball ULTRAMEGA\n\nSimulador de béisbol con sistema de dados\nBasado en el juego de mesa DEADball\n\n© 2026');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMsg').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMsg').style.display = 'none';
+            document.getElementById('successMsg').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

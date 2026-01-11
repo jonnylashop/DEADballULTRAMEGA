@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <!-- Hace que el diseño sea adaptable en móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Béisbol Tiradados</title>
+    <title>⚾ DEADball ULTRAMEGA</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
@@ -16,6 +16,11 @@
 </head>
 
 <body>
+    <!-- Bot\u00f3n para volver al men\u00fa -->
+    <button onclick="window.location.href='menu.html'" style="position: fixed; top: 10px; left: 10px; z-index: 9999; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #0f172a; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3); transition: all 0.3s ease;">
+        \u2190 Men\u00fa Principal
+    </button>
+
     <!-- Contenedor principal del juego -->
     <div id="app">
         <!-- Contenedor del marcador arriba -->
@@ -74,30 +79,33 @@
                 </table>
             </div>
             <div class="marcador-button-container">
-                <!-- El botón se moverá aquí dinámicamente -->
-            </div>
-        </div>
-
-        <!-- Controles de Audio -->
-        <div class="audio-controls-container">
-            <div class="audio-controls">
-                <div class="audio-toggle-wrapper">
-                    <span id="audio-icon" class="audio-icon">🔊</span>
-                    <label class="audio-switch">
-                        <input type="checkbox" id="audio-toggle" checked onchange="AudioSystem.toggleAudio()">
-                        <span class="audio-slider"></span>
-                    </label>
-                </div>
-                <div class="volume-controls">
-                    <div class="volume-control">
-                        <label>🎵 Música:</label>
-                        <input type="range" id="music-volume" min="0" max="100" value="30" oninput="AudioSystem.setMusicVolume(this.value / 100)">
-                    </div>
-                    <div class="volume-control">
-                        <label>🔔 Efectos:</label>
-                        <input type="range" id="sfx-volume" min="0" max="100" value="50" oninput="AudioSystem.setSfxVolume(this.value / 100)">
-                    </div>
-                </div>
+                <!-- Botón de Reiniciar -->
+                <button class="save-game-btn" onclick="confirmResetGame()" title="Reiniciar partido (mantiene equipos y fotos)" style="background: #ef4444;">
+                            🔄 Reiniciar
+                        </button>
+                <!-- Botones de Guardar/Cargar Partida -->
+                <button class="save-game-btn" onclick="guardarPartida()" title="Guardar partida actual">
+                            💾 Guardar
+                        </button>
+                <button class="load-game-btn" onclick="mostrarPartidas()" title="Cargar partida guardada">
+                            📂 Cargar
+                        </button>
+                <!-- Botón de Chat -->
+                <button class="save-game-btn" onclick="toggleChat()" title="Abrir chat" style="background: #667eea;">
+                            💬 Chat
+                        </button>
+                <!-- Botón de Hall of Fame -->
+                <button class="save-game-btn" onclick="toggleHall()" title="Ver ranking" style="background: #fbbf24;">
+                            🏆 Hall
+                        </button>
+                <!-- Botón de Audio -->
+                <button class="save-game-btn" onclick="toggleAudioModal()" title="Controles de audio" style="background: #8b5cf6;">
+                            🎵 Audio
+                        </button>
+                <!-- Botón de Logout -->
+                <button class="save-game-btn" onclick="logout()" title="Cerrar sesión" style="background: #ef4444;">
+                            🚪 Salir
+                        </button>
             </div>
         </div>
 
@@ -1154,12 +1162,6 @@
                         🎮 Iniciar Nuevo Juego
                     </button>
                 </div>
-
-                <!-- Botón de reset (esquina superior derecha) -->
-                <button id="reset-game-btn" class="reset-game-btn-corner" onclick="confirmResetGame()" style="display: none;">
-                    🔄
-                </button>
-
                 <!-- ===== SISTEMA DE TOKENS VISUALES EN EL DIAMANTE ===== -->
                 <!-- 
                     PROPÓSITO: Mostrar visualmente los corredores en las bases sobre el diamante
@@ -1183,13 +1185,6 @@
                             <!-- Los tokens de jugadores aparecerán aquí mediante JavaScript -->
                         </div>
                     </div>
-                </div>
-
-                <!-- Controles del juego (solo botón de reiniciar) -->
-                <div class="game-controls">
-                    <button id="reset-game-btn" class="reset-game-btn" onclick="resetGame()" style="display: none;">
-                        🔄 Reiniciar Juego
-                    </button>
                 </div>
 
                 <!-- ÁREA DE RESOLUCIÓN DE JUGADAS - Ocupa todo el espacio azul -->
@@ -2452,12 +2447,40 @@
     </div>
 
 
-    <!-- Modal de configuración de equipos -->
-    <div class="modal-overlay" id="team-config-modal">
-        <div class="modal-content">
+    <!-- ================================================ -->
+    <!-- MODAL: GESTIÓN DE MIS EQUIPOS -->
+    <!-- ================================================ -->
+    <div class="modal-overlay" id="manage-teams-modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
-                <h3 id="modal-title">⚙️ Configurar Equipo</h3>
-                <button class="modal-close" onclick="closeTeamConfig()">✕</button>
+                <h3>🏆 Mis Equipos Guardados</h3>
+                <button class="modal-close" onclick="cerrarGestionEquipos()">✕</button>
+            </div>
+
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <button onclick="crearNuevoEquipo()" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #66BB6A, #4CAF50); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;">
+                                ➕ Crear Nuevo Equipo
+                            </button>
+                </div>
+
+                <div id="saved-teams-container" style="display: grid; gap: 15px;">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarGestionEquipos()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de configuración de equipos (FUERA del div app) -->
+    <div class="modal-overlay" id="team-config-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99999; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background: white; border-radius: 12px; max-width: 800px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+            <div class="modal-header" style="padding: 20px; border-bottom: 2px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                <h3 id="modal-title" style="margin: 0; color: #333;">⚙️ Configurar Equipo</h3>
+                <button class="modal-close" onclick="closeTeamConfig()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">✕</button>
             </div>
 
             <div class="modal-body">
@@ -2476,55 +2499,56 @@
                             <option value="117">Houston Astros</option>
                             <option value="133">Oakland Athletics</option>
                             <option value="136">Seattle Mariners</option>
-                            <option value="140">Texas Rangers</option>
                             <option value="108">Los Angeles Angels</option>
-                            <option value="109">Arizona Diamondbacks</option>
-                            <option value="112">Chicago Cubs</option>
-                            <option value="113">Cincinnati Reds</option>
-                            <option value="114">Cleveland Guardians</option>
-                            <option value="115">Colorado Rockies</option>
-                            <option value="118">Kansas City Royals</option>
-                            <option value="120">Washington Nationals</option>
-                            <option value="121">New York Mets</option>
-                            <option value="133">Oakland Athletics</option>
-                            <option value="134">Pittsburgh Pirates</option>
-                            <option value="135">San Diego Padres</option>
-                            <option value="138">St. Louis Cardinals</option>
                             <option value="139">Tampa Bay Rays</option>
+                            <option value="110">Baltimore Orioles</option>
                             <option value="141">Toronto Blue Jays</option>
+                            <option value="114">Cleveland Guardians</option>
                             <option value="142">Minnesota Twins</option>
+                            <option value="118">Kansas City Royals</option>
+                            <option value="158">Milwaukee Brewers</option>
+                            <option value="138">St. Louis Cardinals</option>
+                            <option value="112">Chicago Cubs</option>
+                            <option value="134">Pittsburgh Pirates</option>
+                            <option value="113">Cincinnati Reds</option>
+                            <option value="121">New York Mets</option>
                             <option value="143">Philadelphia Phillies</option>
                             <option value="144">Atlanta Braves</option>
                             <option value="146">Miami Marlins</option>
-                            <option value="158">Milwaukee Brewers</option>
+                            <option value="120">Washington Nationals</option>
+                            <option value="115">Colorado Rockies</option>
+                            <option value="109">Arizona Diamondbacks</option>
+                            <option value="135">San Diego Padres</option>
+                            <option value="140">Texas Rangers</option>
                         </select>
-                        <button class="btn-primary" onclick="importMLBTeam()" style="white-space: nowrap;">
-                            📥 Importar
-                        </button>
+                        <button onclick="importMLBTeam()" class="btn-primary">Importar</button>
                     </div>
-                    <div id="import-status" style="margin-top: 8px; font-size: 12px; color: #60a5fa;"></div>
+                    <div id="import-status" style="margin-top: 8px; font-size: 14px; font-weight: 500;"></div>
                 </div>
 
-                <!-- Selector de equipos predefinidos -->
+                <!-- O Seleccionar desde Roster Guardado -->
                 <div class="config-section">
-                    <label for="preset-teams">Equipos Predefinidos:</label>
+                    <label for="preset-teams">📋 O selecciona un equipo predefinido:</label>
                     <select id="preset-teams" onchange="loadPresetTeam()">
-                        <option value="">Seleccionar equipo...</option>
-                        <option value="yankees">New York Yankees</option>
-                        <option value="dodgers">Los Angeles Dodgers</option>
-                        <option value="red_sox">Boston Red Sox</option>
-                        <option value="giants">San Francisco Giants</option>
-                        <option value="custom">Personalizado</option>
+                        <option value="">-- Seleccionar equipo --</option>
+                        <option value="custom">✏️ Personalizado (editar manual)</option>
                     </select>
                 </div>
 
-                <!-- Editor de equipo -->
+                <!-- Botón para ver Mis Equipos Guardados -->
                 <div class="config-section">
-                    <label for="team-name">Nombre del Equipo:</label>
-                    <input type="text" id="team-name" placeholder="Nombre del equipo">
+                    <button onclick="verGestionEquipos()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                        🏆 Ver Mis Equipos Guardados
+                    </button>
                 </div>
 
-                <!-- Lista de jugadores para editar -->
+                <!-- Nombre del equipo -->
+                <div class="config-section">
+                    <label for="team-name">🏷️ Nombre del Equipo:</label>
+                    <input type="text" id="team-name" placeholder="Ej: Yankees, Dodgers...">
+                </div>
+
+                <!-- Editor de jugadores -->
                 <div class="config-section">
                     <h4>Jugadores del Equipo:</h4>
                     <div class="players-editor" id="players-editor">
@@ -2535,306 +2559,3133 @@
 
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeTeamConfig()">Cancelar</button>
-                <button class="btn-primary" onclick="saveTeamConfig()">Guardar Equipo</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- HOME RUN OVERLAY -->
-    <div id="home-run-overlay">⚾ HOME RUN! ⚾</div>
-
-    <!-- PANEL DE TESTING/DESARROLLO -->
-    <div id="testing-panel" style="position: fixed; bottom: 10px; right: 10px; z-index: 999999999;">
-        <button id="testing-panel-btn" onclick="toggleTestingPanel()" style="background: #8b5cf6; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5); transition: all 0.3s;"
-            onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-            🧪
-        </button>
-
-        <div id="testing-panel-content" style="display: none; position: absolute; bottom: 70px; right: 0; background: rgba(20, 20, 40, 0.98); border: 2px solid #8b5cf6; border-radius: 12px; padding: 20px; width: 350px; max-height: 600px; overflow-y: auto; box-shadow: 0 8px 16px rgba(0,0,0,0.5);">
-            <h4 style="color: #8b5cf6; margin: 0 0 15px 0; font-size: 18px;">🧪 Panel de Pruebas</h4>
-
-            <div style="margin-bottom: 15px;">
-                <button onclick="testAllOddities()" style="width: 100%; background: #059669; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 10px;">
-                    ▶️ Mostrar Tabla Oddities
-                </button>
-            </div>
-
-            <div style="margin-bottom: 15px; padding: 10px; background: rgba(59, 130, 246, 0.2); border-radius: 8px;">
-                <h5 style="color: #3b82f6; margin: 0 0 10px 0; font-size: 14px;">⚾ Probar Resultados</h5>
-                <button onclick="testHomeRun()" style="width: 100%; background: #fbbf24; color: black; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 5px;">
-                    🎆 Test Home Run
-                </button>
-                <button onclick="testSingle()" style="width: 100%; background: #10b981; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
-                    ⚾ Test Single
-                </button>
-                <button onclick="testDouble()" style="width: 100%; background: #10b981; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
-                    ⚾⚾ Test Double
-                </button>
-                <button onclick="testStrikeout()" style="width: 100%; background: #ef4444; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
-                    🚫 Test Strikeout
-                </button>
-                <button onclick="testGroundball()" style="width: 100%; background: #f97316; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
-                    ⚾ Test Groundball
-                </button>
-                <button onclick="testFlyball()" style="width: 100%; background: #8b5cf6; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; margin-bottom: 5px;">
-                    🎈 Test Fly Ball
-                </button>
-                <button onclick="testBunting()" style="width: 100%; background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer;">
-                    🤏 Test Bunting
-                </button>
-            </div>
-
-            <div style="color: white; font-size: 12px; margin-bottom: 10px; padding: 8px; background: rgba(139, 92, 246, 0.2); border-radius: 6px;">
-                <strong>📝 Nota:</strong> Haz clic en cualquier número para probar ese efecto específico
-            </div>
-
-            <details style="margin-bottom: 10px;">
-                <summary style="color: #8b5cf6; cursor: pointer; font-weight: bold; margin-bottom: 8px;">📊 PD & Básicas (2, 7-12, 15, 18-20)</summary>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 8px;">
-                    <button onclick="testOddity(2)" class="test-btn">2-Fan</button>
-                    <button onclick="testOddity(7)" class="test-btn">7-TOOT</button>
-                    <button onclick="testOddity(8)" class="test-btn">8-Pick</button>
-                    <button onclick="testOddity(9)" class="test-btn">9-Call1st</button>
-                    <button onclick="testOddity(10)" class="test-btn">10-CallH</button>
-                    <button onclick="testOddity(11)" class="test-btn">11-HBP</button>
-                    <button onclick="testOddity(12)" class="test-btn">12-Wild</button>
-                    <button onclick="testOddity(15)" class="test-btn">15-Pass</button>
-                    <button onclick="testOddity(18)" class="test-btn">18-Error</button>
-                    <button onclick="testOddity(19)" class="test-btn">19-Balk</button>
-                    <button onclick="testOddity(20)" class="test-btn">20-Catch</button>
-                </div>
-            </details>
-
-            <details style="margin-bottom: 10px;">
-                <summary style="color: #fbbf24; cursor: pointer; font-weight: bold; margin-bottom: 8px;">🎲 Mini-Tiradores (3, 4, 13, 14)</summary>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 8px;">
-                    <button onclick="testOddity(3)" class="test-btn" style="background: #f59e0b;">3-Animal</button>
-                    <button onclick="testOddity(4)" class="test-btn" style="background: #3b82f6;">4-Rain</button>
-                    <button onclick="testOddity(13)" class="test-btn" style="background: #8b5cf6;">13-Distr</button>
-                    <button onclick="testOddity(14)" class="test-btn" style="background: #06b6d4;">14-Drop3</button>
-                </div>
-            </details>
-
-            <details style="margin-bottom: 10px;">
-                <summary style="color: #ef4444; cursor: pointer; font-weight: bold; margin-bottom: 8px;">🏥 Injury Tables (5, 6, 16, 17)</summary>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px; padding: 8px;">
-                    <button onclick="testOddity(5)" class="test-btn" style="background: #dc2626;">5-Field</button>
-                    <button onclick="testOddity(6)" class="test-btn" style="background: #dc2626;">6-Pitch</button>
-                    <button onclick="testOddity(16)" class="test-btn" style="background: #dc2626;">16-CurrBat</button>
-                    <button onclick="testOddity(17)" class="test-btn" style="background: #dc2626;">17-PrevBat</button>
-                </div>
-            </details>
-
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(139, 92, 246, 0.3);">
-                <button onclick="showD4Roller()" style="width: 100%; background: #f59e0b; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; margin-bottom: 5px; font-size: 12px;">
-                    🐦 Test D4 Animal
-                </button>
-                <button onclick="showD100Roller()" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; margin-bottom: 5px; font-size: 12px;">
-                    🌧️ Test D100 Rain
-                </button>
-                <button onclick="showBaseStealTable('dropped-third-strike')" style="width: 100%; background: #06b6d4; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; margin-bottom: 5px; font-size: 12px;">
-                    🏃 Test D8 Steal
-                </button>
-                <button onclick="showInjuryTable('batter', 'current')" style="width: 100%; background: #dc2626; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                    🏥 Test Injury System
-                </button>
-            </div>
-
-            <div style="margin-top: 15px; font-size: 11px; color: rgba(255,255,255,0.6); text-align: center;">
-                v2.0 - Sistema Completo de Oddities
+                <button class="btn-primary" onclick="cargarEquipoAlJuego()" style="background: #f59e0b;">🎮 Cargar al Juego</button>
+                <div id="btn-guardar-cambios" class="btn-primary" style="background: #10b981; cursor: pointer; user-select: none; display: inline-block; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">💾 Guardar Cambios</div>
             </div>
         </div>
     </div>
 
     <style>
-        .test-btn {
-            background: #059669;
+        /* ================================================== */
+        /* NUEVO LAYOUT: Header + Carrusel + Juego/Chat + Footer */
+        /* ================================================== */
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            background: #1a1a2e;
+            /* Fondo oscuro */
+        }
+        /* ================================================== */
+        /* HEADER CON CARRUSEL DE FOTOS */
+        /* ================================================== */
+        
+        .main-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .game-title {
             color: white;
-            border: none;
-            padding: 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 0 0 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
             font-weight: bold;
-            transition: all 0.2s;
         }
         
-        .test-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        .team-carousel-container {
+            width: 100%;
         }
         
-        #testing-panel-content::-webkit-scrollbar {
-            width: 8px;
+        .carousel-wrapper {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
         
-        #testing-panel-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+        .team-carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            position: relative;
         }
         
-        #testing-panel-content::-webkit-scrollbar-thumb {
-            background: #8b5cf6;
-            border-radius: 4px;
+        .carousel-slide {
+            min-width: 100%;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
         }
-        /* Animaciones para cascada inline y tokens */
         
-        @keyframes slideDown {
+        .carousel-slide.active {
+            display: block;
+        }
+        
+        .carousel-slide img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
             }
         }
         
-        @keyframes tokenPop {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.5) rotate(180deg);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(0) rotate(360deg);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes tokenScore {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.3);
-            }
-            100% {
-                transform: translateY(-100px) scale(0.5);
-                opacity: 0;
-            }
-        }
-        
-        @keyframes tokenMove {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.2);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-        
-        .result-table-inline {
-            animation: slideDown 0.4s ease-out;
-        }
-        
-        .token-popping {
-            animation: tokenPop 0.6s ease-out forwards;
-        }
-        
-        .token-scoring {
-            animation: tokenScore 0.8s ease-out forwards;
-        }
-        
-        .token-moving {
-            animation: tokenMove 2s ease-in-out;
-            transition: all 2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        /* Transiciones suaves para tokens con aceleración progresiva */
-        
-        .runner-token {
-            transition: all 2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        /* Animación de confeti para Home Run */
-        
-        @keyframes confetti-fall {
-            0% {
-                transform: translateY(-100vh) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(720deg);
-                opacity: 0;
-            }
-        }
-        
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            z-index: 10000;
-            animation: confetti-fall 3s linear;
-            pointer-events: none;
-        }
-        /* Animación del token corriendo las bases */
-        
-        @keyframes homeRunPath {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-            25% {
-                transform: translate(100px, -100px) scale(1.2);
-            }
-            50% {
-                transform: translate(200px, 0) scale(1.2);
-            }
-            75% {
-                transform: translate(100px, 100px) scale(1.2);
-            }
-            100% {
-                transform: translate(0, 0) scale(1.5);
-                opacity: 0;
-            }
-        }
-        
-        .home-run-runner {
-            animation: homeRunPath 3s ease-in-out forwards;
-        }
-        /* Overlay de HOME RUN */
-        
-        #home-run-overlay {
-            position: fixed;
+        .carousel-btn {
+            position: absolute;
             top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 5rem;
-            font-weight: bold;
-            color: #fbbf24;
-            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            pointer-events: none;
-            opacity: 0;
-            display: none;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 24px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            z-index: 10;
         }
         
-        @keyframes homeRunPulse {
-            0%,
-            100% {
+        .carousel-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .carousel-btn.prev {
+            left: 10px;
+        }
+        
+        .carousel-btn.next {
+            right: 10px;
+        }
+        
+        .carousel-dots {
+            text-align: center;
+            padding: 10px 0;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        
+        .carousel-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .carousel-dot.active {
+            background: white;
+            transform: scale(1.3);
+        }
+        /* ================================================== */
+        /* LAYOUT PRINCIPAL: Juego + Chat Lateral */
+        /* ================================================== */
+        
+        .main-layout-wrapper {
+            display: flex;
+            flex: 1;
+            gap: 0;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .game-section {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px;
+            background: #f5f5f5;
+            min-height: 600px;
+        }
+        /* ================================================== */
+        /* CHAT LATERAL */
+        /* ================================================== */
+        
+        .chat-sidebar {
+            width: 350px;
+            background: white;
+            border-left: 2px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .chat-sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chat-sidebar-header h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.2rem;
+        }
+        
+        .chat-user-badge {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .chat-sidebar-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        
+        .chat-loading {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+        
+        .chat-sidebar-message {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from {
                 opacity: 0;
-                transform: translate(-50%, -50%) scale(0.5);
+                transform: translateX(20px);
             }
-            50% {
+            to {
                 opacity: 1;
-                transform: translate(-50%, -50%) scale(1.2);
+                transform: translateX(0);
             }
+        }
+        
+        .chat-sidebar-message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .chat-sidebar-username {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .chat-sidebar-time {
+            color: #999;
+            font-size: 0.75rem;
+        }
+        
+        .chat-sidebar-text {
+            color: #333;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+        }
+        
+        .chat-sidebar-input {
+            padding: 15px;
+            background: white;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .chat-sidebar-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-sidebar-textinput {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        .chat-sidebar-textinput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .chat-sidebar-sendbtn {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .chat-sidebar-sendbtn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        
+        .admin-badge-chat {
+            background: #fbbf24;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        /* ================================================== */
+        /* FOOTER */
+        /* ================================================== */
+        
+        .main-footer {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            padding: 30px 20px;
+            margin-top: auto;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-section {
+            text-align: center;
+        }
+        
+        .footer-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+        
+        .footer-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+        
+        .footer-credits {
+            margin: 0;
+            line-height: 1.6;
+        }
+        
+        .developer-name {
+            font-size: 1.1rem;
+            color: #fbbf24;
+        }
+        
+        .footer-email {
+            color: #60a5fa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-email:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+        
+        .footer-year {
+            margin: 0 0 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .footer-links {
+            margin: 0;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: #fbbf24;
+        }
+        /* ================================================== */
+        /* RESPONSIVE DESIGN */
+        /* ================================================== */
+        
+        @media (max-width: 1200px) {
+            .chat-sidebar {
+                width: 300px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-layout-wrapper {
+                flex-direction: column;
+            }
+            .chat-sidebar {
+                width: 100%;
+                height: 400px;
+                border-left: none;
+                border-top: 2px solid #e0e0e0;
+                position: relative;
+            }
+            .game-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .game-title {
+                font-size: 1.5rem;
+            }
+            .carousel-slide img {
+                height: 180px;
+            }
+            .footer-content {
+                flex-direction: column;
+            }
+        }
+        /* ================================================== */
+        /* AUDIO CONTROLS SWITCH */
+        /* ================================================== */
+        
+        .audio-switch input:checked+.audio-slider {
+            background-color: #667eea;
+        }
+        
+        .audio-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+        
+        .audio-switch input:checked+.audio-slider:before {
+            transform: translateX(26px);
         }
     </style>
 
+    </div>
+    <!-- Cierre de app -->
+
+    <!-- ============================================================================ -->
+    <!-- PROBLEMA CRÍTICO: VENTANAS FLOTANTES NO SE MUESTRAN                        -->
+    <!-- ============================================================================ -->
+    <!-- 
+    SÍNTOMAS:
+    - Las ventanas (audioWindow, chatWindow, hallWindow) solo aparecen al darle al botón "Reiniciar"
+    - getElementById() retorna null cuando debería encontrar los elementos
+    - Console muestra: "audioWindow no encontrado", "chatWindow no encontrado", "hallWindow no encontrado"
+    
+    LO QUE SE HA INTENTADO (sin éxito):
+    1. Mover ventanas FUERA del div#app (líneas 3008+)
+    2. Crear ventanas con JavaScript mediante document.createElement() y appendChild()
+    3. Añadir estilos inline con !important: display:block, position:fixed, z-index:999999
+    4. Ejecutar crearVentanas() inmediatamente sin DOMContentLoaded
+    5. Usar setTimeout para retrasar la inicialización del chat
+    6. Agregar pointer-events: auto
+    
+    HIPÓTESIS DEL PROBLEMA:
+    - Posiblemente hay algo en el CSS (style.css) o en script_new.js que oculta/elimina estos elementos
+    - El div#app o algún contenedor padre podría tener display:none, visibility:hidden, o estar fuera del viewport
+    - Puede haber JavaScript que elimine estos elementos después de crearlos
+    - El z-index de algún elemento padre está bloqueando las ventanas
+    
+    PRÓXIMOS PASOS A INVESTIGAR:
+    1. Inspeccionar en DevTools del navegador si las ventanas realmente están en el DOM
+    2. Buscar en script_new.js si hay código que oculte/elimine elementos después de cargar
+    3. Revisar style.css en busca de reglas que puedan ocultar elementos con position:fixed
+    4. Probar añadir las ventanas ANTES del cierre de </body> en lugar de después de div#app
+    5. Verificar si hay algún overlay o elemento con z-index muy alto que cubra toda la pantalla
+    6. Considerar usar un enfoque completamente diferente: modals de Bootstrap en lugar de ventanas flotantes
+    
+    WORKAROUND TEMPORAL:
+    - El botón "Reiniciar" (location.reload()) hace que las ventanas aparezcan brevemente
+    - Esto sugiere un problema de timing/inicialización, no de CSS
+    -->
+    <!-- ============================================================================ -->
+
+    <!-- Script para crear ventanas flotantes con JavaScript -->
+    <script>
+        // ========================================
+        // CREAR VENTANAS FLOTANTES DESDE JAVASCRIPT
+        // ========================================
+
+        function crearVentanas() {
+            // Ventana de Audio
+            const audioWindow = document.createElement('div');
+            audioWindow.id = 'audioWindow';
+            audioWindow.className = 'floating-window';
+            audioWindow.style.cssText = 'display: block !important; position: fixed !important; top: 80px; right: 20px; width: 350px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 999999 !important; overflow: hidden; pointer-events: auto !important;';
+            audioWindow.innerHTML = `
+                <div class="window-header" style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; padding: 12px 15px; cursor: move; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+                    <span style="font-weight: bold;">🎵 Audio</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="minimizeWindow('audioWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-size: 14px;">−</button>
+                        <button onclick="closeWindow('audioWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">×</button>
+                    </div>
+                </div>
+                <div class="window-content" style="padding: 20px; max-height: 400px; overflow-y: auto;">
+                    <div class="audio-toggle-wrapper" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                        <span id="audio-icon" class="audio-icon" style="font-size: 24px;">🔊</span>
+                        <label class="audio-switch" style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                            <input type="checkbox" id="audio-toggle" checked onchange="AudioSystem.toggleAudio()" style="opacity: 0; width: 0; height: 0;">
+                            <span class="audio-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 24px; transition: 0.4s;"></span>
+                        </label>
+                    </div>
+                    <div class="volume-control" style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #555;">🎵 Música:</label>
+                        <input type="range" id="music-volume" min="0" max="100" value="30" oninput="AudioSystem.setMusicVolume(this.value / 100)" style="width: 100%;">
+                    </div>
+                    <div class="volume-control">
+                        <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #555;">🔔 Efectos:</label>
+                        <input type="range" id="sfx-volume" min="0" max="100" value="50" oninput="AudioSystem.setSfxVolume(this.value / 100)" style="width: 100%;">
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(audioWindow);
+
+            // Ventana de Chat
+            const chatWindow = document.createElement('div');
+            chatWindow.id = 'chatWindow';
+            chatWindow.className = 'floating-window';
+            chatWindow.style.cssText = 'display: block !important; position: fixed !important; top: 80px; left: 20px; width: 400px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 999999 !important; overflow: hidden; pointer-events: auto !important;';
+            chatWindow.innerHTML = `
+                <div class="window-header" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 15px; cursor: move; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+                    <div>
+                        <span style="font-weight: bold;">💬 Chat</span>
+                        <span id="chatUserBadge" style="font-size: 0.8rem; opacity: 0.9; margin-left: 10px;">...</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="minimizeWindow('chatWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-size: 14px;">−</button>
+                        <button onclick="closeWindow('chatWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">×</button>
+                    </div>
+                </div>
+                <div class="window-content" style="padding: 0; height: 400px; display: flex; flex-direction: column;">
+                    <div class="chat-sidebar-messages" id="chatSidebarMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #f9fafb;">
+                        <div class="chat-loading">Cargando mensajes...</div>
+                    </div>
+                    <div class="chat-sidebar-input" style="padding: 15px; border-top: 1px solid #e5e7eb; background: white;">
+                        <form id="chatSidebarForm" class="chat-sidebar-form" style="display: flex; gap: 10px;">
+                            <input type="text" id="chatSidebarInput" class="chat-sidebar-textinput" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off" required style="flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
+                            <button type="submit" class="chat-sidebar-sendbtn" style="padding: 10px 15px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">📤</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(chatWindow);
+
+            // Ventana de Hall of Fame
+            const hallWindow = document.createElement('div');
+            hallWindow.id = 'hallWindow';
+            hallWindow.className = 'floating-window';
+            hallWindow.style.cssText = 'display: block !important; position: fixed !important; top: 300px; left: 20px; width: 500px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 999999 !important; overflow: hidden; pointer-events: auto !important;';
+            hallWindow.innerHTML = `
+                <div class="window-header" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; padding: 12px 15px; cursor: move; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+                    <span style="font-weight: bold;">🏆 Hall of Fame</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="minimizeWindow('hallWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-size: 14px;">−</button>
+                        <button onclick="closeWindow('hallWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">×</button>
+                    </div>
+                </div>
+                <div class="window-content" style="padding: 20px; max-height: 400px; overflow-y: auto;">
+                    <div id="hallOfFameContent">
+                        <div style="text-align: center; color: #999;">Cargando ranking...</div>
+                    </div>
+                    <button onclick="cargarHallOfFame()" style="width: 100%; margin-top: 15px; padding: 12px; background: #fbbf24; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">🔄 Actualizar</button>
+                </div>
+            `;
+            document.body.appendChild(hallWindow);
+
+            console.log('✅ Ventanas creadas y añadidas al DOM');
+            console.log('audioWindow:', document.getElementById('audioWindow'));
+            console.log('chatWindow:', document.getElementById('chatWindow'));
+            console.log('hallWindow:', document.getElementById('hallWindow'));
+
+            // Hacer ventanas arrastrables
+            makeDraggable();
+        }
+
+        function minimizeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            if (!win) return;
+            const content = win.querySelector('.window-content');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+
+        function closeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            if (win) win.style.display = 'none';
+        }
+
+        function openWindow(windowId) {
+            const win = document.getElementById(windowId);
+            if (win) {
+                win.style.display = 'block';
+                win.style.zIndex = 2000;
+            }
+        }
+
+        // Hacer ventanas arrastrables
+        function makeDraggable() {
+            const windows = document.querySelectorAll('.floating-window');
+
+            windows.forEach(win => {
+                const header = win.querySelector('.window-header');
+                if (!header) return;
+
+                let isDragging = false;
+                let currentX, currentY, initialX, initialY;
+
+                header.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    initialX = e.clientX - win.offsetLeft;
+                    initialY = e.clientY - win.offsetTop;
+                    win.style.zIndex = 2000;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        e.preventDefault();
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                        win.style.left = currentX + 'px';
+                        win.style.top = currentY + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+            });
+
+            console.log('✅ Ventanas arrastrables inicializadas');
+        }
+
+        // Funciones de compatibilidad con botones
+        function toggleChat() {
+            const win = document.getElementById('chatWindow');
+            if (!win) {
+                console.error('chatWindow no encontrado');
+                return;
+            }
+            if (win.style.display === 'none' || win.style.display === '') {
+                openWindow('chatWindow');
+            } else {
+                closeWindow('chatWindow');
+            }
+        }
+
+        function toggleHall() {
+            const win = document.getElementById('hallWindow');
+            if (!win) {
+                console.error('hallWindow no encontrado');
+                return;
+            }
+            if (win.style.display === 'none' || win.style.display === '') {
+                openWindow('hallWindow');
+                if (typeof cargarHallOfFame === 'function') cargarHallOfFame();
+            } else {
+                closeWindow('hallWindow');
+            }
+        }
+
+        function toggleAudioModal() {
+            const win = document.getElementById('audioWindow');
+            if (!win) {
+                console.error('audioWindow no encontrado');
+                return;
+            }
+            if (win.style.display === 'none' || win.style.display === '') {
+                openWindow('audioWindow');
+            } else {
+                closeWindow('audioWindow');
+            }
+        }
+
+        // EJECUTAR INMEDIATAMENTE - El script está al final del HTML
+        console.log('🚀 Ejecutando crearVentanas...');
+        crearVentanas();
+    </script>
+
+    <!-- ================================================== -->
+    <!-- BOTONES FLOTANTES TOGGLE -->
+    <!-- ================================================== -->
+
+    <!-- Botones flotantes ocultos (ahora están en el marcador) -->
+    <button id="chat-toggle-btn" onclick="toggleChat()" style="display: none;">
+        💬
+    </button>
+
+    <button id="hall-toggle-btn" onclick="toggleHall()" style="display: none;">
+        🏆
+    </button>
+
+    <button id="logout-btn" onclick="logout()" title="Cerrar sesión" style="display: none;">
+        🚪
+    </button>
+
+    <!-- ================================================== -->
+    <!-- MODALES -->
+    <!-- ================================================== -->
+
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <!-- Sistema de autenticación -->
+    <script src="auth.js"></script>
+    <!-- ================================================== -->
+    <!-- VERIFICACIÓN DE AUTENTICACIÓN -->
+    <!-- ================================================== -->
+    <!-- Este script asegura que solo usuarios autenticados puedan jugar -->
+    <script>
+        // ================================================
+        // VERIFICAR QUE EL USUARIO ESTÁ LOGUEADO
+        // ================================================
+        // estaLogueado() verifica si hay un token en localStorage
+        if (!estaLogueado()) {
+            // Si NO está logueado, mostrar alerta y redirigir al login
+            alert('Debes iniciar sesión para jugar');
+            window.location.href = 'login.html';
+        } else {
+            // Si SÍ está logueado, obtener sus datos
+            const usuario = getUsuarioActual();
+            console.log('Usuario logueado:', usuario.nombre);
+
+            // Aquí podrías mostrar el nombre del usuario en la UI
+            // Por ejemplo:
+            // document.getElementById('userNameDisplay').textContent = usuario.nombre;
+        }
+    </script>
 
     <!-- Sistema de audio -->
     <script src="audio_system.js"></script>
 
     <!-- Enlazamos el archivo de JavaScript personalizado -->
-    <script src="script_new.js?v=2"></script>
+    <script src="script_new.js?v=3"></script>
+
+    <!-- ================================================== -->
+    <!-- SOCKET.IO para Chat en Tiempo Real -->
+    <!-- ================================================== -->
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+    <!-- ================================================== -->
+    <!-- FUNCIONES GLOBALES PARA FOTOS (deben cargarse temprano) -->
+    <!-- ================================================== -->
+    <script>
+        console.log('🚀 FUNCIONES DE FOTOS CARGADAS');
+
+        // Variables globales
+        window.photoPlayerId = null;
+        window.photoTeam = null;
+        window.photoBlob = null;
+
+        // Abrir modal
+        window.openPhotoModal = function(playerId, team) {
+            console.log('📸 Abriendo modal foto para:', playerId, team);
+            window.photoPlayerId = playerId;
+            window.photoTeam = team;
+            window.photoBlob = null;
+            document.getElementById('photoPreview').innerHTML = '📷';
+            document.getElementById('photoPreview').style.backgroundImage = '';
+            document.getElementById('playerPhotoModal').style.display = 'flex';
+        };
+
+        // Cerrar modal
+        window.closePhotoModal = function() {
+            console.log('❌ Cerrando modal foto');
+            document.getElementById('playerPhotoModal').style.display = 'none';
+            document.getElementById('playerPhotoInput').value = '';
+            window.photoPlayerId = null;
+            window.photoTeam = null;
+            window.photoBlob = null;
+        };
+
+        // Función de guardado
+        window.guardarFotoJugador = function() {
+            console.log('🔥 GUARDAR FOTO INICIADO');
+
+            if (!window.photoBlob) {
+                alert('Selecciona una imagen primero');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Debes iniciar sesión');
+                return;
+            }
+
+            console.log('⬆️ Subiendo foto...');
+            const formData = new FormData();
+            formData.append('photo', window.photoBlob, 'player-photo.jpg');
+
+            fetch('http://localhost:3000/api/upload/player-photo', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    console.log('📥 Respuesta:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ Data:', data);
+
+                    if (data.imageUrl) {
+                        const selector = window.photoTeam === 'modal-edit' ?
+                            `#modal-roster-table tr[data-player-id="${window.photoPlayerId}"] .player-photo, #modal-bench-table tr[data-player-id="${window.photoPlayerId}"] .player-photo` :
+                            `#roster-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo, #bench-table-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
+
+                        const photoCell = document.querySelector(selector);
+                        if (photoCell) {
+                            photoCell.innerHTML = `<img src="http://localhost:3000${data.imageUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+                            photoCell.dataset.photoUrl = data.imageUrl;
+                            console.log('🎉 Foto actualizada');
+                        }
+
+                        window.closePhotoModal();
+                    } else {
+                        alert('Error al guardar');
+                    }
+                })
+                .catch(err => {
+                    console.error('❌ Error:', err);
+                    alert('Error al guardar la foto');
+                });
+        };
+
+        console.log('✅ Funciones de foto listas');
+    </script>
+
+    <!-- ================================================== -->
+    <!-- SCRIPT: Carrusel de Fotos -->
+    <!-- ================================================== -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const totalSlides = slides.length;
+
+        // Crear dots dinámicamente
+        const dotsContainer = document.getElementById('carouselDots');
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+            dot.onclick = () => goToSlide(i);
+            dotsContainer.appendChild(dot);
+        }
+
+        function moveCarousel(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = totalSlides - 1;
+            if (currentSlide >= totalSlides) currentSlide = 0;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+
+            const dots = document.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // Auto-play del carrusel cada 5 segundos
+        setInterval(() => {
+            moveCarousel(1);
+        }, 5000);
+    </script>
+
+    <!-- ================================================== -->
+    <!-- SCRIPT: Chat Lateral en Tiempo Real -->
+    <!-- ================================================== -->
+    <script>
+        // Obtener datos del usuario
+        const chatUsuario = getUsuarioActual();
+        const isAdminChat = chatUsuario.isAdmin === 1;
+
+        // Esperar a que las ventanas existan
+        function inicializarChatCuandoExista() {
+            const chatUserBadge = document.getElementById('chatUserBadge');
+            const chatMessages = document.getElementById('chatSidebarMessages');
+            const chatForm = document.getElementById('chatSidebarForm');
+            const chatInput = document.getElementById('chatSidebarInput');
+
+            if (!chatUserBadge || !chatMessages || !chatForm || !chatInput) {
+                console.log('⏳ Esperando elementos del chat...');
+                setTimeout(inicializarChatCuandoExista, 50);
+                return;
+            }
+
+            console.log('✅ Elementos del chat encontrados, inicializando...');
+
+            // Verificar que Socket.IO esté cargado
+            if (typeof io === 'undefined') {
+                console.error('❌ Socket.IO no está cargado');
+                return;
+            }
+
+            // Actualizar badge del usuario
+            chatUserBadge.textContent = chatUsuario.nombre + (isAdminChat ? ' 👑' : '');
+
+            // Conectar a Socket.IO
+            const socketChat = io('http://localhost:3000');
+
+            // ================================================
+            // CARGAR HISTORIAL DE MENSAJES
+            // ================================================
+            async function cargarChatHistorial() {
+                try {
+                    const response = await fetch('http://localhost:3000/api/chat/messages?limit=50');
+                    const messages = await response.json();
+
+                    chatMessages.innerHTML = '';
+
+                    if (messages.length === 0) {
+                        chatMessages.innerHTML = '<div class="chat-loading">No hay mensajes aún</div>';
+                    } else {
+                        messages.forEach(msg => {
+                            mostrarMensajeChat(msg.id, msg.username, msg.message, msg.created_at);
+                        });
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                } catch (error) {
+                    console.error('Error al cargar chat:', error);
+                    chatMessages.innerHTML = '<div class="chat-loading">Error al cargar mensajes</div>';
+                }
+            }
+
+            // ================================================
+            // MOSTRAR MENSAJE EN EL CHAT
+            // ================================================
+            function mostrarMensajeChat(messageId, username, message, timestamp) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-sidebar-message';
+                messageDiv.dataset.messageId = messageId;
+
+                const fecha = new Date(timestamp);
+                const tiempo = fecha.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const adminBadge = isAdminChat && username === chatUsuario.nombre ?
+                    '<span class="admin-badge-chat">ADMIN</span>' : '';
+
+                messageDiv.innerHTML = `
+                <div class="chat-sidebar-message-header">
+                    <span class="chat-sidebar-username">${escapeHtmlChat(username)}${adminBadge}</span>
+                    <span class="chat-sidebar-time">${tiempo}</span>
+                </div>
+                <div class="chat-sidebar-text">${escapeHtmlChat(message)}</div>
+            `;
+
+                chatMessages.appendChild(messageDiv);
+            }
+
+            // Escapar HTML para prevenir XSS
+            function escapeHtmlChat(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // ================================================
+            // ENVIAR MENSAJE
+            // ================================================
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                socketChat.emit('chat-message', {
+                    userId: chatUsuario.id,
+                    username: chatUsuario.nombre,
+                    message: message
+                });
+
+                chatInput.value = '';
+                chatInput.focus();
+            });
+
+            // ================================================
+            // RECIBIR MENSAJES EN TIEMPO REAL
+            // ================================================
+            socketChat.on('chat-message', (data) => {
+                mostrarMensajeChat(data.id, data.username, data.message, data.timestamp);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+
+            // Conexión establecida
+            socketChat.on('connect', () => {
+                console.log('✅ Chat conectado');
+            });
+
+            // Desconexión
+            socketChat.on('disconnect', () => {
+                console.log('❌ Chat desconectado');
+            });
+
+            // Cargar historial al iniciar
+            cargarChatHistorial();
+        }
+
+        // Iniciar cuando el script se cargue - con delay para Socket.IO
+        setTimeout(inicializarChatCuandoExista, 100);
+    </script>
+
+    <!-- ================================================ -->
+    <style>
+        /* Hall of Fame Sidebar */
+        
+        .hall-of-fame-sidebar {
+            width: 350px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-left: 3px solid #ffd700;
+            display: flex;
+            flex-direction: column;
+            max-height: 100vh;
+            position: sticky;
+            top: 0;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hall-of-fame-header {
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.1);
+            border-bottom: 2px solid #ffd700;
+            text-align: center;
+        }
+        
+        .hall-of-fame-header h3 {
+            margin: 0;
+            color: #ffd700;
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hall-subtitle {
+            margin: 5px 0 0 0;
+            color: #ffffff;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .hall-of-fame-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        /* Tabla de Rankings */
+        
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .ranking-table thead {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .ranking-table th {
+            padding: 12px 8px;
+            color: #ffd700;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #ffd700;
+        }
+        
+        .ranking-table td {
+            padding: 10px 8px;
+            color: #ffffff;
+            font-size: 13px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .ranking-table tr:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+        /* Medallas para top 3 */
+        
+        .rank-medal {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .rank-1 {
+            color: #FFD700;
+        }
+        /* Oro */
+        
+        .rank-2 {
+            color: #C0C0C0;
+        }
+        /* Plata */
+        
+        .rank-3 {
+            color: #CD7F32;
+        }
+        /* Bronce */
+        
+        .player-alias {
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .stat-games {
+            color: #4FC3F7;
+        }
+        
+        .stat-wins {
+            color: #66BB6A;
+        }
+        
+        .stat-losses {
+            color: #EF5350;
+        }
+        
+        .hall-loading {
+            text-align: center;
+            color: #ffffff;
+            padding: 40px 20px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        .hall-of-fame-footer {
+            padding: 15px;
+            border-top: 2px solid #ffd700;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .refresh-ranking-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1e3c72;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-ranking-btn:hover {
+            background: linear-gradient(135deg, #ffed4e, #ffd700);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+        /* Responsivo */
+        
+        @media (max-width: 1400px) {
+            .hall-of-fame-sidebar {
+                width: 300px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .main-layout-wrapper {
+                flex-direction: column;
+            }
+            .hall-of-fame-sidebar,
+            .chat-sidebar {
+                width: 100%;
+                max-height: 400px;
+            }
+        }
+    </style>
+
+    <!-- ================================================ -->
+    <!-- FUNCIONES: GUARDAR/CARGAR PARTIDAS + HALL OF FAME -->
+    <!-- ================================================ -->
+    <script>
+        // ================================================
+        // GUARDAR PARTIDA
+        // ================================================
+        async function guardarPartida() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión para guardar partidas');
+                    return;
+                }
+
+                // Verificar que hay un juego activo
+                if (!window.gameStateData || !window.gameStateData.isGameActive) {
+                    alert('⚠️ No hay ninguna partida en curso para guardar');
+                    return;
+                }
+
+                const gameState = window.gameStateData;
+
+                // Recopilar estado actual del juego desde script_new.js
+                const estadoPartida = {
+                    homeTeam: window.homeTeam || 'Local',
+                    awayTeam: window.awayTeam || 'Visitante',
+                    homeScore: window.homeScore || 0,
+                    awayScore: window.awayScore || 0,
+                    inning: window.inning || 1,
+                    isTopInning: window.isTopInning !== undefined ? window.isTopInning : true,
+                    outs: window.outs || 0,
+                    bases: window.bases || [false, false, false],
+                    gameState: {
+                        // Estado completo del juego para restaurar
+                        strikes: window.strikes || 0,
+                        balls: window.balls || 0,
+                        visitanteBatterIndex: gameState.visitanteBatterIndex || 0,
+                        localBatterIndex: gameState.localBatterIndex || 0,
+                        score: gameState.score || {
+                            visitante: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            local: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            totalVisitante: 0,
+                            totalLocal: 0
+                        },
+                        hits: gameState.hits || {
+                            visitante: 0,
+                            local: 0
+                        },
+                        errors: gameState.errors || {
+                            visitante: 0,
+                            local: 0
+                        },
+                        pitcher: gameState.pitcher || null
+                    }
+                };
+
+                const response = await fetch('http://localhost:3000/api/games/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(estadoPartida)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Partida guardada correctamente');
+                    // Actualizar Hall of Fame después de guardar
+                    cargarHallOfFame();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error al guardar partida:', error);
+                alert('❌ Error al guardar la partida');
+            }
+        }
+
+        // ================================================
+        // MOSTRAR LISTA DE PARTIDAS GUARDADAS
+        // ================================================
+        async function mostrarPartidas() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión para ver tus partidas');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:3000/api/games?limit=20', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(`❌ Error: ${data.error}`);
+                    return;
+                }
+
+                // Crear modal con lista de partidas
+                mostrarModalPartidas(data.games);
+            } catch (error) {
+                console.error('Error al cargar partidas:', error);
+                alert('❌ Error al cargar las partidas');
+            }
+        }
+
+        // ================================================
+        // MODAL CON LISTA DE PARTIDAS
+        // ================================================
+        function mostrarModalPartidas(games) {
+            // Remover overlay anterior si existe
+            const oldOverlay = document.getElementById('games-modal-overlay');
+            if (oldOverlay) oldOverlay.remove();
+
+            // Crear overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'games-modal-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            `;
+
+            // Crear modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: linear-gradient(135deg, #1e3c72, #2a5298);
+                padding: 30px;
+                border-radius: 15px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                border: 3px solid #ffd700;
+            `;
+
+            let html = `
+                <h2 style="color: #ffd700; margin-top: 0; text-align: center;">📂 Partidas Guardadas</h2>
+            `;
+
+            if (games.length === 0) {
+                html += `<p style="color: white; text-align: center;">No tienes partidas guardadas</p>`;
+            } else {
+                html += `<div style="display: grid; gap: 15px;">`;
+                games.forEach(game => {
+                    const fecha = new Date(game.game_date).toLocaleString('es-ES');
+                    const estado = game.completed ? '✅ Completada' : '⏸️ En curso';
+                    html += `
+                        <div style="
+                            background: rgba(255, 255, 255, 0.1);
+                            padding: 15px;
+                            border-radius: 10px;
+                            border: 2px solid rgba(255, 215, 0, 0.3);
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        " onmouseover="this.style.background='rgba(255, 215, 0, 0.2)'" 
+                           onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'"
+                           onclick="cargarPartida(${game.id})">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span style="color: white; font-weight: bold;">⚾ ${game.home_team} vs ${game.away_team}</span>
+                                <span style="color: #4FC3F7; font-size: 12px;">${fecha}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #66BB6A; font-size: 18px; font-weight: bold;">${game.home_score} - ${game.away_score}</span>
+                                <span style="color: ${game.completed ? '#66BB6A' : '#FFD700'}; font-size: 12px;">${estado}</span>
+                            </div>
+                            <div style="margin-top: 8px; font-size: 12px; color: rgba(255, 255, 255, 0.7);">
+                                Inning: ${game.inning} | Outs: ${game.outs}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            html += `
+                <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" 
+                    style="
+                        margin-top: 20px;
+                        width: 100%;
+                        padding: 12px;
+                        background: linear-gradient(135deg, #EF5350, #E53935);
+                        color: white;
+                        border: none;
+                        border-radius: 8px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        font-size: 14px;
+                    ">
+                    ❌ Cerrar
+                </button>
+            `;
+
+            modal.innerHTML = html;
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            // Cerrar al hacer clic fuera del modal
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.remove();
+                }
+            });
+        }
+
+        // ================================================
+        // CARGAR PARTIDA ESPECÍFICA
+        // ================================================
+        async function cargarPartida(gameId) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:3000/api/games/${gameId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(`❌ Error: ${data.error}`);
+                    return;
+                }
+
+                const game = data.game;
+
+                // Restaurar estado del juego en script_new.js
+                if (typeof window.restaurarEstadoJuego === 'function') {
+                    window.restaurarEstadoJuego(game);
+                } else {
+                    // Restauración básica si no existe la función
+                    window.homeTeam = game.home_team;
+                    window.awayTeam = game.away_team;
+                    window.homeScore = game.home_score;
+                    window.awayScore = game.away_score;
+                    window.inning = game.inning;
+                    window.isTopInning = game.is_top_inning === 1;
+                    window.outs = game.outs;
+                    window.bases = game.bases || [false, false, false];
+
+                    // Restaurar game_state si existe
+                    if (game.game_state) {
+                        window.strikes = game.game_state.strikes || 0;
+                        window.balls = game.game_state.balls || 0;
+                        window.currentBatter = game.game_state.currentBatter || null;
+                        window.currentPitcher = game.game_state.currentPitcher || null;
+                    }
+
+                    // Actualizar UI manualmente
+                    alert('⚠️ Partida cargada. Por favor, actualiza la interfaz según el estado del juego.');
+                }
+
+                // Cerrar modal
+                const modal = document.querySelector('[style*="position: fixed"]');
+                if (modal) modal.remove();
+
+                alert('✅ Partida cargada correctamente');
+            } catch (error) {
+                console.error('Error al cargar partida:', error);
+                alert('❌ Error al cargar la partida');
+            }
+        }
+
+        // ================================================
+        // SISTEMA DE VENTANAS FLOTANTES ARRASTRABLES
+        // ================================================
+
+        // Hacer las ventanas arrastrables
+        function makeDraggable() {
+            const windows = document.querySelectorAll('.floating-window');
+
+            windows.forEach(win => {
+                const header = win.querySelector('.window-header');
+                let isDragging = false;
+                let currentX, currentY, initialX, initialY;
+
+                header.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    initialX = e.clientX - win.offsetLeft;
+                    initialY = e.clientY - win.offsetTop;
+                    win.style.zIndex = 2000; // Traer al frente
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        e.preventDefault();
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                        win.style.left = currentX + 'px';
+                        win.style.top = currentY + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+            });
+        }
+
+        // Minimizar ventana
+        function minimizeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            const content = win.querySelector('.window-content');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+            } else {
+                content.style.display = 'none';
+            }
+        }
+
+        // Cerrar ventana (solo la oculta)
+        function closeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            win.style.display = 'none';
+        }
+
+        // Abrir ventana
+        function openWindow(windowId) {
+            const win = document.getElementById(windowId);
+            win.style.display = 'block';
+            win.style.zIndex = 2000;
+        }
+
+        // Funciones de compatibilidad con botones antiguos
+        function toggleChat() {
+            const win = document.getElementById('chatWindow');
+            if (!win) {
+                console.error('chatWindow no encontrado');
+                return;
+            }
+            if (win.style.display === 'none') {
+                openWindow('chatWindow');
+            } else {
+                closeWindow('chatWindow');
+            }
+        }
+
+        function toggleHall() {
+            const win = document.getElementById('hallWindow');
+            if (!win) {
+                console.error('hallWindow no encontrado');
+                return;
+            }
+            if (win.style.display === 'none') {
+                openWindow('hallWindow');
+                cargarHallOfFame();
+            } else {
+                closeWindow('hallWindow');
+            }
+        }
+
+        function toggleAudioModal() {
+            const win = document.getElementById('audioWindow');
+            if (!win) {
+                console.error('audioWindow no encontrado');
+                return;
+            }
+            if (win.style.display === 'none') {
+                openWindow('audioWindow');
+            } else {
+                closeWindow('audioWindow');
+            }
+        }
+
+        // Inicializar sistema de ventanas al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            makeDraggable();
+            console.log('Sistema de ventanas arrastrables inicializado');
+        });
+
+        // ================================================
+        // CARGAR HALL OF FAME
+        // ================================================
+        async function cargarHallOfFame() {
+            try {
+                const container = document.getElementById('hallOfFameContent');
+
+                if (!container) {
+                    console.warn('Hall of Fame container no encontrado');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:3000/api/games/hall-of-fame?limit=10');
+
+                if (!response.ok) {
+                    container.innerHTML = '<div class="hall-loading">Ranking no disponible</div>';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.ranking || data.ranking.length === 0) {
+                    container.innerHTML = '<div class="hall-loading">No hay datos aún</div>';
+                    return;
+                }
+
+                // Crear tabla de rankings
+                let html = `
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Jugador</th>
+                                <th>Partidos</th>
+                                <th>Ganados</th>
+                                <th>Perdidos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                data.ranking.forEach((player, index) => {
+                    const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}°`;
+
+                    html += `
+                        <tr>
+                            <td class="rank-medal ${rankClass}">${medal}</td>
+                            <td class="player-alias">${player.alias}</td>
+                            <td class="stat-games">${player.partidos_jugados}</td>
+                            <td class="stat-wins">${player.ganados}</td>
+                            <td class="stat-losses">${player.perdidos}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error al cargar Hall of Fame:', error);
+                const container = document.getElementById('hallOfFameContent');
+                if (container) {
+                    container.innerHTML = '<div class="hall-loading">Ranking no disponible</div>';
+                }
+            }
+        }
+    </script>
+
+    <!-- ================================================ -->
+    <!-- MODAL: SUBIR FOTO DE JUGADOR -->
+    <!-- ================================================ -->
+    <div id="playerPhotoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; pointer-events: auto;">
+            <h2 style="margin-top: 0; color: #1e3c72;">📷 Foto del Jugador</h2>
+
+            <input type="file" id="playerPhotoInput" accept="image/*" style="display: none;">
+
+            <div id="photoPreviewContainer" style="text-align: center; margin: 20px 0;">
+                <div id="photoPreview" style="width: 150px; height: 150px; border-radius: 50%; background: #f0f0f0; margin: 0 auto; overflow: hidden; border: 3px solid #1e3c72; display: flex; align-items: center; justify-content: center; font-size: 48px;">
+                    📷
+                </div>
+            </div>
+
+            <canvas id="photoCanvas" style="display: none;"></canvas>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <div id="btn-examinar-foto" style="flex: 1; padding: 12px; background: #4FC3F7; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; user-select: none;">
+                    📁 Examinar
+                </div>
+                <div id="btn-guardar-foto" style="flex: 1; padding: 12px; background: #66BB6A; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; user-select: none;">
+                    ✅ Guardar
+                </div>
+                <div id="btn-cancelar-foto" style="flex: 1; padding: 12px; background: #EF5350; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; user-select: none;">
+                    ❌ Cancelar
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================ -->
+    <!-- FUNCIÓN: CARGAR EQUIPO AL JUEGO -->
+    <!-- ================================================ -->
+    <script>
+        async function cargarEquipoAlJuego() {
+            try {
+                const teamName = document.getElementById('team-name').value.trim();
+                if (!teamName) {
+                    alert('Por favor ingresa un nombre para el equipo antes de cargarlo');
+                    return;
+                }
+
+                // Recopilar jugadores desde el modal
+                const players = [];
+
+                // Titulares
+                document.querySelectorAll('#modal-roster-table tr[data-player-id]').forEach(row => {
+                    const photoCell = row.querySelector('.player-photo');
+                    players.push({
+                        number: row.querySelector('.player-number').textContent,
+                        name: row.querySelector('.player-name').textContent,
+                        position: row.querySelector('.position-select').value,
+                        handedness: row.querySelector('.handedness-select').value,
+                        avg: row.querySelector('.batting-avg').textContent,
+                        obp: row.querySelector('.on-base-pct').textContent,
+                        trait: row.querySelector('.trait-select').value,
+                        photoUrl: photoCell.dataset.photoUrl || null
+                    });
+                });
+
+                // Banquillo
+                document.querySelectorAll('#modal-bench-table tr[data-player-id]').forEach(row => {
+                    const photoCell = row.querySelector('.player-photo');
+                    players.push({
+                        number: row.querySelector('.player-number').textContent,
+                        name: row.querySelector('.player-name').textContent,
+                        position: row.querySelector('.position-select').value,
+                        handedness: row.querySelector('.handedness-select').value,
+                        avg: row.querySelector('.batting-avg').textContent,
+                        obp: row.querySelector('.on-base-pct').textContent,
+                        trait: row.querySelector('.trait-select').value,
+                        photoUrl: photoCell.dataset.photoUrl || null
+                    });
+                });
+
+                if (players.length < 9) {
+                    alert('El equipo debe tener al menos 9 jugadores');
+                    return;
+                }
+
+                // GUARDAR AUTOMÁTICAMENTE EN LA BASE DE DATOS
+                const token = localStorage.getItem('token');
+                if (token) {
+                    try {
+                        // Verificar si estamos editando o creando nuevo
+                        const isEditing = editingTeamId !== null;
+                        const url = isEditing ?
+                            `http://localhost:3000/api/teams/${editingTeamId}` :
+                            'http://localhost:3000/api/teams';
+                        const method = isEditing ? 'PUT' : 'POST';
+
+                        const saveResponse = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                teamName: teamName,
+                                players: players
+                            })
+                        });
+
+                        if (saveResponse.ok) {
+                            console.log(`✅ Equipo "${teamName}" guardado en Mis Equipos`);
+                            cargarMisEquipos(); // Actualizar la lista
+                        }
+                    } catch (error) {
+                        console.warn('No se pudo guardar el equipo automáticamente:', error);
+                    }
+                }
+
+                // Cargar en el roster correcto según targetTeam
+                console.log(`📋 Cargando equipo en: ${targetTeam}`);
+                const table = document.getElementById(`roster-${targetTeam}`);
+                const benchTable = document.getElementById(`bench-table-${targetTeam}`);
+
+                console.log(`✅ Tabla encontrada:`, table ? 'Sí' : 'No');
+                console.log(`✅ Bench table encontrada:`, benchTable ? 'Sí' : 'No');
+
+                // Limpiar roster primero
+                limpiarRoster(targetTeam);
+
+                // Cargar titulares
+                for (let i = 0; i < Math.min(9, players.length); i++) {
+                    const player = players[i];
+                    const row = table.querySelector(`tr[data-player-id="${i + 1}"]`);
+                    if (row) {
+                        row.querySelector('.player-name').textContent = player.name;
+                        row.querySelector('.player-number').textContent = player.number;
+                        row.querySelector('.batting-avg').textContent = player.avg;
+                        row.querySelector('.on-base-pct').textContent = player.obp;
+                        row.querySelector('.position-select').value = player.position;
+                        row.querySelector('.handedness-select').value = player.handedness;
+                        row.querySelector('.trait-select').value = player.trait;
+
+                        const photoCell = row.querySelector('.player-photo');
+                        if (player.photoUrl) {
+                            photoCell.innerHTML = `<img src="http://localhost:3000${player.photoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+                            photoCell.dataset.photoUrl = player.photoUrl;
+                        }
+                    }
+                }
+
+                // Cargar banquillo
+                if (players.length > 9) {
+                    const benchContainer = document.getElementById(`bench-container-${targetTeam}`);
+                    if (benchContainer) {
+                        benchContainer.style.display = 'block';
+                    }
+
+                    benchTable.innerHTML = '';
+                    for (let i = 9; i < players.length; i++) {
+                        const player = players[i];
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'player-row';
+                        newRow.dataset.playerId = i + 1;
+
+                        newRow.innerHTML = `
+                            <td class="drag-handle">⋮⋮</td>
+                            <td class="player-number" contenteditable="true">${player.number}</td>
+                            <td class="player-photo" data-photo-url="${player.photoUrl || ''}" style="cursor: pointer;">
+                                ${player.photoUrl ? `<img src="http://localhost:3000${player.photoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` : '📷'}
+                            </td>
+                            <td class="player-name" contenteditable="true">${player.name}</td>
+                            <td>
+                                <select class="position-select">
+                                    <option value="P" ${player.position === 'P' ? 'selected' : ''}>P</option>
+                                    <option value="C" ${player.position === 'C' ? 'selected' : ''}>C</option>
+                                    <option value="1B" ${player.position === '1B' ? 'selected' : ''}>1B</option>
+                                    <option value="2B" ${player.position === '2B' ? 'selected' : ''}>2B</option>
+                                    <option value="3B" ${player.position === '3B' ? 'selected' : ''}>3B</option>
+                                    <option value="SS" ${player.position === 'SS' ? 'selected' : ''}>SS</option>
+                                    <option value="LF" ${player.position === 'LF' ? 'selected' : ''}>LF</option>
+                                    <option value="CF" ${player.position === 'CF' ? 'selected' : ''}>CF</option>
+                                    <option value="RF" ${player.position === 'RF' ? 'selected' : ''}>RF</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="handedness-select">
+                                    <option value="R" ${player.handedness === 'R' ? 'selected' : ''}>R</option>
+                                    <option value="L" ${player.handedness === 'L' ? 'selected' : ''}>L</option>
+                                    <option value="S" ${player.handedness === 'S' ? 'selected' : ''}>S</option>
+                                </select>
+                            </td>
+                            <td class="batting-avg" contenteditable="true">${player.avg}</td>
+                            <td class="on-base-pct" contenteditable="true">${player.obp}</td>
+                            <td>
+                                <select class="trait-select">
+                                    <option value="" ${!player.trait ? 'selected' : ''}>Ninguno</option>
+                                    <option value="HR" ${player.trait === 'HR' ? 'selected' : ''}>HR</option>
+                                    <option value="TB" ${player.trait === 'TB' ? 'selected' : ''}>TB</option>
+                                    <option value="K" ${player.trait === 'K' ? 'selected' : ''}>K</option>
+                                    <option value="BB" ${player.trait === 'BB' ? 'selected' : ''}>BB</option>
+                                </select>
+                            </td>
+                            <td class="estado">🔵</td>
+                        `;
+                        benchTable.appendChild(newRow);
+                    }
+                }
+
+                closeTeamConfig();
+                const teamLabel = targetTeam === 'local' ? '🏠 Local' : '✈️ Visitante';
+                alert(`✅ Equipo "${teamName}" cargado en el equipo ${teamLabel}. ¡Listo para jugar!`);
+            } catch (error) {
+                console.error('Error al cargar equipo:', error);
+                alert('❌ Error al cargar el equipo');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 DOMContentLoaded ejecutado');
+            // Limpiar cualquier overlay o modal bloqueante al cargar
+            document.querySelectorAll('[style*="position: fixed"]').forEach(el => {
+                if (el.id !== 'team-config-modal' && el.id !== 'manage-teams-modal' && el.id !== 'playerPhotoModal') {
+                    el.remove();
+                }
+            });
+            const oldOverlay = document.getElementById('games-modal-overlay');
+            if (oldOverlay) oldOverlay.remove();
+
+            // Crear ventanas flotantes (Chat, Hall, Audio)
+            createFloatingWindows();
+
+            // Inicializar sistema de audio
+            if (typeof AudioSystem !== 'undefined') {
+                AudioSystem.init();
+                console.log('🎵 Sistema de audio inicializado');
+            }
+
+            document.querySelectorAll('.player-photo').forEach(cell => {
+                cell.style.cursor = 'pointer';
+                cell.title = 'Click para cambiar foto';
+                cell.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const playerId = row.dataset.playerId;
+                    const table = this.closest('table');
+                    const team = table.id.replace('roster-', '');
+                    openPhotoModal(playerId, team);
+                });
+            });
+        });
+
+        // Crear ventanas flotantes
+        function createFloatingWindows() {
+            console.log('📦 Creando ventanas flotantes...');
+
+            // Ventana de Audio
+            const audioWindow = document.createElement('div');
+            audioWindow.id = 'audioWindow';
+            audioWindow.style.cssText = 'display: none; position: fixed; top: 100px; right: 20px; width: 350px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 999999;';
+            audioWindow.innerHTML = `
+                <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 12px 15px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold;">🎵 Control de Audio</span>
+                    <button onclick="closeWindow('audioWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">×</button>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                        <button id="playMusicBtn" style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1;">▶️ Play</button>
+                        <button id="pauseMusicBtn" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; flex: 1;">⏸️ Pause</button>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #555;">🎵 Música:</label>
+                        <input type="range" id="music-volume" min="0" max="100" value="30" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #555;">🔔 Efectos:</label>
+                        <input type="range" id="sfx-volume" min="0" max="100" value="50" style="width: 100%;">
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(audioWindow);
+            console.log('✅ Ventana de audio creada');
+
+            // Agregar event listeners después de crear el DOM
+            setTimeout(() => {
+                console.log('🔧 Agregando event listeners...');
+                const playBtn = document.getElementById('playMusicBtn');
+                const pauseBtn = document.getElementById('pauseMusicBtn');
+                const musicVolume = document.getElementById('music-volume');
+
+                console.log('🔍 playBtn:', !!playBtn, 'pauseBtn:', !!pauseBtn);
+
+                if (playBtn) {
+                    playBtn.addEventListener('click', function() {
+                        console.log('🎵 Click en Play detectado');
+                        playBackgroundMusic();
+                    });
+                    console.log('✅ Event listener de Play agregado');
+                }
+
+                if (pauseBtn) {
+                    pauseBtn.addEventListener('click', function() {
+                        console.log('⏸️ Click en Pause detectado');
+                        pauseBackgroundMusic();
+                    });
+                    console.log('✅ Event listener de Pause agregado');
+                }
+
+                if (musicVolume) {
+                    musicVolume.addEventListener('input', function() {
+                        setMusicVolume(this.value);
+                    });
+                }
+            }, 100);
+
+            // Ventana de Chat
+            const chatWindow = document.createElement('div');
+            chatWindow.id = 'chatWindow';
+            chatWindow.style.cssText = 'display: none; position: fixed; top: 80px; left: 20px; width: 400px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 999999;';
+            chatWindow.innerHTML = `
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 15px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold;">💬 Chat</span>
+                    <button onclick="closeWindow('chatWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">×</button>
+                </div>
+                <div style="padding: 0; height: 400px; display: flex; flex-direction: column;">
+                    <div id="chatSidebarMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #f9fafb;">
+                        <div>Cargando mensajes...</div>
+                    </div>
+                    <div style="padding: 15px; border-top: 1px solid #e5e7eb; background: white;">
+                        <form id="chatSidebarForm" style="display: flex; gap: 10px;">
+                            <input type="text" id="chatSidebarInput" placeholder="Escribe un mensaje..." maxlength="500" required style="flex: 1; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;">
+                            <button type="submit" style="padding: 10px 15px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer;">📤</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(chatWindow);
+
+            // Ventana de Hall of Fame
+            const hallWindow = document.createElement('div');
+            hallWindow.id = 'hallWindow';
+            hallWindow.style.cssText = 'display: none; position: fixed; top: 200px; right: 20px; width: 500px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 999999;';
+            hallWindow.innerHTML = `
+                <div style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; padding: 12px 15px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: bold;">🏆 Hall of Fame</span>
+                    <button onclick="closeWindow('hallWindow')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 24px; height: 24px; border-radius: 4px; cursor: pointer;">×</button>
+                </div>
+                <div style="padding: 20px; max-height: 400px; overflow-y: auto;">
+                    <div id="hallOfFameContent">
+                        <div style="text-align: center; color: #999;">Cargando ranking...</div>
+                    </div>
+                    <button onclick="cargarHallOfFame()" style="width: 100%; margin-top: 15px; padding: 12px; background: #fbbf24; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">🔄 Actualizar</button>
+                </div>
+            `;
+            document.body.appendChild(hallWindow);
+
+            console.log('✅ Ventanas flotantes creadas');
+
+            // Inicializar funcionalidad del chat
+            initializeChatForm();
+        }
+
+        function initializeChatForm() {
+            const chatForm = document.getElementById('chatSidebarForm');
+            const chatInput = document.getElementById('chatSidebarInput');
+
+            if (!chatForm || !chatInput) {
+                console.warn('Formulario de chat no encontrado');
+                return;
+            }
+
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                // Verificar si socket.io está disponible
+                if (typeof io === 'undefined') {
+                    alert('⚠️ Sistema de chat no disponible. Asegúrate de que el servidor esté corriendo.');
+                    return;
+                }
+
+                // Obtener datos del usuario
+                const usuario = getUsuarioActual ? getUsuarioActual() : JSON.parse(localStorage.getItem('usuario') || '{}');
+
+                if (!usuario || !usuario.nombre) {
+                    alert('⚠️ Debes estar logueado para usar el chat');
+                    return;
+                }
+
+                // Enviar mensaje (aquí puedes integrar con socket.io)
+                const chatMessages = document.getElementById('chatSidebarMessages');
+                if (chatMessages) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.style.cssText = 'margin-bottom: 10px; padding: 8px 12px; background: #e0e7ff; border-radius: 8px;';
+                    messageDiv.innerHTML = `
+                        <div style="font-weight: bold; color: #4f46e5; font-size: 12px; margin-bottom: 4px;">${usuario.nombre}</div>
+                        <div style="color: #374151; font-size: 14px;">${message}</div>
+                        <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">${new Date().toLocaleTimeString()}</div>
+                    `;
+                    chatMessages.appendChild(messageDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+
+                chatInput.value = '';
+                chatInput.focus();
+            });
+
+            console.log('✅ Chat inicializado');
+        }
+
+        function openWindow(windowId) {
+            const win = document.getElementById(windowId);
+            if (win) win.style.display = 'block';
+        }
+
+        function closeWindow(windowId) {
+            const win = document.getElementById(windowId);
+            if (win) win.style.display = 'none';
+        }
+    </script>
+
+    <!-- ================================================ -->
+    <!-- SCRIPT: GESTIÓN DE EQUIPOS PERSONALIZADOS -->
+    <!-- ================================================ -->
+    <script>
+        let currentEditingTeamId = null;
+
+        // ================================================
+        // CARGAR MIS EQUIPOS EN EL SELECTOR
+        // ================================================
+        async function cargarMisEquipos() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const response = await fetch('http://localhost:3000/api/teams', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                const container = document.getElementById('saved-teams-container');
+
+                if (!container) {
+                    console.warn('Contenedor saved-teams-container no encontrado');
+                    return;
+                }
+
+                if (!response.ok || data.equipos.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No tienes equipos guardados aún</div>';
+                    return;
+                }
+
+                let html = '<div style="display: grid; gap: 10px;">';
+                data.equipos.forEach(equipo => {
+                    html += `
+                        <div style="background: white; border: 2px solid #1e3c72; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.3s;" 
+                             onmouseover="this.style.background='#e3f2fd'" 
+                             onmouseout="this.style.background='white'"
+                             onclick="cargarEquipoAlRoster(${equipo.id})">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong style="color: #1e3c72; font-size: 14px;">⚾ ${equipo.teamName}</strong>
+                                    <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                                        ${new Date(equipo.createdAt).toLocaleDateString('es-ES')}
+                                    </div>
+                                </div>
+                                <button onclick="event.stopPropagation(); eliminarEquipoDesdeSelector(${equipo.id})" 
+                                        style="background: #EF5350; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 12px;">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error al cargar equipos:', error);
+            }
+        }
+
+        // ================================================
+        // CARGAR EQUIPO AL ROSTER DEL JUEGO
+        // ================================================
+        async function cargarEquipoAlRoster(teamId) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:3000/api/teams/${teamId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(`Error: ${data.error}`);
+                    return;
+                }
+
+                const equipo = data.equipo;
+                const teamType = currentTeamType; // 'visitante' o 'local'
+                const table = document.getElementById(`roster-${teamType}`);
+                const benchTable = document.getElementById(`bench-table-${teamType}`);
+
+                // Llenar el nombre del equipo
+                document.getElementById('team-name').value = equipo.teamName;
+
+                // Llenar los primeros 9 jugadores titulares
+                for (let i = 0; i < Math.min(9, equipo.players.length); i++) {
+                    const player = equipo.players[i];
+                    const row = table.querySelector(`tr[data-player-id="${i + 1}"]`);
+                    if (row) {
+                        row.querySelector('.player-name').textContent = player.name || `Jugador ${i + 1}`;
+                        row.querySelector('.player-number').textContent = player.number || (i + 1);
+                        row.querySelector('.batting-avg').textContent = player.avg || '.250';
+                        row.querySelector('.on-base-pct').textContent = player.obp || '.300';
+
+                        const posSelect = row.querySelector('.position-select');
+                        if (posSelect) posSelect.value = player.position || 'P';
+
+                        const handSelect = row.querySelector('.handedness-select');
+                        if (handSelect) handSelect.value = player.handedness || 'R';
+
+                        const traitSelect = row.querySelector('.trait-select');
+                        if (traitSelect) traitSelect.value = player.trait || '';
+
+                        // Cargar foto si existe
+                        const photoCell = row.querySelector('.player-photo');
+                        if (player.photoUrl) {
+                            photoCell.innerHTML = `<img src="http://localhost:3000${player.photoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+                            photoCell.dataset.photoUrl = player.photoUrl;
+                        } else {
+                            photoCell.innerHTML = '📷';
+                            photoCell.dataset.photoUrl = '';
+                        }
+                    }
+                }
+
+                // Cargar jugadores del banquillo (del 10 en adelante)
+                if (equipo.players.length > 9) {
+                    // Mostrar el banquillo si estaba oculto
+                    const benchContainer = document.getElementById(`bench-container-${teamType}`);
+                    if (benchContainer) {
+                        benchContainer.style.display = 'block';
+                    }
+
+                    // Limpiar banquillo actual primero
+                    benchTable.innerHTML = '';
+
+                    // Cargar jugadores del banquillo
+                    for (let i = 9; i < equipo.players.length; i++) {
+                        const player = equipo.players[i];
+                        const playerId = i + 1;
+
+                        // Crear nueva fila de jugador del banquillo
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'player-row';
+                        newRow.draggable = true;
+                        newRow.dataset.playerId = playerId;
+
+                        newRow.innerHTML = `
+                            <td class="drag-handle">⋮⋮</td>
+                            <td class="player-number" contenteditable="true">${player.number || playerId}</td>
+                            <td class="player-photo" data-photo-url="${player.photoUrl || ''}" style="cursor: pointer;">
+                                ${player.photoUrl ? `<img src="http://localhost:3000${player.photoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` : '📷'}
+                            </td>
+                            <td class="player-name" contenteditable="true">${player.name || `Suplente ${i - 8}`}</td>
+                            <td>
+                                <select class="position-select">
+                                    <option value="P" ${player.position === 'P' ? 'selected' : ''}>P</option>
+                                    <option value="C" ${player.position === 'C' ? 'selected' : ''}>C</option>
+                                    <option value="1B" ${player.position === '1B' ? 'selected' : ''}>1B</option>
+                                    <option value="2B" ${player.position === '2B' ? 'selected' : ''}>2B</option>
+                                    <option value="3B" ${player.position === '3B' ? 'selected' : ''}>3B</option>
+                                    <option value="SS" ${player.position === 'SS' ? 'selected' : ''}>SS</option>
+                                    <option value="LF" ${player.position === 'LF' ? 'selected' : ''}>LF</option>
+                                    <option value="CF" ${player.position === 'CF' ? 'selected' : ''}>CF</option>
+                                    <option value="RF" ${player.position === 'RF' ? 'selected' : ''}>RF</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="handedness-select">
+                                    <option value="R" ${player.handedness === 'R' ? 'selected' : ''}>R</option>
+                                    <option value="L" ${player.handedness === 'L' ? 'selected' : ''}>L</option>
+                                    <option value="S" ${player.handedness === 'S' ? 'selected' : ''}>S</option>
+                                </select>
+                            </td>
+                            <td class="batting-avg" contenteditable="true">${player.avg || '.250'}</td>
+                            <td class="on-base-pct" contenteditable="true">${player.obp || '.300'}</td>
+                            <td>
+                                <select class="trait-select">
+                                    <option value="" ${!player.trait ? 'selected' : ''}>Ninguno</option>
+                                    <option value="HR" ${player.trait === 'HR' ? 'selected' : ''}>HR</option>
+                                    <option value="TB" ${player.trait === 'TB' ? 'selected' : ''}>TB</option>
+                                    <option value="K" ${player.trait === 'K' ? 'selected' : ''}>K</option>
+                                    <option value="BB" ${player.trait === 'BB' ? 'selected' : ''}>BB</option>
+                                </select>
+                            </td>
+                            <td class="estado">🔵</td>
+                        `;
+
+                        benchTable.appendChild(newRow);
+
+                        // Añadir evento click a la foto
+                        const photoCell = newRow.querySelector('.player-photo');
+                        photoCell.addEventListener('click', function() {
+                            openPhotoModal(playerId, teamType);
+                        });
+                    }
+                }
+
+                alert(`✅ Equipo "${equipo.teamName}" cargado con ${equipo.players.length} jugadores`);
+                closeTeamConfig();
+            } catch (error) {
+                console.error('Error al cargar equipo:', error);
+                alert('❌ Error al cargar el equipo');
+            }
+        }
+
+        // ================================================
+        // VER GESTIÓN DE EQUIPOS
+        // ================================================
+        function verGestionEquipos() {
+            closeTeamConfig();
+            document.getElementById('manage-teams-modal').style.display = 'flex';
+            cargarEquiposGuardados();
+        }
+
+        function cerrarGestionEquipos() {
+            document.getElementById('manage-teams-modal').style.display = 'none';
+        }
+
+        // ================================================
+        // CARGAR EQUIPOS GUARDADOS EN EL MODAL
+        // ================================================
+        async function cargarEquiposGuardados() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:3000/api/teams', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                const container = document.getElementById('saved-teams-container');
+
+                if (!response.ok || data.equipos.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #999; padding: 40px; border: 2px dashed #ddd; border-radius: 8px;"><p style="font-size: 48px; margin: 0;">⚾</p><p>No tienes equipos guardados</p><p style="font-size: 14px; color: #999;">Haz click en "Crear Nuevo Equipo" para empezar</p></div>';
+                    return;
+                }
+
+                let html = '';
+                data.equipos.forEach(equipo => {
+                    html += `
+                        <div style="background: linear-gradient(135deg, #f5f5f5, #ffffff); border: 2px solid #1e3c72; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h4 style="margin: 0; color: #1e3c72; font-size: 18px;">⚾ ${equipo.teamName}</h4>
+                                    <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">
+                                        Creado: ${new Date(equipo.createdAt).toLocaleDateString('es-ES')}
+                                    </p>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button onclick="editarEquipo(${equipo.id})" style="background: #4FC3F7; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                                        ✏️ Editar
+                                    </button>
+                                    <button onclick="eliminarEquipo(${equipo.id})" style="background: #EF5350; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                                        🗑️ Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="background: white; border-radius: 8px; padding: 12px; max-height: 150px; overflow-y: auto;">
+                                <strong style="color: #1e3c72; font-size: 13px;">Jugadores:</strong>
+                                <ol style="margin: 8px 0 0 0; padding-left: 20px; font-size: 12px; color: #555;">
+                                    ${equipo.players.slice(0, 9).map(p => `<li>${p.name || 'Sin nombre'} (${p.position || 'N/A'})</li>`).join('')}
+                                </ol>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error al cargar equipos:', error);
+                alert('❌ Error al cargar equipos');
+            }
+        }
+
+        // Variable global para saber si estamos editando un equipo existente
+        let editingTeamId = null;
+        // Variable global para saber a qué equipo cargar (local o visitante)
+        let targetTeam = 'local';
+
+        // ================================================
+        // ABRIR CONFIGURACIÓN DE EQUIPO
+        // ================================================
+        function openTeamConfig(team) {
+            targetTeam = team; // Guardar local o visitante
+            editingTeamId = null; // Resetear ID de edición
+            currentTeamType = 'custom';
+            document.getElementById('team-config-modal').style.display = 'flex';
+            document.getElementById('modal-title').textContent = `➕ Configurar Equipo ${team === 'local' ? '🏠 Local' : '✈️ Visitante'}`;
+            document.getElementById('team-name').value = '';
+            
+            // Limpiar roster del equipo correspondiente
+            limpiarRoster(team);
+        }
+
+        // ================================================
+        // CREAR NUEVO EQUIPO
+        // ================================================
+        function crearNuevoEquipo() {
+            editingTeamId = null; // Resetear ID de edición
+            targetTeam = 'local'; // Por defecto al local cuando se crea desde Mis Equipos
+            cerrarGestionEquipos();
+            // Limpiar roster antes de crear nuevo
+            limpiarRoster('local');
+            // Abrir el modal de configuración para crear un equipo nuevo
+            currentTeamType = 'custom'; // Marcar que es personalizado
+            document.getElementById('team-config-modal').style.display = 'flex';
+            document.getElementById('modal-title').textContent = '➕ Crear Nuevo Equipo';
+            document.getElementById('team-name').value = '';
+        }
+
+        // ================================================
+        // EDITAR EQUIPO EXISTENTE
+        // ================================================
+        async function editarEquipo(teamId) {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:3000/api/teams/${teamId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(`Error: ${data.error}`);
+                    return;
+                }
+
+                const equipo = data.equipo;
+                editingTeamId = teamId;
+                
+                cerrarGestionEquipos();
+                
+                // Abrir modal
+                document.getElementById('team-config-modal').style.display = 'flex';
+                document.getElementById('modal-title').textContent = `✏️ Editar: ${equipo.teamName}`;
+                document.getElementById('team-name').value = equipo.teamName;
+
+                // Usar tabla IDÉNTICA al roster
+                const playersEditor = document.getElementById('players-editor');
+                playersEditor.innerHTML = `
+                    <div class="roster-container" style="max-height: 500px; overflow-y: auto;">
+                        <h4 style="margin: 0 0 10px 0; color: #1e3c72;">⚾ Jugadores Titulares</h4>
+                        <table class="roster-table" id="modal-roster-table">
+                            <thead>
+                                <tr>
+                                    <th>Handle</th>
+                                    <th>#</th>
+                                    <th>Foto</th>
+                                    <th>Nombre</th>
+                                    <th>Posición</th>
+                                    <th>Mano</th>
+                                    <th>AVG</th>
+                                    <th>OBP</th>
+                                    <th>Traits</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        
+                        ${equipo.players.length > 9 ? `
+                            <h4 style="margin: 20px 0 10px 0; color: #475569;">🪑 Banquillo</h4>
+                            <table class="roster-table" id="modal-bench-table">
+                                <thead>
+                                    <tr>
+                                        <th>Handle</th>
+                                        <th>#</th>
+                                        <th>Foto</th>
+                                        <th>Nombre</th>
+                                        <th>Posición</th>
+                                        <th>Mano</th>
+                                        <th>AVG</th>
+                                        <th>OBP</th>
+                                        <th>Traits</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        ` : ''}
+                    </div>
+                `;
+
+                // Llenar titulares
+                const rosterTbody = document.querySelector('#modal-roster-table tbody');
+                for (let i = 0; i < Math.min(9, equipo.players.length); i++) {
+                    const player = equipo.players[i];
+                    const row = document.createElement('tr');
+                    row.className = 'player-row';
+                    row.setAttribute('draggable', 'true');
+                    row.dataset.playerId = i + 1;
+                    
+                    const photoHtml = player.photoUrl 
+                        ? `<img src="http://localhost:3000${player.photoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`
+                        : '📷';
+                    
+                    row.innerHTML = `
+                        <td class="drag-handle">⋮⋮</td>
+                        <td class="player-number" contenteditable="true">${player.number || (i + 1)}</td>
+                        <td class="player-photo" data-photo-url="${player.photoUrl || ''}" style="cursor: pointer;">${photoHtml}</td>
+                        <td class="player-name" contenteditable="true">${player.name || `Jugador ${i + 1}`}</td>
+                        <td>
+                            <select class="position-select">
+                                <option value="P" ${player.position === 'P' ? 'selected' : ''}>P</option>
+                                <option value="C" ${player.position === 'C' ? 'selected' : ''}>C</option>
+                                <option value="1B" ${player.position === '1B' ? 'selected' : ''}>1B</option>
+                                <option value="2B" ${player.position === '2B' ? 'selected' : ''}>2B</option>
+                                <option value="3B" ${player.position === '3B' ? 'selected' : ''}>3B</option>
+                                <option value="SS" ${player.position === 'SS' ? 'selected' : ''}>SS</option>
+                                <option value="LF" ${player.position === 'LF' ? 'selected' : ''}>LF</option>
+                                <option value="CF" ${player.position === 'CF' ? 'selected' : ''}>CF</option>
+                                <option value="RF" ${player.position === 'RF' ? 'selected' : ''}>RF</option>
+                                <option value="DH" ${player.position === 'DH' ? 'selected' : ''}>DH</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="handedness-select">
+                                <option value="R" ${player.handedness === 'R' ? 'selected' : ''}>R</option>
+                                <option value="L" ${player.handedness === 'L' ? 'selected' : ''}>L</option>
+                                <option value="S" ${player.handedness === 'S' ? 'selected' : ''}>S</option>
+                            </select>
+                        </td>
+                        <td class="batting-avg" contenteditable="true">${player.avg || '.250'}</td>
+                        <td class="on-base-pct" contenteditable="true">${player.obp || '.300'}</td>
+                        <td>
+                            <select class="trait-select">
+                                <option value="" ${!player.trait ? 'selected' : ''}>-</option>
+                                <option value="P+" ${player.trait === 'P+' ? 'selected' : ''}>P+</option>
+                                <option value="P++" ${player.trait === 'P++' ? 'selected' : ''}>P++</option>
+                                <option value="C+" ${player.trait === 'C+' ? 'selected' : ''}>C+</option>
+                                <option value="S+" ${player.trait === 'S+' ? 'selected' : ''}>S+</option>
+                                <option value="D+" ${player.trait === 'D+' ? 'selected' : ''}>D+</option>
+                                <option value="T+" ${player.trait === 'T+' ? 'selected' : ''}>T+</option>
+                                <option value="P-" ${player.trait === 'P-' ? 'selected' : ''}>P-</option>
+                                <option value="P--" ${player.trait === 'P--' ? 'selected' : ''}>P--</option>
+                                <option value="C" ${player.trait === 'C' ? 'selected' : ''}>C</option>
+                                <option value="S-" ${player.trait === 'S-' ? 'selected' : ''}>S-</option>
+                                <option value="D-" ${player.trait === 'D-' ? 'selected' : ''}>D-</option>
+                                <option value="K+" ${player.trait === 'K+' ? 'selected' : ''}>K+</option>
+                                <option value="GB+" ${player.trait === 'GB+' ? 'selected' : ''}>GB+</option>
+                                <option value="CN+" ${player.trait === 'CN+' ? 'selected' : ''}>CN+</option>
+                                <option value="ST+" ${player.trait === 'ST+' ? 'selected' : ''}>ST+</option>
+                                <option value="CN-" ${player.trait === 'CN-' ? 'selected' : ''}>CN-</option>
+                            </select>
+                        </td>
+                    `;
+                    rosterTbody.appendChild(row);
+                }
+
+                // Llenar banquillo si hay
+                if (equipo.players.length > 9) {
+                    const benchTbody = document.querySelector('#modal-bench-table tbody');
+                    for (let i = 9; i < equipo.players.length; i++) {
+                        const player = equipo.players[i];
+                        const row = document.createElement('tr');
+                        row.className = 'player-row';
+                        row.setAttribute('draggable', 'true');
+                        row.dataset.playerId = i + 1;
+                        
+                        const photoHtml = player.photoUrl 
+                            ? `<img src="http://localhost:3000${player.photoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`
+                            : '📷';
+                        
+                        row.innerHTML = `
+                            <td class="drag-handle">⋮⋮</td>
+                            <td class="player-number" contenteditable="true">${player.number || (i + 1)}</td>
+                            <td class="player-photo" data-photo-url="${player.photoUrl || ''}" style="cursor: pointer;">${photoHtml}</td>
+                            <td class="player-name" contenteditable="true">${player.name || `Suplente ${i - 8}`}</td>
+                            <td>
+                                <select class="position-select">
+                                    <option value="P" ${player.position === 'P' ? 'selected' : ''}>P</option>
+                                    <option value="C" ${player.position === 'C' ? 'selected' : ''}>C</option>
+                                    <option value="1B" ${player.position === '1B' ? 'selected' : ''}>1B</option>
+                                    <option value="2B" ${player.position === '2B' ? 'selected' : ''}>2B</option>
+                                    <option value="3B" ${player.position === '3B' ? 'selected' : ''}>3B</option>
+                                    <option value="SS" ${player.position === 'SS' ? 'selected' : ''}>SS</option>
+                                    <option value="LF" ${player.position === 'LF' ? 'selected' : ''}>LF</option>
+                                    <option value="CF" ${player.position === 'CF' ? 'selected' : ''}>CF</option>
+                                    <option value="RF" ${player.position === 'RF' ? 'selected' : ''}>RF</option>
+                                    <option value="DH" ${player.position === 'DH' ? 'selected' : ''}>DH</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="handedness-select">
+                                    <option value="R" ${player.handedness === 'R' ? 'selected' : ''}>R</option>
+                                    <option value="L" ${player.handedness === 'L' ? 'selected' : ''}>L</option>
+                                    <option value="S" ${player.handedness === 'S' ? 'selected' : ''}>S</option>
+                                </select>
+                            </td>
+                            <td class="batting-avg" contenteditable="true">${player.avg || '.250'}</td>
+                            <td class="on-base-pct" contenteditable="true">${player.obp || '.300'}</td>
+                            <td>
+                                <select class="trait-select">
+                                    <option value="" ${!player.trait ? 'selected' : ''}>-</option>
+                                    <option value="P+" ${player.trait === 'P+' ? 'selected' : ''}>P+</option>
+                                    <option value="P++" ${player.trait === 'P++' ? 'selected' : ''}>P++</option>
+                                    <option value="C+" ${player.trait === 'C+' ? 'selected' : ''}>C+</option>
+                                    <option value="S+" ${player.trait === 'S+' ? 'selected' : ''}>S+</option>
+                                    <option value="D+" ${player.trait === 'D+' ? 'selected' : ''}>D+</option>
+                                    <option value="T+" ${player.trait === 'T+' ? 'selected' : ''}>T+</option>
+                                    <option value="P-" ${player.trait === 'P-' ? 'selected' : ''}>P-</option>
+                                    <option value="P--" ${player.trait === 'P--' ? 'selected' : ''}>P--</option>
+                                    <option value="C" ${player.trait === 'C' ? 'selected' : ''}>C</option>
+                                    <option value="S-" ${player.trait === 'S-' ? 'selected' : ''}>S-</option>
+                                    <option value="D-" ${player.trait === 'D-' ? 'selected' : ''}>D-</option>
+                                    <option value="K+" ${player.trait === 'K+' ? 'selected' : ''}>K+</option>
+                                    <option value="GB+" ${player.trait === 'GB+' ? 'selected' : ''}>GB+</option>
+                                    <option value="CN+" ${player.trait === 'CN+' ? 'selected' : ''}>CN+</option>
+                                    <option value="ST+" ${player.trait === 'ST+' ? 'selected' : ''}>ST+</option>
+                                    <option value="CN-" ${player.trait === 'CN-' ? 'selected' : ''}>CN-</option>
+                                </select>
+                            </td>
+                        `;
+                        benchTbody.appendChild(row);
+                    }
+                }
+
+                // Event listeners para fotos
+                setTimeout(() => {
+                    document.querySelectorAll('#modal-roster-table .player-photo, #modal-bench-table .player-photo').forEach(photoCell => {
+                        photoCell.addEventListener('click', function() {
+                            const row = this.closest('tr');
+                            const playerId = row.dataset.playerId;
+                            openPhotoModal(playerId, 'modal-edit');
+                        });
+                    });
+                }, 100);
+
+            } catch (error) {
+                console.error('Error al cargar equipo:', error);
+                alert('❌ Error al cargar el equipo');
+            }
+        }
+
+        // Función para limpiar un roster
+        function limpiarRoster(teamType) {
+            const table = document.getElementById(`roster-${teamType}`);
+            const benchTable = document.getElementById(`bench-table-${teamType}`);
+            
+            // Limpiar roster principal (9 jugadores)
+            for (let i = 1; i <= 9; i++) {
+                const row = table.querySelector(`tr[data-player-id="${i}"]`);
+                if (row) {
+                    row.querySelector('.player-name').textContent = `Jugador ${i}`;
+                    row.querySelector('.player-number').textContent = i;
+                    row.querySelector('.batting-avg').textContent = '.250';
+                    row.querySelector('.on-base-pct').textContent = '.300';
+                    row.querySelector('.position-select').value = 'P';
+                    row.querySelector('.handedness-select').value = 'R';
+                    row.querySelector('.trait-select').value = '';
+                    
+                    const photoCell = row.querySelector('.player-photo');
+                    photoCell.innerHTML = '📷';
+                    photoCell.dataset.photoUrl = '';
+                }
+            }
+            
+            // Limpiar banquillo
+            if (benchTable) {
+                benchTable.innerHTML = '';
+            }
+        }
+
+        // ================================================
+        // GUARDAR EQUIPO COMO PERSONALIZADO
+        // ================================================
+        async function guardarEquipoPersonalizado() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión para guardar equipos');
+                    return;
+                }
+
+                const teamName = document.getElementById('team-name').value.trim();
+                if (!teamName) {
+                    alert('Por favor ingresa un nombre para el equipo');
+                    return;
+                }
+
+                const players = [];
+
+                // Si estamos editando un equipo existente, leer desde las tablas del modal
+                if (editingTeamId !== null) {
+                    // Titulares desde el modal
+                    document.querySelectorAll('#modal-roster-table tr[data-player-id]').forEach(row => {
+                        const photoCell = row.querySelector('.player-photo');
+                        players.push({
+                            number: row.querySelector('.player-number').textContent,
+                            name: row.querySelector('.player-name').textContent,
+                            position: row.querySelector('.position-select').value,
+                            handedness: row.querySelector('.handedness-select').value,
+                            avg: row.querySelector('.batting-avg').textContent,
+                            obp: row.querySelector('.on-base-pct').textContent,
+                            trait: row.querySelector('.trait-select').value,
+                            photoUrl: photoCell.dataset.photoUrl || null
+                        });
+                    });
+
+                    // Banquillo desde el modal
+                    document.querySelectorAll('#modal-bench-table tr[data-player-id]').forEach(row => {
+                        const photoCell = row.querySelector('.player-photo');
+                        const playerName = row.querySelector('.player-name').textContent.trim();
+                        if (playerName) {
+                            players.push({
+                                number: row.querySelector('.player-number').textContent,
+                                name: playerName,
+                                position: row.querySelector('.position-select').value,
+                                handedness: row.querySelector('.handedness-select').value,
+                                avg: row.querySelector('.batting-avg').textContent,
+                                obp: row.querySelector('.on-base-pct').textContent,
+                                trait: row.querySelector('.trait-select').value,
+                                photoUrl: photoCell.dataset.photoUrl || null
+                            });
+                        }
+                    });
+                } else {
+                    // Leer desde el roster del juego (modo antiguo)
+                    const modalTitle = document.getElementById('modal-title').textContent;
+                    const isVisitante = modalTitle.includes('Visitante');
+                    const teamType = isVisitante ? 'visitante' : 'local';
+                    
+                    const table = document.getElementById(`roster-${teamType}`);
+
+                    for (let i = 1; i <= 9; i++) {
+                        const row = table.querySelector(`tr[data-player-id="${i}"]`);
+                        if (row) {
+                            const photoCell = row.querySelector('.player-photo');
+                            const playerName = row.querySelector('.player-name').textContent.trim();
+                            
+                            players.push({
+                                number: row.querySelector('.player-number').textContent,
+                                name: playerName || `Jugador ${i}`,
+                                position: row.querySelector('.position-select').value,
+                                handedness: row.querySelector('.handedness-select').value,
+                                avg: row.querySelector('.batting-avg').textContent,
+                                obp: row.querySelector('.on-base-pct').textContent,
+                                trait: row.querySelector('.trait-select').value,
+                                photoUrl: photoCell.dataset.photoUrl || null
+                            });
+                        }
+                    }
+
+                    // Banquillo
+                    const benchTable = document.getElementById(`bench-table-${teamType}`);
+                    const benchRows = benchTable.querySelectorAll('.player-row');
+                    
+                    benchRows.forEach((row) => {
+                        const photoCell = row.querySelector('.player-photo');
+                        const playerName = row.querySelector('.player-name').textContent.trim();
+                        if (playerName) {
+                            players.push({
+                                number: row.querySelector('.player-number').textContent,
+                                name: playerName,
+                                position: row.querySelector('.position-select').value,
+                                handedness: row.querySelector('.handedness-select').value,
+                                avg: row.querySelector('.batting-avg').textContent,
+                                obp: row.querySelector('.on-base-pct').textContent,
+                                trait: row.querySelector('.trait-select').value,
+                                photoUrl: photoCell.dataset.photoUrl || null
+                            });
+                        }
+                    });
+                }
+
+                console.log('Jugadores recopilados:', players.length);
+
+                // Verificar que tenemos al menos 9 jugadores titulares
+                if (players.length < 9) {
+                    alert(`Error: Solo se encontraron ${players.length} jugadores titulares. Se necesitan al menos 9.`);
+                    return;
+                }
+
+                console.log('Total de jugadores (titulares + banquillo):', players.length);
+
+                // Determinar si estamos creando o actualizando
+                const isEditing = editingTeamId !== null;
+                const url = isEditing ? `http://localhost:3000/api/teams/${editingTeamId}` : 'http://localhost:3000/api/teams';
+                const method = isEditing ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        teamName: teamName,
+                        players: players
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const accion = isEditing ? 'actualizado' : 'guardado';
+                    alert(`✅ Equipo "${teamName}" ${accion} con ${players.length} jugadores (9 titulares + ${players.length - 9} banquillo)`);
+                    editingTeamId = null; // Resetear después de guardar
+                    cargarMisEquipos(); // Actualizar lista
+                    cargarEquiposGuardados(); // Actualizar modal de gestión
+                    closeTeamConfig();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error al guardar equipo:', error);
+                alert('❌ Error al guardar el equipo');
+            }
+        }
+
+        // ================================================
+        // ELIMINAR EQUIPO
+        // ================================================
+        async function eliminarEquipo(teamId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/api/teams/${teamId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Equipo eliminado');
+                    cargarEquiposGuardados();
+                    cargarMisEquipos();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+                alert('❌ Error al eliminar el equipo');
+            }
+        }
+
+        function eliminarEquipoDesdeSelector(teamId) {
+            eliminarEquipo(teamId);
+        }
+
+        // ================================================
+        // CARGAR MIS EQUIPOS AL INICIO
+        // ================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar mis equipos al inicio
+            cargarMisEquipos();
+        });
+    </script>
+
+    <!-- Inicialización de Audio (forzada al final) -->
+    <script>
+        // Sistema de audio simplificado
+        let musicPlayer = null;
+
+        function playBackgroundMusic() {
+            console.log('▶️ Intentando reproducir música...');
+            if (!musicPlayer) {
+                musicPlayer = new Audio('audio/background.mp3');
+                musicPlayer.loop = true;
+                musicPlayer.volume = 0.3;
+                console.log('🎵 Audio creado:', musicPlayer.src);
+            }
+
+            musicPlayer.play()
+                .then(() => {
+                    console.log('✅ Música reproduciendo');
+                })
+                .catch(error => {
+                    console.error('❌ Error al reproducir:', error);
+                    alert('Error: ' + error.message);
+                });
+        }
+
+        function pauseBackgroundMusic() {
+            console.log('⏸️ Pausando música...');
+            if (musicPlayer) {
+                musicPlayer.pause();
+                console.log('✅ Música pausada');
+            }
+        }
+
+        function setMusicVolume(value) {
+            if (musicPlayer) {
+                musicPlayer.volume = value / 100;
+                console.log('🔊 Volumen ajustado a:', value);
+            }
+        }
+    </script>
+
+    <!-- FOTOS DE JUGADORES - INICIALIZACIÓN -->
+    <script>
+        console.log('🎬 Inicializando input de fotos...');
+
+        // Procesar imagen cuando se selecciona
+        const photoInput = document.getElementById('playerPhotoInput');
+        if (photoInput) {
+            photoInput.addEventListener('change', function(e) {
+                console.log('🖼️ Archivo seleccionado');
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (!file.type.startsWith('image/')) {
+                    alert('Selecciona una imagen válida');
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Imagen muy grande. Máximo 5MB');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.getElementById('photoCanvas');
+                        const ctx = canvas.getContext('2d');
+                        const size = 300;
+                        canvas.width = size;
+                        canvas.height = size;
+
+                        const minDim = Math.min(img.width, img.height);
+                        const sx = (img.width - minDim) / 2;
+                        const sy = (img.height - minDim) / 2;
+
+                        ctx.clearRect(0, 0, size, size);
+                        ctx.beginPath();
+                        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+                        ctx.closePath();
+                        ctx.clip();
+                        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+                        canvas.toBlob(function(blob) {
+                            window.photoBlob = blob;
+                            const url = URL.createObjectURL(blob);
+                            const preview = document.getElementById('photoPreview');
+                            preview.style.backgroundImage = `url(${url})`;
+                            preview.style.backgroundSize = 'cover';
+                            preview.style.backgroundPosition = 'center';
+                            preview.innerHTML = '';
+                            console.log('✅ Imagen procesada');
+                        }, 'image/jpeg', 0.9);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            console.log('✅ Input de foto configurado');
+        }
+
+        // ========================================================================
+        // INTERCEPTOR GLOBAL ABSOLUTO - MÁXIMA PRIORIDAD
+        // ========================================================================
+        // SOLUCIÓN AL PROBLEMA DE RESETEO AL GUARDAR FOTO:
+        // - Los botones HTML normales causaban page reload inexplicable
+        // - onclick, addEventListener, preventDefault, etc NO funcionaban
+        // - SOLUCIÓN: window.addEventListener con capture:true + DIVs en lugar de buttons
+        // - Este interceptor captura el click ANTES que cualquier otro handler
+        // - Ejecuta el guardado directamente sin delegación a otras funciones
+        // - beforeunload previene reloads accidentales durante debug
+        // ========================================================================
+        window.addEventListener('click', function(e) {
+            console.log('🌐 CLICK GLOBAL:', e.target.id || e.target.tagName);
+
+            if (e.target && e.target.id === 'btn-guardar-foto') {
+                console.log('🛑🛑🛑 INTERCEPTOR: BLOQUEANDO TODO');
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                // EJECUTAR GUARDADO AQUÍ DIRECTAMENTE
+                console.log('✅ EJECUTANDO GUARDADO...');
+
+                if (!window.photoBlob) {
+                    alert('Selecciona una imagen primero');
+                    return false;
+                }
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Debes iniciar sesión');
+                    return false;
+                }
+
+                console.log('📤 Preparando FormData...');
+                const formData = new FormData();
+                formData.append('photo', window.photoBlob, 'player-photo.jpg');
+
+                console.log('🚀 Enviando fetch...');
+                fetch('http://localhost:3000/api/upload/player-photo', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
+                    })
+                    .then(function(response) {
+                        console.log('📥 Respuesta recibida:', response.status);
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        console.log('✅ Data recibida:', data);
+
+                        if (data.imageUrl) {
+                            const selector = window.photoTeam === 'modal-edit' ?
+                                `#modal-roster-table tr[data-player-id="${window.photoPlayerId}"] .player-photo, #modal-bench-table tr[data-player-id="${window.photoPlayerId}"] .player-photo` :
+                                `#roster-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo, #bench-table-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
+
+                            const photoCell = document.querySelector(selector);
+                            if (photoCell) {
+                                photoCell.innerHTML = `<img src="http://localhost:3000${data.imageUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+                                photoCell.dataset.photoUrl = data.imageUrl;
+                                console.log('🎉 Foto actualizada en la tabla');
+                            }
+
+                            window.closePhotoModal();
+                            alert('✅ Foto guardada correctamente');
+                        } else {
+                            alert('Error: No se recibió la URL de la imagen');
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('❌ Error en fetch:', err);
+                        alert('Error al guardar la foto');
+                    });
+
+                return false;
+            }
+
+            // INTERCEPTOR PARA BOTÓN GUARDAR CAMBIOS
+            if (e.target && e.target.id === 'btn-guardar-cambios') {
+                console.log('🛑 INTERCEPTOR: Click en Guardar Cambios detectado');
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                // Llamar a la función de guardado
+                guardarEquipoPersonalizado();
+
+                return false;
+            }
+        }, true);
+
+        // NUEVOS EVENT LISTENERS PARA BOTONES
+        setTimeout(function() {
+            const btnExaminar = document.getElementById('btn-examinar-foto');
+            const btnGuardar = document.getElementById('btn-guardar-foto');
+            const btnCancelar = document.getElementById('btn-cancelar-foto');
+
+            if (btnExaminar) {
+                btnExaminar.onclick = function() {
+                    console.log('📁 Examinar clicked');
+                    document.getElementById('playerPhotoInput').click();
+                };
+            }
+
+            if (btnCancelar) {
+                btnCancelar.onclick = function() {
+                    console.log('❌ Cancelar clicked');
+                    window.closePhotoModal();
+                };
+            }
+
+            if (btnGuardar) {
+                btnGuardar.onclick = function(e) {
+                    console.log('✅ GUARDAR CLICKED - INICIANDO');
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+
+                    if (!window.photoBlob) {
+                        alert('Selecciona una imagen primero');
+                        return false;
+                    }
+
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('Debes iniciar sesión');
+                        return false;
+                    }
+
+                    console.log('📤 Preparando FormData...');
+                    const formData = new FormData();
+                    formData.append('photo', window.photoBlob, 'player-photo.jpg');
+
+                    console.log('🚀 Enviando fetch...');
+                    fetch('http://localhost:3000/api/upload/player-photo', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: formData
+                        })
+                        .then(function(response) {
+                            console.log('📥 Respuesta recibida:', response.status);
+                            return response.json();
+                        })
+                        .then(function(data) {
+                            console.log('✅ Data recibida:', data);
+
+                            if (data.imageUrl) {
+                                const selector = window.photoTeam === 'modal-edit' ?
+                                    `#modal-roster-table tr[data-player-id="${window.photoPlayerId}"] .player-photo, #modal-bench-table tr[data-player-id="${window.photoPlayerId}"] .player-photo` :
+                                    `#roster-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo, #bench-table-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
+
+                                const photoCell = document.querySelector(selector);
+                                if (photoCell) {
+                                    photoCell.innerHTML = `<img src="http://localhost:3000${data.imageUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+                                    photoCell.dataset.photoUrl = data.imageUrl;
+                                    console.log('🎉 Foto actualizada en la tabla');
+                                }
+
+                                window.closePhotoModal();
+                                alert('✅ Foto guardada correctamente');
+                            } else {
+                                alert('Error: No se recibió la URL de la imagen');
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error('❌ Error en fetch:', err);
+                            alert('Error al guardar la foto');
+                        });
+
+                    return false;
+                };
+                console.log('✅ Botones de foto configurados');
+            }
+        }, 500);
+
+        console.log('✅ SISTEMA DE FOTOS LISTO');
+    </script>
 </body>
 
 </html>

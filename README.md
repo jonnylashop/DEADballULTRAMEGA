@@ -4,6 +4,15 @@ Simulador de béisbol basado en dados con sistema de autenticación y base de da
 
 ---
 
+## 🧰 Requisitos Previos
+
+- **Node.js** >= 18.0.0
+- **npm** >= 9.0.0
+- **Navegador moderno** (Chrome, Firefox, Edge)
+- **Git** (para clonar el repositorio)
+
+---
+
 ## 📁 Estructura del Proyecto
 
 ```
@@ -165,6 +174,26 @@ El proyecto sigue una arquitectura **REST (Representational State Transfer)** qu
 }
 ```
 
+### 📡 Ejemplo de Petición Autenticada:
+
+```http
+GET /api/teams HTTP/1.1
+Host: localhost:3000
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+```
+
+### 🔐 Contenido del JWT:
+```json
+{
+  "userId": 1,
+  "username": "jugador123",
+  "email": "jugador@example.com",
+  "iat": 1642345678,
+  "exp": 1642432078
+}
+```
+
 ---
 
 ## 📋 Estado Actual del Proyecto
@@ -183,6 +212,9 @@ El proyecto sigue una arquitectura **REST (Representational State Transfer)** qu
 - [x] Integración de equipos MLB
 - [x] Interfaz de juego con efectos visuales
 - [x] Sistema de chat entre usuarios
+  - Chat entre usuarios autenticados
+  - Mensajes persistidos en base de datos
+  - Actualización en tiempo real (polling)
 
 ### 🚧 EN DESARROLLO:
 - [ ] Página de perfil de usuario
@@ -209,6 +241,31 @@ JWT_EXPIRES_IN=24h
 ```
 
 ⚠️ **IMPORTANTE**: Este archivo NO se debe subir a GitHub
+
+---
+
+## ⚙️ Modos de Ejecución
+
+### 🔧 Modo Desarrollo:
+```bash
+cd backend
+npm run dev
+```
+- Usa **nodemon** para auto-reinicio
+- Logs detallados en consola
+- Base de datos local SQLite
+- CORS habilitado para desarrollo
+
+### 🚀 Modo Producción:
+```bash
+cd backend
+node server.js
+```
+**⚠️ Antes de producción:**
+- Cambiar `JWT_SECRET` en `.env`
+- Configurar HTTPS (recomendado)
+- Revisar configuración CORS
+- Hacer backup de la base de datos
 
 ---
 
@@ -268,10 +325,15 @@ npm install
 
 ## 📄 Licencia
 
-MIT
+MIT © 2026 – DEADball ULTRAMEGA
+
+Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
 
 ---
 
 ## 📞 Contacto
 
-Proyecto desarrollado para Codespace Academy
+Proyecto desarrollado para **Codespace Academy**
+
+- **GitHub**: [jonnylashop/DEADballULTRAMEGA](https://github.com/jonnylashop/DEADballULTRAMEGA)
+- **Repositorio**: https://github.com/jonnylashop/DEADballULTRAMEGA.git

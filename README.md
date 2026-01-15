@@ -113,30 +113,88 @@ http://localhost:3000
 
 ---
 
+## 🏗️ Arquitectura REST API
+
+El proyecto sigue una arquitectura **REST (Representational State Transfer)** que separa claramente el frontend del backend:
+
+```
+┌─────────────┐         JSON          ┌─────────────┐        SQL         ┌──────────────┐
+│   Cliente   │ ◄──────────────────► │   Servidor  │ ◄───────────────► │  SQLite DB   │
+│  (Frontend) │   HTTP Methods        │  (Backend)  │    Consultas       │   (Datos)    │
+│             │  GET/POST/PUT/DELETE  │             │                    │              │
+└─────────────┘                       └─────────────┘                    └──────────────┘
+```
+
+### Flujo de Comunicación:
+1. **Cliente** (navegador) envía petición HTTP con datos en formato JSON
+2. **Servidor** (Express.js) recibe la petición, procesa la lógica de negocio
+3. **Base de Datos** (SQLite) almacena/recupera datos mediante consultas SQL
+4. **Servidor** devuelve respuesta JSON al cliente
+5. **Cliente** renderiza los datos en la interfaz HTML
+
+### 📡 Endpoints de la API (Implementados)
+
+| URL | MÉTODO | DESCRIPCIÓN | ROL |
+|-----|--------|-------------|-----|
+| `/api/auth/register` | POST | Registrar nuevo usuario | Público |
+| `/api/auth/login` | POST | Iniciar sesión y obtener JWT | Público |
+| `/api/auth/verify` | GET | Verificar token de autenticación | Autenticado |
+| `/api/auth/request-reset` | POST | Solicitar restablecimiento de contraseña | Público |
+| `/api/auth/reset-password` | POST | Restablecer contraseña con token | Público |
+| `/api/teams` | GET | Obtener todos los equipos del usuario | Autenticado |
+| `/api/teams/:id` | GET | Obtener equipo específico por ID | Autenticado |
+| `/api/teams` | POST | Crear nuevo equipo personalizado | Autenticado |
+| `/api/teams/:id` | PUT | Actualizar equipo existente | Autenticado |
+| `/api/teams/:id` | DELETE | Eliminar equipo | Autenticado |
+| `/api/games/save` | POST | Guardar estado de partida | Autenticado |
+| `/api/games/load` | GET | Cargar partidas guardadas | Autenticado |
+| `/api/upload/player-photo` | POST | Subir foto de jugador (multipart) | Autenticado |
+
+### 🔐 Autenticación:
+- Autenticación mediante **JWT (JSON Web Token)**
+- Token enviado en el header: `Authorization: Bearer <token>`
+- Expiración del token: **24 horas**
+- Contraseñas encriptadas con **bcryptjs**
+
+### 📦 Formato de Respuesta:
+```json
+{
+  "success": true,
+  "message": "Operación exitosa",
+  "data": { ... }
+}
+```
+
+---
+
 ## 📋 Estado Actual del Proyecto
 
 ### ✅ COMPLETADO:
-- [x] Juego de béisbol funcional con dados
-- [x] Sistema de audio (música y efectos)
-- [x] Servidor Express configurado
-- [x] Base de datos SQLite creada
-- [x] Estructura de carpetas organizada
+- [x] Juego de béisbol funcional con sistema de dados profesional
+- [x] Sistema de audio completo (música y efectos de sonido)
+- [x] Servidor Express con arquitectura REST API
+- [x] Base de datos SQLite con 6 tablas
+- [x] Sistema de autenticación JWT
+- [x] Sistema de login y registro de usuarios
+- [x] Sistema de recuperación de contraseña (email)
+- [x] Gestión completa de equipos (CRUD)
+- [x] Sistema de guardado/carga de partidas
+- [x] Sistema de subida de fotos de jugadores
+- [x] Integración de equipos MLB
+- [x] Interfaz de juego con efectos visuales
+- [x] Sistema de chat entre usuarios
 
 ### 🚧 EN DESARROLLO:
-- [ ] Sistema de login y registro
-- [ ] Autenticación con JWT
-- [ ] Página de inicio
-- [ ] Página de contacto
 - [ ] Página de perfil de usuario
-- [ ] Guardar partidas en la base de datos
-- [ ] Historial de partidas del usuario
+- [ ] Cambio de foto de perfil
+- [ ] Cambio de contraseña desde perfil
+- [ ] Estadísticas avanzadas de jugadores
 
 ### 📝 POR HACER:
-- [ ] Cambio de foto de perfil
-- [ ] Cambio de contraseña
-- [ ] Estadísticas de jugadores
 - [ ] Ranking de jugadores
-- [ ] Sistema de recuperación de contraseña
+- [ ] Historial detallado de partidas
+- [ ] Sistema de torneos
+- [ ] Modo multijugador en tiempo real
 
 ---
 
@@ -154,43 +212,13 @@ JWT_EXPIRES_IN=24h
 
 ---
 
-## 📡 Endpoints de la API (Planificados)
-
-### Autenticación:
-```
-POST /api/auth/register    → Registrar nuevo usuario
-POST /api/auth/login       → Iniciar sesión
-GET  /api/auth/profile     → Obtener perfil (requiere token)
-```
-
-### Juegos:
-```
-POST /api/games            → Guardar nueva partida
-GET  /api/games            → Obtener historial de partidas
-GET  /api/games/:id        → Obtener partida específica
-```
-
-### Contacto:
-```
-POST /api/contact          → Enviar mensaje de contacto
-GET  /api/contact          → Listar mensajes (admin)
-```
-
-### Usuario:
-```
-PUT  /api/user/photo       → Cambiar foto de perfil
-PUT  /api/user/password    → Cambiar contraseña
-```
-
----
-
 ## 🎯 Próximos Pasos
 
-1. **Crear middleware de autenticación JWT**
-2. **Crear rutas de registro y login**
-3. **Crear páginas HTML de login/registro**
-4. **Conectar frontend con backend**
-5. **Implementar guardado de partidas**
+1. **Implementar página de perfil de usuario**
+2. **Añadir estadísticas avanzadas de partidas**
+3. **Crear sistema de torneos**
+4. **Optimizar rendimiento del motor de juego**
+5. **Implementar modo multijugador**
 
 ---
 

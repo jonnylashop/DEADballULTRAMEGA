@@ -206,7 +206,7 @@
         // ================================================
         // Si el usuario no está logueado, redirigir al login
         if (!estaLogueado()) {
-            window.location.href = 'login.html';
+            window.location.href = 'menu.html';
         }
 
         // ================================================
@@ -261,7 +261,7 @@
                 // Si hay error (token expirado, servidor caído, etc.)
                 console.error('Error al cargar perfil:', error);
                 document.getElementById('loading').innerHTML =
-                    '❌ Error al cargar el perfil<br><a href="login.html" style="color: white;">Volver al login</a>';
+                    '❌ Error al cargar el perfil<br><a href="menu.html" style="color: white;">Volver al menú</a>';
             }
         }
 
@@ -332,7 +332,7 @@
                 localStorage.clear();
 
                 // Redirigir a la página de registro
-                window.location.href = 'register.html';
+                window.location.href = 'menu.html';
             } catch (error) {
                 // Mostrar error (contraseña incorrecta, etc.)
                 alert('❌ ' + error.message);

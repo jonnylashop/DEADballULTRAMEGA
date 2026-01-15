@@ -16,7 +16,7 @@ const API_URL = 'http://localhost:3000/api/auth';
 // ============================================
 // FUNCIÓN: REGISTRAR USUARIO
 // ============================================
-// Esta función se llama desde register.html cuando alguien se registra
+// Esta función se llama desde menu.html cuando alguien se registra
 async function register(nombre, email, password) {
     try {
         // ============================================

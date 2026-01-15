@@ -3375,8 +3375,6 @@
                     alert('Error al guardar la foto');
                 });
         };
-
-        console.log('✅ Funciones de foto listas');
     </script>
 
     <!-- ================================================== -->
@@ -4935,9 +4933,7 @@
             limpiarRoster(team);
         }
 
-        // ================================================
         // CREAR NUEVO EQUIPO
-        // ================================================
         function crearNuevoEquipo() {
             editingTeamId = null; // Resetear ID de edición
             targetTeam = 'local'; // Por defecto al local cuando se crea desde Mis Equipos
@@ -4951,9 +4947,7 @@
             document.getElementById('team-name').value = '';
         }
 
-        // ================================================
         // EDITAR EQUIPO EXISTENTE
-        // ================================================
         async function editarEquipo(teamId) {
             try {
                 const token = localStorage.getItem('token');
@@ -5210,9 +5204,7 @@
             }
         }
 
-        // ================================================
         // GUARDAR EQUIPO COMO PERSONALIZADO
-        // ================================================
         async function guardarEquipoPersonalizado() {
             try {
                 const token = localStorage.getItem('token');
@@ -5266,6 +5258,33 @@
                         });
                     }
                 });
+
+                // Si no hay jugadores en las tablas del modal, intentar leer desde las tarjetas MLB
+                if (players.length === 0) {
+                    console.log('No se encontraron jugadores en las tablas del modal, buscando en player-cards...');
+                    document.querySelectorAll('.player-card').forEach((card, index) => {
+                        const nameInput = card.querySelector('.player-name-input');
+                        const numberSpan = card.querySelector('.player-number');
+                        const posSelect = card.querySelector('.player-pos-select');
+                        const handSelect = card.querySelector('.player-hand-select');
+                        const avgInput = card.querySelector('.player-avg-input');
+                        const obpInput = card.querySelector('.player-obp-input');
+                        const traitSelect = card.querySelector('.player-trait-select');
+
+                        if (nameInput && nameInput.value.trim()) {
+                            players.push({
+                                number: numberSpan ? numberSpan.textContent.replace('#', '') : String(index + 1),
+                                name: nameInput.value.trim(),
+                                position: posSelect ? posSelect.value : 'P',
+                                handedness: handSelect ? handSelect.value : 'R',
+                                avg: avgInput ? avgInput.value : '.250',
+                                obp: obpInput ? obpInput.value : '.300',
+                                trait: traitSelect ? traitSelect.value : '',
+                                photoUrl: null
+                            });
+                        }
+                    });
+                }
 
                 console.log('Jugadores recopilados:', players.length);
 

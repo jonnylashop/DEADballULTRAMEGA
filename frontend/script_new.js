@@ -90,6 +90,10 @@ function getCurrentBatter() {
     const handednessSelect = cells[5] ? cells[5].querySelector('.handedness-select') : null;
     const handedness = handednessSelect ? handednessSelect.value : 'R';
 
+    // Obtener photoUrl de la celda de foto
+    const photoCell = cells[2];
+    const photoUrl = photoCell ? photoCell.dataset.photoUrl || null : null;
+
     return {
         id: row.getAttribute('data-player-id') || String(index + 1),
         number: cells[1] ? cells[1].textContent.trim() : String(index + 1),
@@ -99,7 +103,8 @@ function getCurrentBatter() {
         mlbId: row.getAttribute('data-mlb-id') || null,
         avg: avgText,
         obp: obpText,
-        trait: trait
+        trait: trait,
+        photoUrl: photoUrl
     };
 }
 
@@ -369,7 +374,8 @@ function initializeFirstBatter() {
             number: player.number,
             name: player.name,
             team: team,
-            mlbId: player.mlbId
+            mlbId: player.mlbId,
+            photoUrl: player.photoUrl
         };
 
         createRunnerToken(batterData, 'home');
@@ -428,7 +434,8 @@ function nextBatter() {
             number: player.number,
             name: player.name,
             team: team,
-            mlbId: player.mlbId
+            mlbId: player.mlbId,
+            photoUrl: player.photoUrl
         };
 
         createRunnerToken(batterData, 'home');
@@ -4863,7 +4870,14 @@ document.addEventListener('click', function(event) {
 function getPlayerPhotoUrl(player) {
     console.log(`🔍 getPlayerPhotoUrl llamada para: ${player.name}`);
 
-    // Si tiene foto custom (equipos custom), usarla primero
+    // Si tiene photoUrl (foto subida), usarla PRIMERO
+    if (player.photoUrl) {
+        const fullUrl = `http://localhost:3000${player.photoUrl}`;
+        console.log(`✅ Foto personalizada encontrada: ${fullUrl}`);
+        return fullUrl;
+    }
+
+    // Si tiene foto custom (equipos custom), usarla
     if (player.customPhotoUrl) {
         console.log(`✅ Foto custom encontrada: ${player.customPhotoUrl}`);
         return player.customPhotoUrl;

@@ -114,7 +114,8 @@
             <!-- Columna izquierda: Equipo visitante -->
             <div class="col col-visitante">
                 <div class="team-header">
-                    <h2>🛫 Equipo Visitante</h2>
+                    <h2 id="header-title-visitante">🛫 Equipo Visitante</h2>
+                    <div id="team-name-visitante" style="font-size: 24px; font-weight: 800; margin-top: -8px; margin-bottom: 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                     <button class="config-btn" onclick="openTeamConfig('visitante')">⚙️</button>
                 </div>
 
@@ -1771,7 +1772,8 @@
             <!-- Columna derecha: Equipo local -->
             <div class="col col-local">
                 <div class="team-header">
-                    <h2>🏠 Equipo Local</h2>
+                    <h2 id="header-title-local">🏠 Equipo Local</h2>
+                    <div id="team-name-local" style="font-size: 24px; font-weight: 800; margin-top: -8px; margin-bottom: 8px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                     <button class="config-btn" onclick="openTeamConfig('local')">⚙️</button>
                 </div>
 
@@ -1793,13 +1795,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="player-row" draggable="true" data-player-id="l1">
+                            <tr class="player-row" draggable="true" data-player-id="1">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">1</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L1</td>
                                 <td>
-                                    <select class="position-select" data-player="l1">
+                                    <select class="position-select" data-player="1">
                                         <option value="P" selected>P</option>
                                         <option value="C">C</option>
                                         <option value="1B">1B</option>
@@ -1813,7 +1815,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l1">
+                                    <select class="handedness-select" data-player="1">
                                         <option value="R">R</option>
                                         <option value="L" selected>L</option>
                                     </select>
@@ -1821,7 +1823,7 @@
                                 <td class="batting-avg">.265</td>
                                 <td class="on-base-pct">.320</td>
                                 <td>
-                                    <select class="trait-select" data-player="l1">
+                                    <select class="trait-select" data-player="1">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -1843,13 +1845,13 @@
                                 </td>
                                 <td class="game-status">-</td>
                             </tr>
-                            <tr class="player-row" draggable="true" data-player-id="l2">
+                            <tr class="player-row" draggable="true" data-player-id="2">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">2</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L2</td>
                                 <td>
-                                    <select class="position-select" data-player="l2">
+                                    <select class="position-select" data-player="2">
                                         <option value="P">P</option>
                                         <option value="C" selected>C</option>
                                         <option value="1B">1B</option>
@@ -1863,7 +1865,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l2">
+                                    <select class="handedness-select" data-player="2">
                                         <option value="R" selected>R</option>
                                         <option value="L">L</option>
                                     </select>
@@ -1871,7 +1873,7 @@
                                 <td class="batting-avg">.280</td>
                                 <td class="on-base-pct">.335</td>
                                 <td>
-                                    <select class="trait-select" data-player="l2">
+                                    <select class="trait-select" data-player="2">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -1893,13 +1895,13 @@
                                 </td>
                                 <td class="game-status">-</td>
                             </tr>
-                            <tr class="player-row" draggable="true" data-player-id="l3">
+                            <tr class="player-row" draggable="true" data-player-id="3">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">3</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L3</td>
                                 <td>
-                                    <select class="position-select" data-player="l3">
+                                    <select class="position-select" data-player="3">
                                         <option value="P">P</option>
                                         <option value="C">C</option>
                                         <option value="1B" selected>1B</option>
@@ -1913,7 +1915,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l3">
+                                    <select class="handedness-select" data-player="3">
                                         <option value="R" selected>R</option>
                                         <option value="L">L</option>
                                     </select>
@@ -1921,7 +1923,7 @@
                                 <td class="batting-avg">.285</td>
                                 <td class="on-base-pct">.345</td>
                                 <td>
-                                    <select class="trait-select" data-player="l3">
+                                    <select class="trait-select" data-player="3">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -1943,13 +1945,13 @@
                                 </td>
                                 <td class="game-status">-</td>
                             </tr>
-                            <tr class="player-row" draggable="true" data-player-id="l4">
+                            <tr class="player-row" draggable="true" data-player-id="4">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">4</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L4</td>
                                 <td>
-                                    <select class="position-select" data-player="l4">
+                                    <select class="position-select" data-player="4">
                                         <option value="P">P</option>
                                         <option value="C">C</option>
                                         <option value="1B">1B</option>
@@ -1963,7 +1965,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l4">
+                                    <select class="handedness-select" data-player="4">
                                         <option value="R">R</option>
                                         <option value="L" selected>L</option>
                                     </select>
@@ -1971,7 +1973,7 @@
                                 <td class="batting-avg">.275</td>
                                 <td class="on-base-pct">.330</td>
                                 <td>
-                                    <select class="trait-select" data-player="l4">
+                                    <select class="trait-select" data-player="4">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -1993,13 +1995,13 @@
                                 </td>
                                 <td class="game-status">-</td>
                             </tr>
-                            <tr class="player-row" draggable="true" data-player-id="l5">
+                            <tr class="player-row" draggable="true" data-player-id="5">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">5</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L5</td>
                                 <td>
-                                    <select class="position-select" data-player="l5">
+                                    <select class="position-select" data-player="5">
                                         <option value="P">P</option>
                                         <option value="C">C</option>
                                         <option value="1B">1B</option>
@@ -2013,7 +2015,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l5">
+                                    <select class="handedness-select" data-player="5">
                                         <option value="R" selected>R</option>
                                         <option value="L">L</option>
                                     </select>
@@ -2021,7 +2023,7 @@
                                 <td class="batting-avg">.298</td>
                                 <td class="on-base-pct">.365</td>
                                 <td>
-                                    <select class="trait-select" data-player="l5">
+                                    <select class="trait-select" data-player="5">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -2043,13 +2045,13 @@
                                 </td>
                                 <td class="game-status">-</td>
                             </tr>
-                            <tr class="player-row" draggable="true" data-player-id="l6">
+                            <tr class="player-row" draggable="true" data-player-id="6">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">6</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L6</td>
                                 <td>
-                                    <select class="position-select" data-player="l6">
+                                    <select class="position-select" data-player="6">
                                         <option value="P">P</option>
                                         <option value="C">C</option>
                                         <option value="1B">1B</option>
@@ -2063,7 +2065,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l6">
+                                    <select class="handedness-select" data-player="6">
                                         <option value="R" selected>R</option>
                                         <option value="L">L</option>
                                     </select>
@@ -2071,7 +2073,7 @@
                                 <td class="batting-avg">.260</td>
                                 <td class="on-base-pct">.315</td>
                                 <td>
-                                    <select class="trait-select" data-player="l6">
+                                    <select class="trait-select" data-player="6">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -2093,13 +2095,13 @@
                                 </td>
                                 <td class="game-status">-</td>
                             </tr>
-                            <tr class="player-row" draggable="true" data-player-id="l7">
+                            <tr class="player-row" draggable="true" data-player-id="7">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">7</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L7</td>
                                 <td>
-                                    <select class="position-select" data-player="l7">
+                                    <select class="position-select" data-player="7">
                                         <option value="P">P</option>
                                         <option value="C">C</option>
                                         <option value="1B">1B</option>
@@ -2113,7 +2115,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l7">
+                                    <select class="handedness-select" data-player="7">
                                         <option value="R">R</option>
                                         <option value="L" selected>L</option>
                                     </select>
@@ -2121,7 +2123,7 @@
                                 <td class="batting-avg">.288</td>
                                 <td class="on-base-pct">.350</td>
                                 <td>
-                                    <select class="trait-select" data-player="l7">
+                                    <select class="trait-select" data-player="7">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -2143,13 +2145,13 @@
                                 </td>
                                 <td class="game-status">-</td>
                             </tr>
-                            <tr class="player-row" draggable="true" data-player-id="l8">
+                            <tr class="player-row" draggable="true" data-player-id="8">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">8</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L8</td>
                                 <td>
-                                    <select class="position-select" data-player="l8">
+                                    <select class="position-select" data-player="8">
                                         <option value="P">P</option>
                                         <option value="C">C</option>
                                         <option value="1B">1B</option>
@@ -2163,7 +2165,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l8">
+                                    <select class="handedness-select" data-player="8">
                                         <option value="R" selected>R</option>
                                         <option value="L">L</option>
                                     </select>
@@ -2171,7 +2173,7 @@
                                 <td class="batting-avg">.302</td>
                                 <td class="on-base-pct">.370</td>
                                 <td>
-                                    <select class="trait-select" data-player="l8">
+                                    <select class="trait-select" data-player="8">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -2193,13 +2195,13 @@
                                 </td>
                                 <td class="game-status">-</td>
                             </tr>
-                            <tr class="player-row" draggable="true" data-player-id="l9">
+                            <tr class="player-row" draggable="true" data-player-id="9">
                                 <td class="drag-handle">⋮⋮</td>
                                 <td class="player-number">9</td>
                                 <td class="player-photo">📷</td>
                                 <td class="player-name">Jugador L9</td>
                                 <td>
-                                    <select class="position-select" data-player="l9">
+                                    <select class="position-select" data-player="9">
                                         <option value="P">P</option>
                                         <option value="C">C</option>
                                         <option value="1B">1B</option>
@@ -2213,7 +2215,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="handedness-select" data-player="l9">
+                                    <select class="handedness-select" data-player="9">
                                         <option value="R" selected>R</option>
                                         <option value="L">L</option>
                                     </select>
@@ -2221,7 +2223,7 @@
                                 <td class="batting-avg">.278</td>
                                 <td class="on-base-pct">.335</td>
                                 <td>
-                                    <select class="trait-select" data-player="l9">
+                                    <select class="trait-select" data-player="9">
                                         <option value="" selected>-</option>
                                         <option value="P+">P+</option>
                                         <option value="P++">P++</option>
@@ -2560,7 +2562,7 @@
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeTeamConfig()">Cancelar</button>
                 <button class="btn-primary" onclick="cargarEquipoAlJuego()" style="background: #f59e0b;">🎮 Cargar al Juego</button>
-                <div id="btn-guardar-cambios" class="btn-primary" style="background: #10b981; cursor: pointer; user-select: none; display: inline-block; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">💾 Guardar Cambios</div>
+                <button id="btn-guardar-cambios" class="btn-primary" onclick="guardarEquipoPersonalizado()" style="background: #10b981; cursor: pointer;">💾 Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -3009,43 +3011,6 @@
     </div>
     <!-- Cierre de app -->
 
-    <!-- ============================================================================ -->
-    <!-- PROBLEMA CRÍTICO: VENTANAS FLOTANTES NO SE MUESTRAN                        -->
-    <!-- ============================================================================ -->
-    <!-- 
-    SÍNTOMAS:
-    - Las ventanas (audioWindow, chatWindow, hallWindow) solo aparecen al darle al botón "Reiniciar"
-    - getElementById() retorna null cuando debería encontrar los elementos
-    - Console muestra: "audioWindow no encontrado", "chatWindow no encontrado", "hallWindow no encontrado"
-    
-    LO QUE SE HA INTENTADO (sin éxito):
-    1. Mover ventanas FUERA del div#app (líneas 3008+)
-    2. Crear ventanas con JavaScript mediante document.createElement() y appendChild()
-    3. Añadir estilos inline con !important: display:block, position:fixed, z-index:999999
-    4. Ejecutar crearVentanas() inmediatamente sin DOMContentLoaded
-    5. Usar setTimeout para retrasar la inicialización del chat
-    6. Agregar pointer-events: auto
-    
-    HIPÓTESIS DEL PROBLEMA:
-    - Posiblemente hay algo en el CSS (style.css) o en script_new.js que oculta/elimina estos elementos
-    - El div#app o algún contenedor padre podría tener display:none, visibility:hidden, o estar fuera del viewport
-    - Puede haber JavaScript que elimine estos elementos después de crearlos
-    - El z-index de algún elemento padre está bloqueando las ventanas
-    
-    PRÓXIMOS PASOS A INVESTIGAR:
-    1. Inspeccionar en DevTools del navegador si las ventanas realmente están en el DOM
-    2. Buscar en script_new.js si hay código que oculte/elimine elementos después de cargar
-    3. Revisar style.css en busca de reglas que puedan ocultar elementos con position:fixed
-    4. Probar añadir las ventanas ANTES del cierre de </body> en lugar de después de div#app
-    5. Verificar si hay algún overlay o elemento con z-index muy alto que cubra toda la pantalla
-    6. Considerar usar un enfoque completamente diferente: modals de Bootstrap en lugar de ventanas flotantes
-    
-    WORKAROUND TEMPORAL:
-    - El botón "Reiniciar" (location.reload()) hace que las ventanas aparezcan brevemente
-    - Esto sugiere un problema de timing/inicialización, no de CSS
-    -->
-    <!-- ============================================================================ -->
-
     <!-- Script para crear ventanas flotantes con JavaScript -->
     <script>
         // ========================================
@@ -3333,17 +3298,26 @@
             window.photoBlob = null;
             document.getElementById('photoPreview').innerHTML = '📷';
             document.getElementById('photoPreview').style.backgroundImage = '';
-            document.getElementById('playerPhotoModal').style.display = 'flex';
+            const modal = document.getElementById('playerPhotoModal');
+            modal.style.display = 'flex';
+
+            // BLOQUEAR TODO EL RESTO DE LA PÁGINA
+            document.body.style.pointerEvents = 'none';
+            modal.style.pointerEvents = 'auto';
         };
 
         // Cerrar modal
         window.closePhotoModal = function() {
             console.log('❌ Cerrando modal foto');
-            document.getElementById('playerPhotoModal').style.display = 'none';
+            const modal = document.getElementById('playerPhotoModal');
+            modal.style.display = 'none';
             document.getElementById('playerPhotoInput').value = '';
             window.photoPlayerId = null;
             window.photoTeam = null;
             window.photoBlob = null;
+
+            // DESBLOQUEAR LA PÁGINA
+            document.body.style.pointerEvents = 'auto';
         };
 
         // Función de guardado
@@ -4222,8 +4196,8 @@
     <!-- ================================================ -->
     <!-- MODAL: SUBIR FOTO DE JUGADOR -->
     <!-- ================================================ -->
-    <div id="playerPhotoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100000; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; pointer-events: auto;">
+    <div id="playerPhotoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999999; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; position: relative; z-index: 1000000;">
             <h2 style="margin-top: 0; color: #1e3c72;">📷 Foto del Jugador</h2>
 
             <input type="file" id="playerPhotoInput" accept="image/*" style="display: none;">
@@ -4237,15 +4211,15 @@
             <canvas id="photoCanvas" style="display: none;"></canvas>
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <div id="btn-examinar-foto" style="flex: 1; padding: 12px; background: #4FC3F7; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; user-select: none;">
+                <button type="button" id="btn-examinar-foto" style="flex: 1; padding: 12px; background: #4FC3F7; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
                     📁 Examinar
-                </div>
-                <div id="btn-guardar-foto" style="flex: 1; padding: 12px; background: #66BB6A; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; user-select: none;">
+                </button>
+                <button type="button" id="btn-guardar-foto" style="flex: 1; padding: 12px; background: #66BB6A; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
                     ✅ Guardar
-                </div>
-                <div id="btn-cancelar-foto" style="flex: 1; padding: 12px; background: #EF5350; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; user-select: none;">
+                </button>
+                <button type="button" id="btn-cancelar-foto" style="flex: 1; padding: 12px; background: #EF5350; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
                     ❌ Cancelar
-                </div>
+                </button>
             </div>
         </div>
     </div>
@@ -4268,6 +4242,9 @@
                 // Titulares
                 document.querySelectorAll('#modal-roster-table tr[data-player-id]').forEach(row => {
                     const photoCell = row.querySelector('.player-photo');
+                    const photoUrl = photoCell.dataset.photoUrl || null;
+                    console.log('📸 Recopilando jugador:', row.querySelector('.player-name').textContent, 'Foto:', photoUrl);
+
                     players.push({
                         number: row.querySelector('.player-number').textContent,
                         name: row.querySelector('.player-name').textContent,
@@ -4276,7 +4253,7 @@
                         avg: row.querySelector('.batting-avg').textContent,
                         obp: row.querySelector('.on-base-pct').textContent,
                         trait: row.querySelector('.trait-select').value,
-                        photoUrl: photoCell.dataset.photoUrl || null
+                        photoUrl: photoUrl
                     });
                 });
 
@@ -4344,6 +4321,7 @@
                 limpiarRoster(targetTeam);
 
                 // Cargar titulares
+                console.log('🔄 Cargando', Math.min(9, players.length), 'titulares en tabla:', targetTeam);
                 for (let i = 0; i < Math.min(9, players.length); i++) {
                     const player = players[i];
                     const row = table.querySelector(`tr[data-player-id="${i + 1}"]`);
@@ -4358,8 +4336,13 @@
 
                         const photoCell = row.querySelector('.player-photo');
                         if (player.photoUrl) {
+                            console.log(`✅ Cargando foto para ${player.name}:`, player.photoUrl);
                             photoCell.innerHTML = `<img src="http://localhost:3000${player.photoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
                             photoCell.dataset.photoUrl = player.photoUrl;
+                        } else {
+                            console.log(`⚠️ Sin foto para ${player.name}`);
+                            photoCell.innerHTML = '📷';
+                            photoCell.dataset.photoUrl = '';
                         }
                     }
                 }
@@ -4423,6 +4406,21 @@
                 }
 
                 closeTeamConfig();
+                
+                // Actualizar el nombre del equipo en el header
+                const teamNameElement = document.getElementById(`team-name-${targetTeam}`);
+                const headerTitle = document.getElementById(`header-title-${targetTeam}`);
+                
+                if (teamNameElement) {
+                    teamNameElement.textContent = teamName;
+                    teamNameElement.style.display = 'block';
+                }
+                
+                if (headerTitle) {
+                    headerTitle.style.fontSize = '12px';
+                    headerTitle.style.opacity = '0.6';
+                }
+                
                 const teamLabel = targetTeam === 'local' ? '🏠 Local' : '✈️ Visitante';
                 alert(`✅ Equipo "${teamName}" cargado en el equipo ${teamLabel}. ¡Listo para jugar!`);
             } catch (error) {
@@ -5171,7 +5169,8 @@
                         photoCell.addEventListener('click', function() {
                             const row = this.closest('tr');
                             const playerId = row.dataset.playerId;
-                            openPhotoModal(playerId, 'modal-edit');
+                            console.log('📸 [MODAL] Abriendo foto - Jugador:', playerId, 'Equipo:', targetTeam);
+                            openPhotoModal(playerId, targetTeam);
                         });
                     });
                 }, 100);
@@ -5230,14 +5229,16 @@
 
                 const players = [];
 
-                // Si estamos editando un equipo existente, leer desde las tablas del modal
-                if (editingTeamId !== null) {
-                    // Titulares desde el modal
-                    document.querySelectorAll('#modal-roster-table tr[data-player-id]').forEach(row => {
-                        const photoCell = row.querySelector('.player-photo');
+                // SIEMPRE leer desde las tablas del modal cuando estamos en el modal de configuración
+                // Titulares desde el modal
+                document.querySelectorAll('#modal-roster-table tr[data-player-id]').forEach(row => {
+                    const photoCell = row.querySelector('.player-photo');
+                    const playerName = row.querySelector('.player-name').textContent.trim();
+                    
+                    if (playerName) {
                         players.push({
                             number: row.querySelector('.player-number').textContent,
-                            name: row.querySelector('.player-name').textContent,
+                            name: playerName,
                             position: row.querySelector('.position-select').value,
                             handedness: row.querySelector('.handedness-select').value,
                             avg: row.querySelector('.batting-avg').textContent,
@@ -5245,73 +5246,26 @@
                             trait: row.querySelector('.trait-select').value,
                             photoUrl: photoCell.dataset.photoUrl || null
                         });
-                    });
-
-                    // Banquillo desde el modal
-                    document.querySelectorAll('#modal-bench-table tr[data-player-id]').forEach(row => {
-                        const photoCell = row.querySelector('.player-photo');
-                        const playerName = row.querySelector('.player-name').textContent.trim();
-                        if (playerName) {
-                            players.push({
-                                number: row.querySelector('.player-number').textContent,
-                                name: playerName,
-                                position: row.querySelector('.position-select').value,
-                                handedness: row.querySelector('.handedness-select').value,
-                                avg: row.querySelector('.batting-avg').textContent,
-                                obp: row.querySelector('.on-base-pct').textContent,
-                                trait: row.querySelector('.trait-select').value,
-                                photoUrl: photoCell.dataset.photoUrl || null
-                            });
-                        }
-                    });
-                } else {
-                    // Leer desde el roster del juego (modo antiguo)
-                    const modalTitle = document.getElementById('modal-title').textContent;
-                    const isVisitante = modalTitle.includes('Visitante');
-                    const teamType = isVisitante ? 'visitante' : 'local';
-                    
-                    const table = document.getElementById(`roster-${teamType}`);
-
-                    for (let i = 1; i <= 9; i++) {
-                        const row = table.querySelector(`tr[data-player-id="${i}"]`);
-                        if (row) {
-                            const photoCell = row.querySelector('.player-photo');
-                            const playerName = row.querySelector('.player-name').textContent.trim();
-                            
-                            players.push({
-                                number: row.querySelector('.player-number').textContent,
-                                name: playerName || `Jugador ${i}`,
-                                position: row.querySelector('.position-select').value,
-                                handedness: row.querySelector('.handedness-select').value,
-                                avg: row.querySelector('.batting-avg').textContent,
-                                obp: row.querySelector('.on-base-pct').textContent,
-                                trait: row.querySelector('.trait-select').value,
-                                photoUrl: photoCell.dataset.photoUrl || null
-                            });
-                        }
                     }
+                });
 
-                    // Banquillo
-                    const benchTable = document.getElementById(`bench-table-${teamType}`);
-                    const benchRows = benchTable.querySelectorAll('.player-row');
-                    
-                    benchRows.forEach((row) => {
-                        const photoCell = row.querySelector('.player-photo');
-                        const playerName = row.querySelector('.player-name').textContent.trim();
-                        if (playerName) {
-                            players.push({
-                                number: row.querySelector('.player-number').textContent,
-                                name: playerName,
-                                position: row.querySelector('.position-select').value,
-                                handedness: row.querySelector('.handedness-select').value,
-                                avg: row.querySelector('.batting-avg').textContent,
-                                obp: row.querySelector('.on-base-pct').textContent,
-                                trait: row.querySelector('.trait-select').value,
-                                photoUrl: photoCell.dataset.photoUrl || null
-                            });
-                        }
-                    });
-                }
+                // Banquillo desde el modal
+                document.querySelectorAll('#modal-bench-table tr[data-player-id]').forEach(row => {
+                    const photoCell = row.querySelector('.player-photo');
+                    const playerName = row.querySelector('.player-name').textContent.trim();
+                    if (playerName) {
+                        players.push({
+                            number: row.querySelector('.player-number').textContent,
+                            name: playerName,
+                            position: row.querySelector('.position-select').value,
+                            handedness: row.querySelector('.handedness-select').value,
+                            avg: row.querySelector('.batting-avg').textContent,
+                            obp: row.querySelector('.on-base-pct').textContent,
+                            trait: row.querySelector('.trait-select').value,
+                            photoUrl: photoCell.dataset.photoUrl || null
+                        });
+                    }
+                });
 
                 console.log('Jugadores recopilados:', players.length);
 
@@ -5505,184 +5459,163 @@
         }
 
         // ========================================================================
-        // INTERCEPTOR GLOBAL ABSOLUTO - MÁXIMA PRIORIDAD
+        // PROTECCIÓN ANTI-RELOAD DURANTE GUARDADO DE FOTO
         // ========================================================================
-        // SOLUCIÓN AL PROBLEMA DE RESETEO AL GUARDAR FOTO:
-        // - Los botones HTML normales causaban page reload inexplicable
-        // - onclick, addEventListener, preventDefault, etc NO funcionaban
-        // - SOLUCIÓN: window.addEventListener con capture:true + DIVs en lugar de buttons
-        // - Este interceptor captura el click ANTES que cualquier otro handler
-        // - Ejecuta el guardado directamente sin delegación a otras funciones
-        // - beforeunload previene reloads accidentales durante debug
-        // ========================================================================
-        window.addEventListener('click', function(e) {
-            console.log('🌐 CLICK GLOBAL:', e.target.id || e.target.tagName);
+        let guardandoFoto = false;
 
-            if (e.target && e.target.id === 'btn-guardar-foto') {
-                console.log('🛑🛑🛑 INTERCEPTOR: BLOQUEANDO TODO');
+        window.addEventListener('beforeunload', function(e) {
+            if (guardandoFoto) {
                 e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
+                e.returnValue = '';
+                return '';
+            }
+        });
 
-                // EJECUTAR GUARDADO AQUÍ DIRECTAMENTE
-                console.log('✅ EJECUTANDO GUARDADO...');
+        // ========================================================================
+        // INTERCEPTOR GLOBAL - SOLUCIÓN AL RESETEO
+        // ========================================================================
+        // PROBLEMA: Al guardar foto, la página se reseteaba completamente
+        // CAUSA: Código duplicado + event listeners múltiples
+        // SOLUCIÓN: UN SOLO handler con capture phase, sin duplicación
+        // ========================================================================
 
-                if (!window.photoBlob) {
-                    alert('Selecciona una imagen primero');
-                    return false;
-                }
+        // Función centralizada para guardar foto
+        function guardarFotoJugador() {
+            console.log('🔥 [GUARDAR FOTO] INICIO');
+            guardandoFoto = true;
 
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('Debes iniciar sesión');
-                    return false;
-                }
+            if (!window.photoBlob) {
+                alert('Selecciona una imagen primero');
+                return;
+            }
 
-                console.log('📤 Preparando FormData...');
-                const formData = new FormData();
-                formData.append('photo', window.photoBlob, 'player-photo.jpg');
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Debes iniciar sesión');
+                return;
+            }
 
-                console.log('🚀 Enviando fetch...');
-                fetch('http://localhost:3000/api/upload/player-photo', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: formData
-                    })
-                    .then(function(response) {
-                        console.log('📥 Respuesta recibida:', response.status);
-                        return response.json();
-                    })
-                    .then(function(data) {
-                        console.log('✅ Data recibida:', data);
+            const formData = new FormData();
+            formData.append('photo', window.photoBlob, 'player-photo.jpg');
 
-                        if (data.imageUrl) {
-                            const selector = window.photoTeam === 'modal-edit' ?
-                                `#modal-roster-table tr[data-player-id="${window.photoPlayerId}"] .player-photo, #modal-bench-table tr[data-player-id="${window.photoPlayerId}"] .player-photo` :
-                                `#roster-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo, #bench-table-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
+            fetch('http://localhost:3000/api/upload/player-photo', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    console.log('📥 [GUARDAR FOTO] Respuesta recibida:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ [GUARDAR FOTO] Data:', data);
+                    console.log('📋 Team actual:', window.photoTeam);
+                    console.log('📋 Player ID:', window.photoPlayerId);
 
-                            const photoCell = document.querySelector(selector);
-                            if (photoCell) {
-                                photoCell.innerHTML = `<img src="http://localhost:3000${data.imageUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
-                                photoCell.dataset.photoUrl = data.imageUrl;
-                                console.log('🎉 Foto actualizada en la tabla');
-                            }
+                    if (data.imageUrl) {
+                        let photoCell = null;
 
-                            window.closePhotoModal();
-                            alert('✅ Foto guardada correctamente');
-                        } else {
-                            alert('Error: No se recibió la URL de la imagen');
+                        // Buscar en las tablas del modal de edición
+                        const modalRosterSelector = `#modal-roster-table tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
+                        const modalBenchSelector = `#modal-bench-table tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
+
+                        photoCell = document.querySelector(modalRosterSelector);
+                        if (!photoCell) {
+                            photoCell = document.querySelector(modalBenchSelector);
                         }
-                    })
-                    .catch(function(err) {
-                        console.error('❌ Error en fetch:', err);
-                        alert('Error al guardar la foto');
-                    });
 
-                return false;
-            }
+                        // Si no está en modal, buscar en las tablas principales
+                        if (!photoCell) {
+                            const rosterSelector = `#roster-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
+                            const benchSelector = `#bench-table-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
 
-            // INTERCEPTOR PARA BOTÓN GUARDAR CAMBIOS
-            if (e.target && e.target.id === 'btn-guardar-cambios') {
-                console.log('🛑 INTERCEPTOR: Click en Guardar Cambios detectado');
+                            photoCell = document.querySelector(rosterSelector);
+                            if (!photoCell) {
+                                photoCell = document.querySelector(benchSelector);
+                            }
+                        }
+
+                        if (photoCell) {
+                            photoCell.innerHTML = `<img src="http://localhost:3000${data.imageUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
+                            photoCell.dataset.photoUrl = data.imageUrl;
+                            console.log('✅ [GUARDAR FOTO] Foto actualizada en tabla');
+                        } else {
+                            console.error('❌ [GUARDAR FOTO] No se encontró celda para jugador:', window.photoPlayerId, 'equipo:', window.photoTeam);
+                        }
+
+                        guardandoFoto = false;
+                        window.closePhotoModal();
+                        console.log('🎉 [GUARDAR FOTO] COMPLETADO SIN ERRORES');
+                    }
+                })
+                .catch(err => {
+                    console.error('❌ [GUARDAR FOTO] Error:', err);
+                    guardandoFoto = false;
+                    alert('Error al guardar la foto');
+                });
+        }
+
+        // Interceptor global único - SOLO captura clicks cuando el modal está abierto
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('playerPhotoModal');
+            if (!modal || modal.style.display === 'none') return; // Modal cerrado, dejar pasar eventos
+
+            // Si el click es dentro del contenedor blanco del modal, procesar
+            const modalContent = modal.querySelector('div[style*="background: white"]');
+            if (!modalContent) return;
+
+            // Si el click está FUERA del modal, bloquearlo completamente
+            if (!modalContent.contains(e.target) && !modal.contains(e.target)) {
+                console.log('🛑 Click FUERA del modal - BLOQUEADO');
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
-
-                // Llamar a la función de guardado
-                guardarEquipoPersonalizado();
-
                 return false;
             }
-        }, true);
 
-        // NUEVOS EVENT LISTENERS PARA BOTONES
-        setTimeout(function() {
-            const btnExaminar = document.getElementById('btn-examinar-foto');
-            const btnGuardar = document.getElementById('btn-guardar-foto');
-            const btnCancelar = document.getElementById('btn-cancelar-foto');
-
-            if (btnExaminar) {
-                btnExaminar.onclick = function() {
-                    console.log('📁 Examinar clicked');
-                    document.getElementById('playerPhotoInput').click();
-                };
+            // Procesar botones del modal
+            if (e.target.id === 'btn-guardar-foto') {
+                console.log('💾 Click en GUARDAR detectado');
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                guardarFotoJugador();
+                return false;
             }
 
-            if (btnCancelar) {
-                btnCancelar.onclick = function() {
-                    console.log('❌ Cancelar clicked');
-                    window.closePhotoModal();
-                };
+            if (e.target.id === 'btn-examinar-foto') {
+                console.log('📁 Click en EXAMINAR detectado');
+                e.preventDefault();
+                e.stopPropagation();
+                document.getElementById('playerPhotoInput').click();
+                return false;
             }
 
-            if (btnGuardar) {
-                btnGuardar.onclick = function(e) {
-                    console.log('✅ GUARDAR CLICKED - INICIANDO');
-                    if (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
+            if (e.target.id === 'btn-cancelar-foto') {
+                console.log('❌ Click en CANCELAR detectado');
+                e.preventDefault();
+                e.stopPropagation();
+                window.closePhotoModal();
+                return false;
+            }
+        }, true); // Fase de captura para interceptar ANTES que cualquier otro handler
 
-                    if (!window.photoBlob) {
-                        alert('Selecciona una imagen primero');
-                        return false;
-                    }
-
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        alert('Debes iniciar sesión');
-                        return false;
-                    }
-
-                    console.log('📤 Preparando FormData...');
-                    const formData = new FormData();
-                    formData.append('photo', window.photoBlob, 'player-photo.jpg');
-
-                    console.log('🚀 Enviando fetch...');
-                    fetch('http://localhost:3000/api/upload/player-photo', {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: formData
-                        })
-                        .then(function(response) {
-                            console.log('📥 Respuesta recibida:', response.status);
-                            return response.json();
-                        })
-                        .then(function(data) {
-                            console.log('✅ Data recibida:', data);
-
-                            if (data.imageUrl) {
-                                const selector = window.photoTeam === 'modal-edit' ?
-                                    `#modal-roster-table tr[data-player-id="${window.photoPlayerId}"] .player-photo, #modal-bench-table tr[data-player-id="${window.photoPlayerId}"] .player-photo` :
-                                    `#roster-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo, #bench-table-${window.photoTeam} tr[data-player-id="${window.photoPlayerId}"] .player-photo`;
-
-                                const photoCell = document.querySelector(selector);
-                                if (photoCell) {
-                                    photoCell.innerHTML = `<img src="http://localhost:3000${data.imageUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">`;
-                                    photoCell.dataset.photoUrl = data.imageUrl;
-                                    console.log('🎉 Foto actualizada en la tabla');
-                                }
-
-                                window.closePhotoModal();
-                                alert('✅ Foto guardada correctamente');
-                            } else {
-                                alert('Error: No se recibió la URL de la imagen');
-                            }
-                        })
-                        .catch(function(err) {
-                            console.error('❌ Error en fetch:', err);
-                            alert('Error al guardar la foto');
-                        });
-
+        // BLOQUEAR el botón "Iniciar Nuevo Juego" cuando el modal esté abierto
+        const startGameBtn = document.getElementById('start-game-btn');
+        if (startGameBtn) {
+            startGameBtn.addEventListener('click', function(e) {
+                const modal = document.getElementById('playerPhotoModal');
+                if (modal && modal.style.display === 'flex') {
+                    console.log('🚫 BLOQUEADO: Intento de iniciar juego con modal abierto');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                     return false;
-                };
-                console.log('✅ Botones de foto configurados');
-            }
-        }, 500);
+                }
+            }, true);
+        }
 
         console.log('✅ SISTEMA DE FOTOS LISTO');
     </script>

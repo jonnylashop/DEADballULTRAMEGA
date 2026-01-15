@@ -106,9 +106,9 @@ class Team {
         try {
             const { teamName, players } = teamData;
 
-            // Validaciones
-            if (players && players.length !== 9) {
-                throw new Error('Un equipo debe tener exactamente 9 jugadores');
+            // Validaciones - Permitir 9 o más jugadores (titulares + banquillo)
+            if (players && players.length < 9) {
+                throw new Error('Un equipo debe tener al menos 9 jugadores titulares');
             }
 
             const playersJson = JSON.stringify(players);

@@ -199,6 +199,13 @@ function clearTokensAtBase(base, animated = false) {
 }
 
 function startNewGame() {
+    // PROTECCIÓN: No permitir iniciar juego si el modal de foto está abierto
+    const photoModal = document.getElementById('playerPhotoModal');
+    if (photoModal && photoModal.style.display === 'flex') {
+        console.warn('🚫 BLOQUEADO: No se puede iniciar juego con modal de foto abierto');
+        return;
+    }
+
     console.log('[GAME] Iniciando nuevo juego');
 
     gameState.currentInning = 1;
@@ -5013,8 +5020,16 @@ function refreshPlayerPhotos() {
             const photoUrl = getPlayerPhotoUrl(player);
             const initials = `${playerName.split(' ')[0].charAt(0)}${playerName.split(' ').pop().charAt(0)}`;
 
-            // Ahora siempre tenemos una URL (foto MLB o avatar generado)
-            photoCell.innerHTML = `<div class="roster-player-token"><img src="${photoUrl}" onerror="console.error('Error cargando foto: ${playerName}'); this.style.display='none'; this.parentElement.innerHTML='<span style=\\"font-size: 14px; font-weight: bold\\">${initials}</span>';" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="${playerName}" /></div>`;
+            // Crear token con foto o avatar
+            const tokenHTML = `
+                <div class="roster-player-token">
+                    <img src="${photoUrl}" 
+                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" 
+                         alt="${playerName}"
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=&quot;font-size:14px;font-weight:bold&quot;>${initials}</span>';" />
+                </div>`;
+
+            photoCell.innerHTML = tokenHTML;
             console.log(`✅ Foto/Avatar actualizado para ${playerName}: ${photoUrl}`);
         });
     });

@@ -1,382 +1,349 @@
-<!DOCTYPE html>
-<html lang="es">
+<<!DOCTYPE html>
+    <html lang="es">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat General - DEADball</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .nav-link {
-            display: inline-block;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .chat-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            height: 600px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .chat-header {
-            background: #667eea;
-            color: white;
-            padding: 20px;
-            border-radius: 10px 10px 0 0;
-            text-align: center;
-        }
-        
-        .chat-header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        
-        .chat-header p {
-            margin: 5px 0 0 0;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f8f9fa;
-        }
-        
-        .message {
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.3s;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Chat General - DEADball</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            
+            body {
+                font-family: Arial, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
             }
-        }
-        
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .message-username {
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        .message-time {
-            font-size: 12px;
-            color: #999;
-        }
-        
-        .message-text {
-            color: #333;
-            word-wrap: break-word;
-        }
-        
-        .chat-input-container {
-            padding: 20px;
-            background: white;
-            border-radius: 0 0 10px 10px;
-            border-top: 2px solid #eee;
-        }
-        
-        .chat-input-form {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .chat-input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        
-        .chat-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .chat-send-btn {
-            padding: 12px 30px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .chat-send-btn:hover {
-            background: #5568d3;
-        }
-        
-        .chat-send-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        
-        .online-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: #10b981;
-            border-radius: 50%;
-            margin-left: 10px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
+            
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
             }
-            50% {
-                opacity: 0.5;
+            
+            .nav-links {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
             }
-        }
-        /* Estilos para scroll personalizado */
-        
-        .chat-messages::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        .chat-messages::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        
-        .chat-messages::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-        
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 10px;
-            transition: background 0.2s;
-        }
-        
-        .delete-btn:hover {
-            background: #c82333;
-        }
-        
-        .admin-badge {
-            background: #fbbf24;
-            color: #000;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 3px;
-            margin-left: 5px;
-            font-weight: bold;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <div class="nav-links">
-            <a href="index.html" class="nav-link">🎮 Jugar</a>
-            <a href="profile.html" class="nav-link">👤 Perfil</a>
-        </div>
-
-        <div class="chat-container">
-            <div class="chat-header">
-                <h1>💬 Chat General</h1>
-                <p>Conectado como <strong id="username">...</strong> <span class="online-indicator"></span></p>
-            </div>
-
-            <div class="chat-messages" id="chatMessages">
-                <div class="loading">Cargando mensajes...</div>
-            </div>
-
-            <div class="chat-input-container">
-                <form class="chat-input-form" id="chatForm">
-                    <input type="text" class="chat-input" id="messageInput" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off" required>
-                    <button type="submit" class="chat-send-btn" id="sendBtn">Enviar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================================================== -->
-    <!-- LIBRERÍAS NECESARIAS -->
-    <!-- ================================================== -->
-    <!-- Socket.IO Client: librería para comunicación en tiempo real -->
-    <script src="/socket.io/socket.io.js"></script>
-    <!-- auth.js: nuestras funciones de autenticación -->
-    <script src="auth.js"></script>
-
-    <!-- ================================================== -->
-    <!-- SCRIPT INLINE: Lógica del chat en tiempo real -->
-    <!-- ================================================== -->
-    <script>
-        // ================================================
-        // PASO 1: VERIFICAR AUTENTICACIÓN
-        // ================================================
-        // Si el usuario no está logueado, redirigir al login
-        if (!estaLogueado()) {
-            alert('Debes iniciar sesión para usar el chat');
-            window.location.href = 'menu.html';
-        }
-
-        // ================================================
-        // PASO 2: OBTENER DATOS DEL USUARIO
-        // ================================================
-        const usuario = getUsuarioActual(); // {id, nombre, email, isAdmin}
-        const isAdmin = usuario.isAdmin === 1; // true si es admin, false si no
-
-        // Mostrar nombre del usuario en el header (con corona si es admin)
-        document.getElementById('username').textContent = usuario.nombre + (isAdmin ? ' 👑' : '');
-
-        // ================================================
-        // PASO 3: CONECTAR A SOCKET.IO
-        // ================================================
-        // io() crea una conexión WebSocket con el servidor
-        // Esta conexión es BIDIRECCIONAL y en TIEMPO REAL
-        const socket = io('http://localhost:3000');
-
-        // ================================================
-        // PASO 4: OBTENER ELEMENTOS DEL DOM
-        // ================================================
-        const chatMessages = document.getElementById('chatMessages');
-        const chatForm = document.getElementById('chatForm');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-
-        // ================================================
-        // FUNCIÓN: CARGAR HISTORIAL DE MENSAJES
-        // ================================================
-        // Esta función se ejecuta cuando se carga la página
-        // Obtiene los últimos 50 mensajes del servidor
-        async function cargarHistorial() {
-            try {
-                // Hacer petición HTTP normal para obtener el historial
-                const response = await fetch('http://localhost:3000/api/chat/messages?limit=50');
-                const messages = await response.json();
-
-                // Limpiar el contenedor de mensajes
-                chatMessages.innerHTML = '';
-
-                if (messages.length === 0) {
-                    // Si no hay mensajes, mostrar mensaje de bienvenida
-                    chatMessages.innerHTML = '<div class="loading">No hay mensajes aún. ¡Sé el primero en escribir!</div>';
-                } else {
-                    // Mostrar cada mensaje del historial
-                    messages.forEach(msg => {
-                        mostrarMensaje(msg.id, msg.username, msg.message, msg.created_at);
-                    });
-                    // Hacer scroll hasta el final para ver los mensajes más recientes
-                    scrollToBottom();
+            
+            .nav-link {
+                display: inline-block;
+                color: white;
+                text-decoration: none;
+                padding: 10px 20px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 5px;
+                transition: background 0.3s;
+            }
+            
+            .nav-link:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+            
+            .chat-container {
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                height: 600px;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .chat-header {
+                background: #667eea;
+                color: white;
+                padding: 20px;
+                border-radius: 10px 10px 0 0;
+                text-align: center;
+            }
+            
+            .chat-header h1 {
+                margin: 0;
+                font-size: 24px;
+            }
+            
+            .chat-header p {
+                margin: 5px 0 0 0;
+                font-size: 14px;
+                opacity: 0.9;
+            }
+            
+            .chat-messages {
+                flex: 1;
+                overflow-y: auto;
+                padding: 20px;
+                background: #f8f9fa;
+            }
+            
+            .message {
+                margin-bottom: 15px;
+                padding: 10px 15px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                animation: fadeIn 0.3s;
+            }
+            
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
                 }
-            } catch (error) {
-                console.error('Error al cargar historial:', error);
-                chatMessages.innerHTML = '<div class="loading">Error al cargar mensajes</div>';
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
-        }
+            
+            .message-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 5px;
+            }
+            
+            .message-username {
+                font-weight: bold;
+                color: #667eea;
+            }
+            
+            .message-time {
+                font-size: 12px;
+                color: #999;
+            }
+            
+            .message-text {
+                color: #333;
+                word-wrap: break-word;
+            }
+            
+            .chat-input-container {
+                padding: 20px;
+                background: white;
+                border-radius: 0 0 10px 10px;
+                border-top: 2px solid #eee;
+            }
+            
+            .chat-input-form {
+                display: flex;
+                gap: 10px;
+            }
+            
+            .chat-input {
+                flex: 1;
+                padding: 12px;
+                border: 2px solid #ddd;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+            
+            .chat-input:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+            
+            .chat-send-btn {
+                padding: 12px 30px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            
+            .chat-send-btn:hover {
+                background: #5568d3;
+            }
+            
+            .chat-send-btn:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
+            
+            .loading {
+                text-align: center;
+                padding: 40px;
+                color: #666;
+            }
+            
+            .online-indicator {
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                background: #10b981;
+                border-radius: 50%;
+                margin-left: 10px;
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.5;
+                }
+            }
+            /* Estilos para scroll personalizado */
+            
+            .chat-messages::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .chat-messages::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+            
+            .chat-messages::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+            }
+            
+            .chat-messages::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+            
+            .delete-btn {
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 4px 8px;
+                border-radius: 3px;
+                cursor: pointer;
+                font-size: 12px;
+                margin-left: 10px;
+                transition: background 0.2s;
+            }
+            
+            .delete-btn:hover {
+                background: #c82333;
+            }
+            
+            .admin-badge {
+                background: #fbbf24;
+                color: #000;
+                font-size: 11px;
+                padding: 2px 6px;
+                border-radius: 3px;
+                margin-left: 5px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
 
-        // ================================================
-        // FUNCIÓN: MOSTRAR UN MENSAJE EN EL CHAT
-        // ================================================
-        // Esta función crea el HTML para un mensaje y lo añade al chat
-        function mostrarMensaje(messageId, username, message, timestamp) {
-            // Crear elemento div para el mensaje
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            // dataset.messageId permite identificar este mensaje después (para eliminarlo)
-            messageDiv.dataset.messageId = messageId;
+    <body>
+        <div class="container">
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">🎮 Jugar</a>
+                <a href="profile.html" class="nav-link">👤 Perfil</a>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h1>💬 Chat General</h1>
+                    <p>Conectado como <strong id="username">...</strong> <span class="online-indicator"></span></p>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="loading">Cargando mensajes...</div>
+                </div>
+
+                <div class="chat-input-container">
+                    <form class="chat-input-form" id="chatForm">
+                        <input type="text" class="chat-input" id="messageInput" placeholder="Escribe un mensaje..." maxlength="500" autocomplete="off" required>
+                        <button type="submit" class="chat-send-btn" id="sendBtn">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="auth.js"></script>
+
+        <script>
+            // ================================================
+            // PASO 1: VERIFICAR AUTENTICACIÓN
+            // ================================================
+            if (!estaLogueado()) {
+                alert('Debes iniciar sesión para usar el chat');
+                window.location.href = 'menu.html';
+            }
 
             // ================================================
-            // Formatear la fecha/hora
+            // PASO 2: OBTENER DATOS DEL USUARIO
             // ================================================
-            const fecha = new Date(timestamp);
-            const tiempo = fecha.toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit'
+            const usuario = getUsuarioActual();
+            const isAdmin = Number(usuario ? .isAdmin) === 1;
+
+            document.getElementById('username').textContent =
+                (usuario ? .nombre || 'Usuario') + (isAdmin ? ' 👑' : '');
+
+            // ================================================
+            // PASO 3: CONECTAR A SOCKET.IO (con JWT)
+            // ================================================
+            const token = getToken();
+            const socket = io('http://localhost:3000', {
+                auth: {
+                    token
+                }
+            });
+
+            socket.on('connect_error', (err) => {
+                console.error('❌ Error de conexión al chat:', err.message);
+                alert('Tu sesión ha expirado. Vuelve a iniciar sesión.');
+                logout();
             });
 
             // ================================================
-            // Crear botón de eliminar SOLO si eres admin
+            // PASO 4: OBTENER ELEMENTOS DEL DOM
             // ================================================
-            const deleteButton = isAdmin ? `<button class="delete-btn" onclick="eliminarMensaje(${messageId})">🗑️</button>` : '';
+            const chatMessages = document.getElementById('chatMessages');
+            const chatForm = document.getElementById('chatForm');
+            const messageInput = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
 
             // ================================================
-            // Añadir badge de ADMIN si el mensaje es del admin actual
+            // FUNCIONES AUXILIARES
             // ================================================
-            const adminBadge = isAdmin && username === usuario.nombre ? '<span class="admin-badge">ADMIN</span>' : '';
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
 
-            // ================================================
-            // Construir el HTML del mensaje
-            // ================================================
-            // IMPORTANTE: usamos escapeHtml() para prevenir ataques XSS
-            messageDiv.innerHTML = `
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function mostrarMensaje(messageId, username, message, timestamp) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.dataset.messageId = messageId;
+
+                const fecha = new Date(timestamp);
+                const tiempo = fecha.toLocaleTimeString('es-ES', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const deleteButton = isAdmin ?
+                    `<button class="delete-btn" onclick="eliminarMensaje(${messageId})">🗑️</button>` :
+                    '';
+
+                const adminBadge = isAdmin && username === usuario.nombre ?
+                    '<span class="admin-badge">ADMIN</span>' :
+                    '';
+
+                messageDiv.innerHTML = `
                 <div class="message-header">
-                    <span class="message-username">${username}${adminBadge}</span>
+                    <span class="message-username">${escapeHtml(username)}${adminBadge}</span>
                     <span>
                         <span class="message-time">${tiempo}</span>
                         ${deleteButton}
@@ -385,35 +352,86 @@
                 <div class="message-text">${escapeHtml(message)}</div>
             `;
 
-            // Añadir el mensaje al contenedor
-            chatMessages.appendChild(messageDiv);
-        }
+                chatMessages.appendChild(messageDiv);
+            }
 
-        // ================================================
-        // FUNCIÓN: ESCAPAR HTML (Seguridad - Prevenir XSS)
-        // ================================================
-        // XSS (Cross-Site Scripting) es un ataque donde alguien
-        // intenta inyectar código JavaScript malicioso en un mensaje
-        // 
-        // Ejemplo sin escapeHtml():
-        // Si alguien escribe: <script>alert('hackeo')
-    </script>
-    // ¡Se ejecutaría ese código en todos los navegadores! // // Con escapeHtml(), ese texto se convierte en: // &lt;script&gt;alert('hackeo')&lt;/script&gt; // Y se muestra como texto, no se ejecuta function escapeHtml(text) { const div = document.createElement('div');
-    div.textContent = text; // textContent escapa automáticamente el HTML return div.innerHTML; // innerHTML devuelve el texto escapado } // ================================================ // FUNCIÓN: HACER SCROLL AL FINAL DEL CHAT // ================================================
-    function scrollToBottom() { // scrollTop = posición actual del scroll // scrollHeight = altura total del contenido // Al igualar ambos, nos vamos al final chatMessages.scrollTop = chatMessages.scrollHeight; } // ================================================
-    // FUNCIÓN: ELIMINAR MENSAJE (Solo Admin) // ================================================ function eliminarMensaje(messageId) { // Verificación de seguridad en el frontend if (!isAdmin) return; // Pedir confirmación antes de eliminar if (confirm('¿Eliminar
-    este mensaje?')) { // Emitir evento a Socket.IO para eliminar el mensaje // El servidor verificará que realmente eres admin socket.emit('delete-message', { messageId }); } } // ================================================ // EVENTO: ENVIAR MENSAJE
-    // ================================================ chatForm.addEventListener('submit', (e) => { e.preventDefault(); // Evitar recarga de página // Obtener el texto del mensaje y eliminar espacios al inicio/final const message = messageInput.value.trim();
-    // Si el mensaje está vacío, no hacer nada if (!message) return; // ================================================ // Emitir el mensaje a través de Socket.IO // ================================================ // socket.emit() envía un evento al
-    servidor // El servidor lo recibirá y lo redistribuirá a TODOS los clientes socket.emit('chat-message', { userId: usuario.id, username: usuario.nombre, message: message }); // ================================================ // Limpiar el input y
-    volver a enfocar // ================================================ messageInput.value = ''; messageInput.focus(); }); // ================================================ // EVENTO SOCKET.IO: RECIBIR MENSAJE NUEVO // ================================================
-    // Este evento se dispara cuando CUALQUIER usuario // (incluyendo tú mismo) envía un mensaje socket.on('chat-message', (data) => { mostrarMensaje(data.id, data.username, data.message, data.timestamp); scrollToBottom(); }); // ================================================
-    // EVENTO SOCKET.IO: MENSAJE ELIMINADO // ================================================ // Cuando el admin elimina un mensaje, todos reciben esta notificación socket.on('message-deleted', (data) => { // Buscar el mensaje en el DOM usando su ID
-    const messageDiv = document.querySelector(`[data-message-id="${data.messageId}"]`); if (messageDiv) { // Animación de desvanecimiento antes de eliminar messageDiv.style.transition = 'opacity 0.3s'; messageDiv.style.opacity = '0'; // Después de 300ms,
-    eliminar el elemento del DOM setTimeout(() => messageDiv.remove(), 300); } }); // ================================================ // EVENTOS DE CONEXIÓN DE SOCKET.IO // ================================================ // Cuando se establece la conexión
-    socket.on('connect', () => { console.log('✅ Conectado al chat'); sendBtn.disabled = false; // Habilitar el botón de enviar }); // Cuando se pierde la conexión socket.on('disconnect', () => { console.log('❌ Desconectado del chat'); sendBtn.disabled
-    = true; // Deshabilitar el botón de enviar }); // ================================================ // INICIALIZACIÓN: Cargar historial al abrir la página // ================================================ cargarHistorial();
-    </script>
-</body>
+            async function cargarHistorial() {
+                try {
+                    const response = await fetch('http://localhost:3000/api/chat/messages?limit=50');
+                    const messages = await response.json();
 
-</html>
+                    chatMessages.innerHTML = '';
+
+                    if (!Array.isArray(messages) || messages.length === 0) {
+                        chatMessages.innerHTML = '<div class="loading">No hay mensajes aún. ¡Sé el primero en escribir!</div>';
+                        return;
+                    }
+
+                    messages.forEach(msg => {
+                        mostrarMensaje(msg.id, msg.username, msg.message, msg.created_at);
+                    });
+
+                    scrollToBottom();
+                } catch (error) {
+                    console.error('Error al cargar historial:', error);
+                    chatMessages.innerHTML = '<div class="loading">Error al cargar mensajes</div>';
+                }
+            }
+
+            function eliminarMensaje(messageId) {
+                if (!isAdmin) return;
+
+                if (confirm('¿Eliminar este mensaje?')) {
+                    socket.emit('delete-message', {
+                        messageId
+                    });
+                }
+            }
+
+            // ================================================
+            // EVENTOS
+            // ================================================
+            chatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                const message = messageInput.value.trim();
+                if (!message) return;
+
+                socket.emit('chat-message', {
+                    message
+                });
+
+                messageInput.value = '';
+                messageInput.focus();
+            });
+
+            socket.on('chat-message', (data) => {
+                mostrarMensaje(data.id, data.username, data.message, data.timestamp);
+                scrollToBottom();
+            });
+
+            socket.on('message-deleted', (data) => {
+                const messageDiv = document.querySelector(`[data-message-id="${data.messageId}"]`);
+                if (!messageDiv) return;
+
+                messageDiv.style.transition = 'opacity 0.3s';
+                messageDiv.style.opacity = '0';
+                setTimeout(() => messageDiv.remove(), 300);
+            });
+
+            socket.on('connect', () => {
+                console.log('✅ Conectado al chat');
+                sendBtn.disabled = false;
+            });
+
+            socket.on('disconnect', () => {
+                console.log('❌ Desconectado del chat');
+                sendBtn.disabled = true;
+            });
+
+            // Inicialización
+            cargarHistorial();
+        </script>
+    </body>
+
+    </html>

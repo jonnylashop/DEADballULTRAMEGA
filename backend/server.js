@@ -78,10 +78,34 @@ app.get('/', (req, res) => {
 // Socket.IO permite comunicación bidireccional instantánea
 // entre el servidor y todos los clientes conectados
 
+// ============================================
+// MIDDLEWARE: Verificar JWT en Socket.IO
+// ============================================
+const jwt = require('jsonwebtoken');
+
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+
+    if (!token) {
+        return next(new Error('Token no proporcionado'));
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto_super_seguro_cambiar_en_produccion');
+        socket.userId = decoded.id;
+        socket.userName = decoded.nombre;
+        socket.isAdmin = decoded.isAdmin;
+        next();
+    } catch (error) {
+        console.error('❌ Token inválido en Socket.IO:', error.message);
+        next(new Error('Token inválido'));
+    }
+});
+
 // 'connection' es un evento que se dispara cuando alguien se conecta
 io.on('connection', (socket) => {
     // 'socket' representa la conexión individual de un usuario
-    console.log('💬 Usuario conectado al chat:', socket.id);
+    console.log(`💬 Usuario conectado al chat: ${socket.userName} (${socket.id})`);
 
     // ============================================
     // EVENTO: Cuando un usuario envía un mensaje
@@ -90,12 +114,15 @@ io.on('connection', (socket) => {
     // El frontend emite este evento cuando alguien envía un mensaje
     socket.on('chat-message', async(data) => {
         try {
-            // data contiene: {userId, username, message}
+            // Usar datos del socket (verificados por JWT), NO del cliente
+            const userId = socket.userId;
+            const username = socket.userName;
+            const message = data.message;
 
             // PASO 1: Guardar el mensaje en la base de datos
             // Esto asegura que los mensajes persistan aunque se reinicie el servidor
             const result = await db.run(
-                'INSERT INTO chat_messages (user_id, username, message, created_at) VALUES (?, ?, ?, datetime("now"))', [data.userId, data.username, data.message]
+                'INSERT INTO chat_messages (user_id, username, message, created_at) VALUES (?, ?, ?, datetime("now"))', [userId, username, message]
             );
 
             // PASO 2: Enviar el mensaje a TODOS los usuarios conectados
@@ -104,8 +131,8 @@ io.on('connection', (socket) => {
             // socket.broadcast.emit() envía a todos EXCEPTO quien lo mandó
             io.emit('chat-message', {
                 id: result.lastID, // ID del mensaje en la BD
-                username: data.username, // Nombre del usuario
-                message: data.message, // Contenido del mensaje
+                username: username, // Nombre del usuario (del JWT)
+                message: message, // Contenido del mensaje
                 timestamp: new Date().toISOString() // Marca de tiempo
             });
         } catch (error) {
@@ -119,6 +146,12 @@ io.on('connection', (socket) => {
     // Este evento solo lo emite el frontend si el usuario es admin
     socket.on('delete-message', async(data) => {
         try {
+            // Verificar que el usuario es admin (del JWT)
+            if (!socket.isAdmin) {
+                console.log('❌ Usuario no admin intentó eliminar mensaje');
+                return;
+            }
+
             // data contiene: {messageId}
 
             // PASO 1: Eliminar el mensaje de la base de datos

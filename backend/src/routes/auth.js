@@ -8,7 +8,7 @@ const express = require('express');
 const router = express.Router();
 const Usuario = require('../models/User');
 const verificarToken = require('../middleware/auth');
-const { enviarEmailBienvenida } = require('../config/email');
+const { enviarEmailBienvenida, enviarEmailRecuperacion } = require('../config/email');
 
 // ============================================
 // RUTA: POST /api/auth/register
@@ -197,49 +197,74 @@ router.get('/verify', verificarToken, (req, res) => {
 });
 
 // ============================================
-// RUTA: POST /api/auth/request-password-reset
-// Solicitar código para recuperar contraseña
+// RUTA: POST /api/auth/request-reset
+// Solicitar código para recuperar contraseña (ENDPOINT PRINCIPAL)
 // ============================================
-// Primera parte del proceso de recuperación: generar el código
+// Primera parte del proceso de recuperación: generar el código y enviarlo por email
+router.post('/request-reset', async(req, res) => {
+    try {
+        // 1) Recoger email del body
+        const { email } = req.body;
+
+        // 2) Validar que exista
+        if (!email) {
+            return res.status(400).json({ error: 'Email es obligatorio' });
+        }
+
+        // 3) Generar código (y guardarlo en password_resets con expiración)
+        const codigo = await Usuario.generarCodigoRecuperacion(email);
+
+        // 4) Enviar email con el código
+        // Si falla, devolvemos error para que el usuario pueda reintentar
+        const enviado = await enviarEmailRecuperacion(email, codigo);
+
+        if (!enviado) {
+            return res.status(500).json({
+                error: 'No se pudo enviar el email de recuperación. Inténtalo de nuevo más tarde.'
+            });
+        }
+
+        // 5) Respuesta OK (NO devolvemos el código por seguridad)
+        return res.json({
+            mensaje: 'Te hemos enviado un email con el código de recuperación.'
+        });
+
+    } catch (error) {
+        console.error('Error en request-reset:', error);
+        return res.status(400).json({
+            error: error.message || 'Error al solicitar código'
+        });
+    }
+});
+
+// ============================================
+// ALIAS / COMPATIBILIDAD
+// RUTA: POST /api/auth/request-password-reset (DEPRECATED)
+// Mantener el endpoint antiguo para no romper el frontend viejo
+// ============================================
 router.post('/request-password-reset', async(req, res) => {
     try {
         const { email } = req.body;
 
-        // Validar que se envió el email
         if (!email) {
-            return res.status(400).json({
-                error: 'Email es obligatorio'
+            return res.status(400).json({ error: 'Email es obligatorio' });
+        }
+
+        const codigo = await Usuario.generarCodigoRecuperacion(email);
+        const enviado = await enviarEmailRecuperacion(email, codigo);
+
+        if (!enviado) {
+            return res.status(500).json({
+                error: 'No se pudo enviar el email de recuperación.'
             });
         }
 
-        // ============================================
-        // Generar código de 6 dígitos
-        // ============================================
-        // Este código expira en 15 minutos
-        const codigo = await Usuario.generarCodigoRecuperacion(email);
-
-        // ============================================
-        // ¡IMPORTANTE EN PRODUCCIÓN!
-        // ============================================
-        // En una aplicación real, aquí enviarías un email con el código
-        // usando servicios como:
-        // - SendGrid
-        // - Mailgun
-        // - AWS SES
-        // - Nodemailer con Gmail
-        //
-        // Por ahora, para desarrollo, mostramos el código en la consola
-        console.log(`📧 Código de recuperación para ${email}: ${codigo}`);
-
-        res.json({
-            mensaje: 'Código de recuperación generado. Revisa la consola del servidor.',
-            // ¡PELIGRO! En producción NO devolver el código en la respuesta
-            // Solo lo hacemos para desarrollo
-            codigo: codigo
+        return res.json({
+            mensaje: 'Te hemos enviado un email con el código de recuperación.'
         });
     } catch (error) {
         console.error('Error en request-password-reset:', error);
-        res.status(400).json({
+        return res.status(400).json({
             error: error.message || 'Error al solicitar código'
         });
     }

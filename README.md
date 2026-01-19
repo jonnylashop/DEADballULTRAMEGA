@@ -126,6 +126,14 @@ http://localhost:3000
 
 El proyecto sigue una arquitectura **REST (Representational State Transfer)** que separa claramente el frontend del backend:
 
+### 📊 Diagrama de Arquitectura del Sistema
+
+![Arquitectura DEADball ULTRAMEGA](frontend/imagenes/Diagrama%20DeadBallUltramega.png)
+
+*El diagrama muestra la interacción completa entre Frontend, Middleware JWT, APIs protegidas, Socket.IO, y la base de datos SQLite.*
+
+### Flujo de Comunicación:
+
 ```
 ┌─────────────┐         JSON          ┌─────────────┐        SQL         ┌──────────────┐
 │   Cliente   │ ◄──────────────────► │   Servidor  │ ◄───────────────► │  SQLite DB   │
@@ -133,8 +141,6 @@ El proyecto sigue una arquitectura **REST (Representational State Transfer)** qu
 │             │  GET/POST/PUT/DELETE  │             │                    │              │
 └─────────────┘                       └─────────────┘                    └──────────────┘
 ```
-
-### Flujo de Comunicación:
 1. **Cliente** (navegador) envía petición HTTP con datos en formato JSON
 2. **Servidor** (Express.js) recibe la petición, procesa la lógica de negocio
 3. **Base de Datos** (SQLite) almacena/recupera datos mediante consultas SQL
@@ -148,8 +154,9 @@ El proyecto sigue una arquitectura **REST (Representational State Transfer)** qu
 | `/api/auth/register` | POST | Registrar nuevo usuario | Público |
 | `/api/auth/login` | POST | Iniciar sesión y obtener JWT | Público |
 | `/api/auth/verify` | GET | Verificar token de autenticación | Autenticado |
-| `/api/auth/request-reset` | POST | Solicitar restablecimiento de contraseña | Público |
-| `/api/auth/reset-password` | POST | Restablecer contraseña con token | Público |
+| `/api/auth/request-reset` | POST | Solicitar código recuperación por email | Público |
+| `/api/auth/request-password-reset` | POST | (Deprecated) Alias de request-reset | Público |
+| `/api/auth/reset-password` | POST | Restablecer contraseña con código | Público |
 | `/api/teams` | GET | Obtener todos los equipos del usuario | Autenticado |
 | `/api/teams/:id` | GET | Obtener equipo específico por ID | Autenticado |
 | `/api/teams` | POST | Crear nuevo equipo personalizado | Autenticado |
@@ -157,13 +164,16 @@ El proyecto sigue una arquitectura **REST (Representational State Transfer)** qu
 | `/api/teams/:id` | DELETE | Eliminar equipo | Autenticado |
 | `/api/games/save` | POST | Guardar estado de partida | Autenticado |
 | `/api/games/load` | GET | Cargar partidas guardadas | Autenticado |
+| `/api/games/hall-of-fame` | GET | Obtener ranking de jugadores | Público |
 | `/api/upload/player-photo` | POST | Subir foto de jugador (multipart) | Autenticado |
 
 ### 🔐 Autenticación:
 - Autenticación mediante **JWT (JSON Web Token)**
 - Token enviado en el header: `Authorization: Bearer <token>`
-- Expiración del token: **24 horas**
-- Contraseñas encriptadas con **bcryptjs**
+- Expiración del token: **Configurable** (por defecto 24h, ajustable en .env con `JWT_EXPIRES_IN`)
+- Contraseñas encriptadas con **bcryptjs** (bcrypt puro eliminado por compatibilidad)
+- Sistema de recuperación de contraseña por **email** (Nodemailer)
+- Códigos de recuperación de 6 dígitos con expiración de 15 minutos
 
 ### 📦 Formato de Respuesta:
 ```json
@@ -203,18 +213,27 @@ Content-Type: application/json
 - [x] Sistema de audio completo (música y efectos de sonido)
 - [x] Servidor Express con arquitectura REST API
 - [x] Base de datos SQLite con 6 tablas
-- [x] Sistema de autenticación JWT
+- [x] Sistema de autenticación JWT (bcryptjs estandarizado)
 - [x] Sistema de login y registro de usuarios
-- [x] Sistema de recuperación de contraseña (email)
+- [x] Sistema de recuperación de contraseña por email (Nodemailer + Gmail)
 - [x] Gestión completa de equipos (CRUD)
 - [x] Sistema de guardado/carga de partidas
 - [x] Sistema de subida de fotos de jugadores
 - [x] Integración de equipos MLB
 - [x] Interfaz de juego con efectos visuales
-- [x] Sistema de chat entre usuarios
-  - Chat entre usuarios autenticados
+- [x] Sistema de chat en tiempo real (Socket.IO)
+  - Chat seguro con autenticación JWT
   - Mensajes persistidos en base de datos
-  - Actualización en tiempo real (polling)
+  - Administración de mensajes (solo admins)
+- [x] Menú principal mejorado con:
+  - Favicon personalizado (⚾)
+  - Carrusel de imágenes (estadio, eventos)
+  - Modal de Hall of Fame con ranking
+  - Botón de contacto Telegram
+  - Diseño sin scroll, fondo oscuro
+- [x] Sistema de distribución (.bat para Windows)
+  - INICIAR_JUEGO.bat (auto-instalación)
+  - CREAR_ZIP_DISTRIBUCION.bat
 
 ### 🚧 EN DESARROLLO:
 - [ ] Página de perfil de usuario
@@ -235,12 +254,23 @@ Content-Type: application/json
 Archivo ubicado en `backend/.env`:
 
 ```env
+# JWT Configuration
 JWT_SECRET=deadball_super_secret_key_cambiar_en_produccion_123456
-PORT=3000
 JWT_EXPIRES_IN=24h
+
+# Server Configuration
+PORT=3000
+
+# Email Configuration (Nodemailer + Gmail)
+EMAIL_USER=tu-email@gmail.com
+EMAIL_PASSWORD=tu-contraseña-de-aplicacion
 ```
 
-⚠️ **IMPORTANTE**: Este archivo NO se debe subir a GitHub
+⚠️ **IMPORTANTE**: 
+- Este archivo NO se debe subir a GitHub
+- Para emails, necesitas una **contraseña de aplicación** de Gmail (no tu contraseña normal)
+- JWT_EXPIRES_IN acepta: '1h', '7d', '30d', etc.
+- Sin EMAIL_USER/PASSWORD, el registro funciona pero no envía emails
 
 ---
 

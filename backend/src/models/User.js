@@ -140,11 +140,13 @@ class Usuario {
         const token = jwt.sign({
                 id: usuario.id,
                 email: usuario.email,
-                nombre: usuario.username,
+                // Si viene de login, suele ser usuario.username (viene de BD)
+                // Si viene de register, tu crear() devuelve usuario.nombre
+                nombre: usuario.username || usuario.nombre,
                 isAdmin: usuario.is_admin || 0 // 1 si es admin, 0 si no
             },
             process.env.JWT_SECRET, // Clave secreta para firmar (NUNCA compartir)
-            { expiresIn: '7d' } // El token expira en 7 días
+            { expiresIn: process.env.JWT_EXPIRES_IN || '24h' } // Configurable desde .env
         );
         return token;
     }

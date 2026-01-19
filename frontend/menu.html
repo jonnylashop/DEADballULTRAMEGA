@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚾ DEADball ULTRAMEGA - Menú Principal</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚾</text></svg>">
     <style>
         * {
             margin: 0;
@@ -12,15 +13,24 @@
             box-sizing: border-box;
         }
         
+        html {
+            background: #0f172a;
+            height: 100%;
+            width: 100%;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%) !important;
+            height: 100vh;
+            width: 100vw;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
         /* Mostrar login por defecto, ocultar menú */
         
@@ -288,10 +298,578 @@
             transform: none;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
+        /* === IMÁGENES LATERALES === */
+        
+        .side-images {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .side-images.left {
+            left: 2rem;
+        }
+        
+        .side-images.right {
+            right: 2rem;
+        }
+        
+        .side-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #fbbf24;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(251, 191, 36, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(15, 23, 42, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .side-image:hover {
+            transform: scale(1.1) rotate(3deg);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 30px rgba(251, 191, 36, 0.5);
+            border-color: #f59e0b;
+        }
+        
+        .side-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .side-image:hover img {
+            transform: scale(1.05);
+        }
+        /* Placeholder para imágenes que no se han subido aún */
+        
+        .side-image.placeholder {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            font-size: 3rem;
+            color: #fbbf24;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .side-image.placeholder .icon {
+            font-size: 3rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .side-image.placeholder .label {
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        /* Estilos específicos para cada imagen */
+        
+        .side-image.deadball-logo {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        }
+        
+        .side-image.cbstoros-web {
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+        }
+        
+        .side-image.trophy {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0f172a;
+        }
+        
+        .side-image.telegram {
+            background: transparent;
+            padding: 0;
+            border: 3px solid #fbbf24;
+        }
+        
+        .side-image.telegram img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        /* Indicador de enlace externo */
+        
+        .side-image.external-link::after {
+            content: '🔗';
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 1.2rem;
+            background: rgba(251, 191, 36, 0.9);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 1200px) {
+            .side-images {
+                display: none;
+            }
+        }
+        /* === MODAL LIGHTBOX === */
+        
+        .modal-lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Más transparente para ver el menú */
+            backdrop-filter: blur(5px);
+            /* Menos blur */
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-lightbox.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .modal-content {
+            position: relative;
+            max-width: 75%;
+            /* 3/4 de la pantalla */
+            max-height: 90vh;
+            /* Más altura para ver la imagen completa */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: zoomIn 0.3s ease;
+        }
+        
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            /* Limitar altura para que se vea completa */
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            /* Mostrar imagen completa sin recortar */
+            border-radius: 15px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8);
+            border: 3px solid #fbbf24;
+        }
+        
+        .modal-close-btn {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            border: 3px solid #fbbf24;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+        }
+        
+        .modal-close-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(220, 38, 38, 0.6);
+            background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%);
+        }
+        
+        .modal-close-btn:active {
+            transform: translateY(-1px);
+        }
+        /* Indicador de que la imagen es clickeable */
+        
+        .side-image.clickable {
+            cursor: zoom-in;
+        }
+        
+        .side-image.clickable::before {
+            content: '🔍';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .side-image.clickable:hover::before {
+            opacity: 1;
+        }
+        /* === CONTROLES DEL CARRUSEL === */
+        
+        .carousel-controls {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            padding: 0 20px;
+            pointer-events: none;
+        }
+        
+        .carousel-btn {
+            pointer-events: all;
+            background: rgba(251, 191, 36, 0.9);
+            color: #0f172a;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .carousel-btn:hover {
+            background: #fbbf24;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+        }
+        
+        .carousel-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .carousel-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .carousel-btn:disabled:hover {
+            transform: none;
+        }
+        /* Indicadores (dots) */
+        
+        .carousel-indicators {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(148, 163, 184, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .carousel-dot:hover {
+            background: rgba(251, 191, 36, 0.7);
+            transform: scale(1.2);
+        }
+        
+        .carousel-dot.active {
+            background: #fbbf24;
+            border-color: #f59e0b;
+            transform: scale(1.3);
+        }
+        /* Contador de imágenes */
+        
+        .carousel-counter {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            background: rgba(15, 23, 42, 0.9);
+            color: #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 2px solid #fbbf24;
+        }
+        /* Disclaimer sobre la imagen */
+        
+        .carousel-disclaimer {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: 3px solid #fbbf24;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            max-width: 90%;
+            z-index: 10;
+            animation: slideDown 0.5s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        /* Animación de transición entre imágenes */
+        
+        .modal-content img {
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-content img.changing {
+            opacity: 0.3;
+        }
+        /* === MODAL DE RANKING === */
+        
+        .ranking-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .ranking-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .ranking-container {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border: 3px solid #fbbf24;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+        
+        .ranking-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .ranking-header h2 {
+            color: #fbbf24;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ranking-header p {
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+        
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .ranking-table thead {
+            background: rgba(251, 191, 36, 0.1);
+        }
+        
+        .ranking-table th {
+            color: #fbbf24;
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #fbbf24;
+        }
+        
+        .ranking-table td {
+            color: #e2e8f0;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        .ranking-table tr:hover {
+            background: rgba(251, 191, 36, 0.05);
+        }
+        
+        .rank-position {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        
+        .rank-1 {
+            color: #fbbf24;
+        }
+        /* Oro */
+        
+        .rank-2 {
+            color: #c0c0c0;
+        }
+        /* Plata */
+        
+        .rank-3 {
+            color: #cd7f32;
+        }
+        /* Bronce */
+        
+        .ranking-loading {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+        
+        .ranking-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            border: 2px solid #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .ranking-close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
     </style>
 </head>
 
 <body>
+    <!-- MODAL LIGHTBOX CON CARRUSEL DE IMÁGENES -->
+    <div id="imageModal" class="modal-lightbox" onclick="closeModal(event)">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal(event)">✖ Cerrar</button>
+            <div class="carousel-counter" id="carouselCounter">1 / 1</div>
+
+            <!-- Disclaimer -->
+            <div class="carousel-disclaimer" id="carouselDisclaimer" style="display: none;">
+                🎲 Esta es una versión digital fan del juego de rol DEADBALL de W.M. AKERS
+            </div>
+
+            <!-- Imagen principal -->
+            <img src="imagenes/zelaiaren inaugurazioa.jpg" alt="Galería del estadio" id="modalImage">
+
+            <!-- Controles de navegación -->
+            <div class="carousel-controls">
+                <button class="carousel-btn" id="prevBtn" onclick="prevImage(event)" title="Imagen anterior">
+                    ◀
+                </button>
+                <button class="carousel-btn" id="nextBtn" onclick="nextImage(event)" title="Siguiente imagen">
+                    ▶
+                </button>
+            </div>
+
+            <!-- Indicadores (dots) -->
+            <div class="carousel-indicators" id="carouselIndicators"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE RANKING -->
+    <div id="rankingModal" class="ranking-modal" onclick="closeRankingModal(event)">
+        <div class="ranking-container" onclick="event.stopPropagation()">
+            <button class="ranking-close-btn" onclick="closeRankingModal(event)">✖ Cerrar</button>
+            <div class="ranking-header">
+                <h2>🏆 Hall of Fame</h2>
+                <p>Los mejores jugadores de DEADball</p>
+            </div>
+            <div id="rankingContent" class="ranking-loading">
+                Cargando ranking...
+            </div>
+        </div>
+    </div>
+
+    <!-- IMÁGENES LATERALES IZQUIERDA -->
+    <div class="side-images left">
+        <!-- Imagen 1: Logo DEADball - Click para ver disclaimer -->
+        <div class="side-image placeholder deadball-logo clickable" title="DEADball Ultra Mega - Click para ver más" onclick="openDeadballModal()">
+            <div class="icon">⚾</div>
+            <div class="label">DEADball</div>
+        </div>
+        <!-- Imagen 2: Estadio (zelaia.jpg) - Click para ampliar -->
+        <div class="side-image clickable" title="Campo Zelaia - Click para ampliar" onclick="openModal()">
+            <img src="imagenes/zelaia.jpg" alt="Campo Zelaia" style="object-fit: cover;">
+        </div>
+        <!-- Imagen 3: Telegram - Contacto -->
+        <a href="https://t.me/Jonnylashop" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+            <div class="side-image telegram" title="Contacta conmigo en Telegram">
+                <img src="imagenes/telegram.png" alt="Telegram">
+            </div>
+        </a>
+    </div>
+
+    <!-- IMÁGENES LATERALES DERECHA -->
+    <div class="side-images right">
+        <!-- Imagen 4: Enlace a CB Storos -->
+        <a href="https://www.cbstoros.com" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+            <div class="side-image external-link placeholder cbstoros-web" title="Visita CB Storos">
+                <div class="icon">🌐</div>
+                <div class="label">CB Storos</div>
+            </div>
+        </a>
+        <!-- Imagen 5: Trofeo / Campeonato - Click para ver ranking -->
+        <div class="side-image placeholder trophy clickable" title="Hall of Fame - Ver ranking" onclick="openRankingModal()">
+            <div class="icon">🏆</div>
+            <div class="label">Champion</div>
+        </div>
+    </div>
+
     <!-- PANTALLA DE LOGIN -->
     <div class="login-container" id="loginContainer">
         <div class="logo">⚾</div>
@@ -457,6 +1035,279 @@
             document.getElementById('errorMsg').style.display = 'none';
             document.getElementById('successMsg').style.display = 'none';
         }
+
+        // === MODAL DE RANKING ===
+        async function openRankingModal() {
+            const modal = document.getElementById('rankingModal');
+            const content = document.getElementById('rankingContent');
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Mostrar loading
+            content.innerHTML = '<div class="ranking-loading">⏳ Cargando ranking...</div>';
+
+            try {
+                // Llamar al API para obtener el ranking
+                const response = await fetch(`${API_URL}/games/hall-of-fame?limit=20`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al cargar ranking');
+                }
+
+                // Mostrar el ranking
+                displayRanking(data.ranking);
+            } catch (error) {
+                console.error('Error al cargar ranking:', error);
+                content.innerHTML = `
+                    <div class="ranking-loading">
+                        ❌ Error al cargar el ranking<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+
+        function displayRanking(ranking) {
+            const content = document.getElementById('rankingContent');
+
+            if (!ranking || ranking.length === 0) {
+                content.innerHTML = '<div class="ranking-loading">📊 No hay datos de ranking todavía</div>';
+                return;
+            }
+
+            let html = `
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Jugador</th>
+                            <th>Partidos</th>
+                            <th>Ganados</th>
+                            <th>Perdidos</th>
+                            <th>Completados</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            ranking.forEach((player, index) => {
+                const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                const position = index + 1;
+                const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : position;
+
+                html += `
+                    <tr>
+                        <td class="rank-position ${rankClass}">${medal}</td>
+                        <td><strong>${player.alias}</strong></td>
+                        <td>${player.partidos_jugados}</td>
+                        <td style="color: #10b981;">${player.ganados}</td>
+                        <td style="color: #ef4444;">${player.perdidos}</td>
+                        <td>${player.completados}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            content.innerHTML = html;
+        }
+
+        function closeRankingModal(event) {
+            if (event.target.id === 'rankingModal' ||
+                event.target.classList.contains('ranking-close-btn') ||
+                event.target.tagName === 'BUTTON') {
+                const modal = document.getElementById('rankingModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // === FUNCIÓN ESPECIAL PARA DEADBALL ===
+        function openDeadballModal() {
+            const modal = document.getElementById('imageModal');
+            const img = document.getElementById('modalImage');
+            const disclaimer = document.getElementById('carouselDisclaimer');
+            const counter = document.getElementById('carouselCounter');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const indicators = document.getElementById('carouselIndicators');
+
+            // Mostrar modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Configurar imagen de DEADball
+            img.src = 'imagenes/deadball.webp';
+            img.alt = 'DEADball - Juego de Rol';
+
+            // Mostrar disclaimer
+            disclaimer.style.display = 'block';
+
+            // Ocultar controles de navegación (solo 1 imagen)
+            counter.style.display = 'none';
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            indicators.innerHTML = '';
+        }
+
+        // === CARRUSEL DE IMÁGENES ===
+        // Array de imágenes para el carrusel
+        const carouselImages = [{
+                src: 'imagenes/zelaiaren inaugurazioa.jpg',
+                alt: 'Inauguración del campo Zelaia'
+            }, {
+                src: 'imagenes/Mijagi.jpg',
+                alt: 'Mijagi'
+            },
+            // Cuando agregues más fotos, descómentalas:
+            // { src: 'imagenes/foto3.jpg', alt: 'Descripción foto 3' },
+        ];
+
+        let currentImageIndex = 0;
+
+        function openModal() {
+            const modal = document.getElementById('imageModal');
+            const disclaimer = document.getElementById('carouselDisclaimer');
+            const counter = document.getElementById('carouselCounter');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Ocultar disclaimer (solo para carrusel normal)
+            disclaimer.style.display = 'none';
+
+            // Mostrar controles
+            counter.style.display = 'block';
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+
+            // Resetear a la primera imagen
+            currentImageIndex = 0;
+            updateCarouselImage();
+            createIndicators();
+        }
+
+        function closeModal(event) {
+            if (event.target.id === 'imageModal' ||
+                event.target.classList.contains('modal-close-btn') ||
+                event.target.tagName === 'BUTTON') {
+                const modal = document.getElementById('imageModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function updateCarouselImage() {
+            const img = document.getElementById('modalImage');
+            const counter = document.getElementById('carouselCounter');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // Efecto de transición
+            img.classList.add('changing');
+
+            setTimeout(() => {
+                img.src = carouselImages[currentImageIndex].src;
+                img.alt = carouselImages[currentImageIndex].alt;
+                img.classList.remove('changing');
+            }, 150);
+
+            // Actualizar contador
+            counter.textContent = `${currentImageIndex + 1} / ${carouselImages.length}`;
+
+            // Habilitar/deshabilitar botones
+            prevBtn.disabled = currentImageIndex === 0;
+            nextBtn.disabled = currentImageIndex === carouselImages.length - 1;
+
+            // Actualizar indicadores
+            updateIndicators();
+        }
+
+        function prevImage(event) {
+            event.stopPropagation();
+            if (currentImageIndex > 0) {
+                currentImageIndex--;
+                updateCarouselImage();
+            }
+        }
+
+        function nextImage(event) {
+            event.stopPropagation();
+            if (currentImageIndex < carouselImages.length - 1) {
+                currentImageIndex++;
+                updateCarouselImage();
+            }
+        }
+
+        function goToImage(index, event) {
+            event.stopPropagation();
+            currentImageIndex = index;
+            updateCarouselImage();
+        }
+
+        function createIndicators() {
+            const indicatorsContainer = document.getElementById('carouselIndicators');
+            indicatorsContainer.innerHTML = '';
+
+            // Solo mostrar indicadores si hay más de 1 imagen
+            if (carouselImages.length > 1) {
+                carouselImages.forEach((_, index) => {
+                    const dot = document.createElement('div');
+                    dot.className = 'carousel-dot';
+                    if (index === currentImageIndex) {
+                        dot.classList.add('active');
+                    }
+                    dot.onclick = (e) => goToImage(index, e);
+                    indicatorsContainer.appendChild(dot);
+                });
+            }
+        }
+
+        function updateIndicators() {
+            const dots = document.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, index) => {
+                if (index === currentImageIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        // Navegación con teclado
+        document.addEventListener('keydown', function(event) {
+            const modal = document.getElementById('imageModal');
+            const rankingModal = document.getElementById('rankingModal');
+
+            if (modal.classList.contains('active')) {
+                if (event.key === 'Escape') {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                } else if (event.key === 'ArrowLeft') {
+                    if (currentImageIndex > 0) {
+                        currentImageIndex--;
+                        updateCarouselImage();
+                    }
+                } else if (event.key === 'ArrowRight') {
+                    if (currentImageIndex < carouselImages.length - 1) {
+                        currentImageIndex++;
+                        updateCarouselImage();
+                    }
+                }
+            }
+
+            // Cerrar ranking modal con ESC
+            if (rankingModal && rankingModal.classList.contains('active') && event.key === 'Escape') {
+                closeRankingModal();
+            }
+        });
     </script>
 </body>
 

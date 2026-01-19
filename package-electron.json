@@ -1,0 +1,56 @@
+{
+    "name": "deadball-desktop",
+    "version": "1.0.0",
+    "description": "DEADball Ultra Mega - Versión Desktop con Electron",
+    "main": "electron-main.js",
+    "scripts": {
+        "electron": "electron .",
+        "build-win": "electron-builder --win",
+        "build-mac": "electron-builder --mac",
+        "build-linux": "electron-builder --linux",
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder"
+    },
+    "build": {
+        "appId": "com.deadball.ultramega",
+        "productName": "DEADball Ultra Mega",
+        "directories": {
+            "output": "dist",
+            "buildResources": "build"
+        },
+        "files": [
+            "frontend/**/*",
+            "backend/**/*",
+            "electron-main.js",
+            "preload.js",
+            "!backend/node_modules/**/*",
+            "!backend/deadball.db"
+        ],
+        "win": {
+            "target": ["nsis", "portable"],
+            "icon": "build/icon.ico"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "shortcutName": "DEADball Ultra Mega"
+        },
+        "mac": {
+            "target": "dmg",
+            "icon": "build/icon.icns",
+            "category": "public.app-category.games"
+        },
+        "linux": {
+            "target": ["AppImage", "deb"],
+            "icon": "build/icon.png",
+            "category": "Game"
+        }
+    },
+    "devDependencies": {
+        "electron": "^28.0.0",
+        "electron-builder": "^24.9.1"
+    },
+    "dependencies": {}
+}

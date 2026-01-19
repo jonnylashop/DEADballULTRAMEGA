@@ -1,0 +1,113 @@
+═══════════════════════════════════════════════════════════════
+  📋 GUÍA RÁPIDA - ARCHIVOS IMPORTANTES
+═══════════════════════════════════════════════════════════════
+
+👤 PARA EL DESARROLLADOR (TÚ):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 DISTRIBUIR.md
+   → Guía completa para preparar y distribuir el juego
+   → Lee esto antes de compartir
+
+▶️ CREAR_ZIP_DISTRIBUCION.bat
+   → Ejecuta esto para crear el ZIP automáticamente
+   → Limpia archivos innecesarios
+   → Comprime todo en un ZIP listo para compartir
+
+📝 COMO_CREAR_EJECUTABLE.md
+   → Si quieres crear un .exe con icono
+   → Convierte el .bat en ejecutable
+
+📦 CREAR_EJECUTABLE_COMPLETO.md
+   → Para crear una aplicación profesional con Electron
+   → No requiere que el usuario instale Node.js
+
+
+👥 PARA LOS USUARIOS (QUIEN DESCARGUE EL JUEGO):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 LEEME.txt  ⭐ ESTE ES EL PRIMERO QUE DEBEN LEER
+   → Instrucciones rápidas y simples
+   → Cómo instalar y jugar en 3 pasos
+
+📄 INSTRUCCIONES_INSTALACION.txt
+   → Ayuda detallada si tienen problemas
+   → Solución de errores comunes
+
+▶️ INICIAR_JUEGO.bat  ⭐ ESTE ES EL QUE DEBEN EJECUTAR
+   → Doble clic para arrancar el servidor
+   → Instala dependencias automáticamente (solo 1ra vez)
+   → Mantener abierto mientras juegan
+
+🌐 ABRIR_JUEGO.bat
+   → Abre el juego en el navegador
+   → Usar después de iniciar el servidor
+
+⏹️ DETENER_SERVIDOR.bat
+   → Cierra el servidor cuando terminen
+
+
+═══════════════════════════════════════════════════════════════
+  🚀 PASOS PARA DISTRIBUIR (RESUMEN):
+═══════════════════════════════════════════════════════════════
+
+1. Ejecuta: CREAR_ZIP_DISTRIBUCION.bat
+   ↓
+2. Se crea: DEADball_UltraMega_[fecha].zip
+   ↓
+3. Comparte ese ZIP por Google Drive, WeTransfer, etc.
+   ↓
+4. Los usuarios descomprimen y ejecutan INICIAR_JUEGO.bat
+
+
+═══════════════════════════════════════════════════════════════
+  ⚠️ IMPORTANTE ANTES DE DISTRIBUIR:
+═══════════════════════════════════════════════════════════════
+
+✅ NO incluir node_modules (se instala automáticamente)
+✅ NO incluir tu base de datos personal (deadball.db)
+✅ SÍ incluir todos los archivos .bat
+✅ SÍ incluir LEEME.txt e INSTRUCCIONES_INSTALACION.txt
+✅ SÍ incluir carpetas frontend/ y backend/
+
+Tamaño esperado del ZIP: ~5-10 MB
+
+
+═══════════════════════════════════════════════════════════════
+  📁 ESTRUCTURA DE ARCHIVOS:
+═══════════════════════════════════════════════════════════════
+
+DEADballULTRAMEGA/
+├── 👤 Para ti (desarrollador):
+│   ├── DISTRIBUIR.md
+│   ├── CREAR_ZIP_DISTRIBUCION.bat
+│   ├── COMO_CREAR_EJECUTABLE.md
+│   ├── CREAR_EJECUTABLE_COMPLETO.md
+│   └── GUIA_ARCHIVOS.txt (este archivo)
+│
+├── 👥 Para usuarios finales:
+│   ├── LEEME.txt ⭐
+│   ├── INSTRUCCIONES_INSTALACION.txt
+│   ├── INICIAR_JUEGO.bat ⭐
+│   ├── ABRIR_JUEGO.bat
+│   └── DETENER_SERVIDOR.bat
+│
+├── 📁 frontend/  (interfaz del juego)
+└── 📁 backend/   (servidor y lógica)
+
+
+═══════════════════════════════════════════════════════════════
+  🎯 PRÓXIMOS PASOS RECOMENDADOS:
+═══════════════════════════════════════════════════════════════
+
+1. ✅ Prueba INICIAR_JUEGO.bat en tu computadora
+2. ✅ Ejecuta CREAR_ZIP_DISTRIBUCION.bat
+3. ✅ Prueba el ZIP en otra carpeta (simula un usuario nuevo)
+4. ✅ Comparte el ZIP con amigos/usuarios
+5. 🎨 (Opcional) Crea un .exe con icono personalizado
+6. 🚀 (Opcional) Crea versión Electron para más profesionalismo
+
+
+═══════════════════════════════════════════════════════════════
+¡Todo listo para distribuir! 🎮⚾
+═══════════════════════════════════════════════════════════════

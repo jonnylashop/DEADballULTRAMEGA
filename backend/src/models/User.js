@@ -4,7 +4,7 @@
 // Este archivo contiene todas las funciones para
 // interactuar con la tabla de usuarios
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 

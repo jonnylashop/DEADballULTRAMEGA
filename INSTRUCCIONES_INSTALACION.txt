@@ -1,0 +1,62 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                  DEADBALL ULTRA MEGA                          ║
+║               INSTRUCCIONES DE INSTALACIÓN                    ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📋 REQUISITOS PREVIOS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Node.js versión 16 o superior
+   👉 Descarga desde: https://nodejs.org/
+   👉 Instala la versión LTS (recomendada)
+
+2. Un navegador web moderno (Chrome, Firefox, Edge)
+
+🚀 INSTALACIÓN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Descomprime todos los archivos en una carpeta
+2. Haz doble clic en "INICIAR_JUEGO.bat"
+3. Espera a que se instalen las dependencias (solo la primera vez)
+4. El servidor se iniciará automáticamente
+
+🎮 CÓMO JUGAR:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Una vez iniciado el servidor, abre tu navegador
+2. Ve a: http://localhost:3000/frontend/index.html
+3. O ejecuta "ABRIR_JUEGO.bat" para abrir automáticamente
+
+⚠️ NOTAS IMPORTANTES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Mantén la ventana del servidor abierta mientras juegas
+• Para cerrar el juego, cierra la ventana o usa Ctrl+C
+• Si el juego no funciona, ejecuta "DETENER_SERVIDOR.bat" primero
+• Los datos se guardan en: backend/deadball.db
+
+📁 ESTRUCTURA DE ARCHIVOS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+├── INICIAR_JUEGO.bat      → Iniciar el servidor
+├── ABRIR_JUEGO.bat        → Abrir en navegador
+├── DETENER_SERVIDOR.bat   → Cerrar servidor
+├── frontend/              → Archivos del juego (HTML, CSS, JS)
+└── backend/               → Servidor y base de datos
+
+🆘 SOLUCIÓN DE PROBLEMAS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+❌ "Node.js no está instalado"
+   → Instala Node.js desde nodejs.org
+
+❌ "Puerto 3000 ya en uso"
+   → Ejecuta DETENER_SERVIDOR.bat y vuelve a intentar
+   → O reinicia tu computadora
+
+❌ "No se puede conectar"
+   → Verifica que el servidor esté corriendo
+   → Revisa que el firewall no bloquee el puerto 3000
+
+❌ "Errores al instalar dependencias"
+   → Abre cmd como Administrador
+   → Navega a la carpeta backend: cd backend
+   → Ejecuta: npm install
+
+═══════════════════════════════════════════════════════════════
+¡Disfruta del juego! 🎮⚾
+═══════════════════════════════════════════════════════════════

@@ -228,7 +228,21 @@ const AudioSystem = {
 
         this.backgroundMusic.volume = this.musicVolume;
         this.backgroundMusic.play().catch(error => {
-            console.log('⚠️ No se pudo reproducir música:', error.message);
+            console.log('⚠️ Autoplay bloqueado por el navegador. Haz clic en cualquier parte para activar la música.');
+            
+            // Intentar reproducir después de la primera interacción del usuario
+            const playOnInteraction = () => {
+                if (this.enabled && this.backgroundMusic) {
+                    this.backgroundMusic.play().catch(err => {
+                        console.log('⚠️ No se pudo reproducir música:', err.message);
+                    });
+                }
+                document.removeEventListener('click', playOnInteraction);
+                document.removeEventListener('keydown', playOnInteraction);
+            };
+            
+            document.addEventListener('click', playOnInteraction, { once: true });
+            document.addEventListener('keydown', playOnInteraction, { once: true });
         });
     },
 

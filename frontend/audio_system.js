@@ -226,13 +226,19 @@ const AudioSystem = {
     playMusic() {
         if (!this.enabled || !this.backgroundMusic) return;
 
+        // Si ya está sonando, no volver a reproducir
+        if (!this.backgroundMusic.paused) {
+            console.log('🎵 Música ya está sonando');
+            return;
+        }
+
         this.backgroundMusic.volume = this.musicVolume;
         this.backgroundMusic.play().catch(error => {
             console.log('⚠️ Autoplay bloqueado por el navegador. Haz clic en cualquier parte para activar la música.');
 
             // Intentar reproducir después de la primera interacción del usuario
             const playOnInteraction = () => {
-                if (this.enabled && this.backgroundMusic) {
+                if (this.enabled && this.backgroundMusic && this.backgroundMusic.paused) {
                     this.backgroundMusic.play().catch(err => {
                         console.log('⚠️ No se pudo reproducir música:', err.message);
                     });
@@ -250,8 +256,12 @@ const AudioSystem = {
      * Pausar música de fondo
      */
     pauseMusic() {
+        console.log('⏸️ Intentando pausar música...');
         if (this.backgroundMusic) {
             this.backgroundMusic.pause();
+            console.log('✅ Música pausada. Estado paused:', this.backgroundMusic.paused);
+        } else {
+            console.log('⚠️ No hay objeto backgroundMusic');
         }
     },
 

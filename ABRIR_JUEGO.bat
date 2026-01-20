@@ -56,8 +56,18 @@ echo.
 :: Intentar abrir con el navegador predeterminado
 start "" "http://localhost:3000/menu.html"
 
-:: Si no funciona, intentar con Chrome
+:: Si no funciona, intentar con navegadores comunes
 timeout /t 1 /nobreak >nul
+
+:: Firefox
+if exist "C:\Program Files\Mozilla Firefox\firefox.exe" (
+    start "" "C:\Program Files\Mozilla Firefox\firefox.exe" "http://localhost:3000/menu.html"
+)
+if exist "C:\Program Files (x86)\Mozilla Firefox\firefox.exe" (
+    start "" "C:\Program Files (x86)\Mozilla Firefox\firefox.exe" "http://localhost:3000/menu.html"
+)
+
+:: Chrome
 if exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
     start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" "http://localhost:3000/menu.html"
 )
@@ -65,9 +75,12 @@ if exist "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" (
     start "" "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" "http://localhost:3000/menu.html"
 )
 
-:: Si no funciona, intentar con Edge
+:: Edge
 if exist "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" (
     start "" "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" "http://localhost:3000/menu.html"
+)
+if exist "C:\Program Files\Microsoft\Edge\Application\msedge.exe" (
+    start "" "C:\Program Files\Microsoft\Edge\Application\msedge.exe" "http://localhost:3000/menu.html"
 )
 
 echo.

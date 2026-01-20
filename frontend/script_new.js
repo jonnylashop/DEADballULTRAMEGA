@@ -31,7 +31,10 @@ const gameState = {
     currentIntention: null,
     lastPitcherDice: null, // Almacena el último valor del dado del pitcher para Oddities
     baseStealModifier: 0, // Modificador temporal para robo de bases (Oddity 13)
-    diceRolled: { pitcher: false, batter: false }, // Controla si los dados ya fueron lanzados
+    diceRolled: { 
+        visitante: { pitcher: false, batter: false },
+        local: { pitcher: false, batter: false }
+    }, // Controla si los dados ya fueron lanzados POR EQUIPO
     specialDiceRolled: { oddity1: false, oddity2: false, d4: false, d100: false, steal: false, hitRun: false, injury: false, hit: false, defense: false, bunting: false }, // Control para dados especiales
     pitcher: {
         visitante: {
@@ -245,7 +248,10 @@ function startNewGame() {
     gameState.currentIntention = null;
 
     // RESETEAR DADOS AL INICIAR JUEGO
-    gameState.diceRolled = { pitcher: false, batter: false };
+    gameState.diceRolled = { 
+        visitante: { pitcher: false, batter: false },
+        local: { pitcher: false, batter: false }
+    };
     gameState.specialDiceRolled = {
         oddity1: false,
         oddity2: false,
@@ -439,7 +445,10 @@ function nextBatter() {
     gameState.strikes = 0;
     gameState.balls = 0;
     gameState.currentIntention = null;
-    gameState.diceRolled = { pitcher: false, batter: false }; // Desbloquear dados para el siguiente bateador
+    gameState.diceRolled = { 
+        visitante: { pitcher: false, batter: false },
+        local: { pitcher: false, batter: false }
+    }; // Desbloquear dados para el siguiente bateador
     gameState.specialDiceRolled = { oddity1: false, oddity2: false, d4: false, d100: false, steal: false, hitRun: false, injury: false, hit: false, defense: false, bunting: false }; // Desbloquear dados especiales
 
     // Limpiar dados del equipo visitante
@@ -959,9 +968,9 @@ function selectIntention(intention) {
 }
 
 function rollPitcherDice(team) {
-    // Bloquear si ya se lanzó
-    if (gameState.diceRolled.pitcher) {
-        console.log('[DICE] ⚠️ Dado del pitcher ya lanzado, esperando siguiente bateador');
+    // Bloquear si ya se lanzó PARA ESTE EQUIPO
+    if (gameState.diceRolled[team].pitcher) {
+        console.log('[DICE] ⚠️ Dado del pitcher ya lanzado para ' + team + ', esperando siguiente bateador');
         return;
     }
 
@@ -986,7 +995,7 @@ function rollPitcherDice(team) {
 
     diceValueInput.value = result;
     gameState.lastPitcherDice = result;
-    gameState.diceRolled.pitcher = true; // Bloquear dado del pitcher
+    gameState.diceRolled[team].pitcher = true; // Bloquear dado del pitcher para este equipo
     AudioSystem.play('dice_roll');
     console.log('[DICE] Lanzador (' + team + ') tiro D' + diceType + ': ' + result);
 
@@ -994,9 +1003,9 @@ function rollPitcherDice(team) {
 }
 
 function rollBatterDice(team) {
-    // Bloquear si ya se lanzó
-    if (gameState.diceRolled.batter) {
-        console.log('[DICE] ⚠️ Dado del bateador ya lanzado, esperando siguiente bateador');
+    // Bloquear si ya se lanzó PARA ESTE EQUIPO
+    if (gameState.diceRolled[team].batter) {
+        console.log('[DICE] ⚠️ Dado del bateador ya lanzado para ' + team + ', esperando siguiente bateador');
         return;
     }
 
@@ -1010,7 +1019,7 @@ function rollBatterDice(team) {
 
     const result = Math.floor(Math.random() * 100) + 1;
     diceValueInput.value = result;
-    gameState.diceRolled.batter = true; // Bloquear dado del bateador
+    gameState.diceRolled[team].batter = true; // Bloquear dado del bateador para este equipo
     AudioSystem.play('dice_roll');
 
     console.log('[DICE] Bateador (' + team + ') tiro D100: ' + result);
@@ -3085,10 +3094,10 @@ function rollHitD20() {
         console.log('[DICE] ⚠️ D20 de hit ya lanzado');
         return;
     }
-    
+
     console.log('[AUDIO] 🎵 Intentando reproducir sonido de batazo...');
     playAudio('hit'); // 🎵 Reproducir sonido de batazo AL TIRAR el dado
-    
+
     const batter = getCurrentBatter();
     const trait = batter ? batter.trait : '';
 

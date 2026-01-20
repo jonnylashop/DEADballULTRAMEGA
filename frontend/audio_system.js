@@ -262,32 +262,55 @@ const AudioSystem = {
      * Iniciar música de fondo
      */
     playMusic() {
-        if (!this.enabled || !this.backgroundMusic) return;
+        console.log('🎵 playMusic() llamado. Enabled:', this.enabled, 'BackgroundMusic:', !!this.backgroundMusic);
+        
+        if (!this.enabled) {
+            console.log('⚠️ Audio deshabilitado, no se reproduce música');
+            return;
+        }
+        
+        if (!this.backgroundMusic) {
+            console.log('⚠️ No hay objeto backgroundMusic');
+            return;
+        }
 
         // Si ya está sonando, no volver a reproducir
         if (!this.backgroundMusic.paused) {
             console.log('🎵 Música ya está sonando');
+            // Asegurar que el botón esté visible
+            const pauseBtn = document.getElementById('music-pause-btn');
+            if (pauseBtn) pauseBtn.style.display = 'block';
             return;
         }
 
         this.backgroundMusic.volume = this.musicVolume;
+        
+        console.log('🎵 Intentando reproducir música...');
         this.backgroundMusic.play().then(() => {
             // Mostrar botón flotante de pause cuando la música comience
-            console.log('🎵 Música reproduciendo, mostrando botón de pause...');
+            console.log('✅ ¡Música reproduciendo exitosamente!');
             const pauseBtn = document.getElementById('music-pause-btn');
             if (pauseBtn) {
                 pauseBtn.style.display = 'block';
                 console.log('✅ Botón de pause mostrado');
+            } else {
+                console.log('⚠️ No se encontró el botón de pause');
             }
         }).catch(error => {
-            console.log('⚠️ Autoplay bloqueado por el navegador. Haz clic en cualquier parte para activar la música.');
+            console.log('⚠️ Autoplay bloqueado:', error.message);
+            console.log('👆 Haz clic en cualquier parte para activar la música.');
 
             // Intentar reproducir después de la primera interacción del usuario
             const playOnInteraction = () => {
+                console.log('👆 Usuario interactuó, intentando reproducir música...');
                 if (this.enabled && this.backgroundMusic && this.backgroundMusic.paused) {
                     this.backgroundMusic.play().then(() => {
+                        console.log('✅ ¡Música activada tras interacción!');
                         const pauseBtn = document.getElementById('music-pause-btn');
-                        if (pauseBtn) pauseBtn.style.display = 'block';
+                        if (pauseBtn) {
+                            pauseBtn.style.display = 'block';
+                            console.log('✅ Botón de pause mostrado');
+                        }
                     }).catch(err => {
                         console.log('⚠️ No se pudo reproducir música:', err.message);
                     });

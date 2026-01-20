@@ -8,7 +8,7 @@ const AudioSystem = {
 
     // Objetos de audio
     backgroundMusic: null,
-    
+
     // Control de reproducción (evitar superposición)
     playing: {},
 
@@ -115,7 +115,7 @@ const AudioSystem = {
         this.backgroundMusic.volume = this.musicVolume;
 
         // Intentar cargar música real
-        this.backgroundMusic.src = 'audio/background.mp3';
+        this.backgroundMusic.src = 'audio/Sonido beisbol.mp3';
         this.backgroundMusic.onerror = () => {
             console.log('⚠️ No se encontró música de fondo, continuando sin ella');
         };
@@ -275,22 +275,22 @@ const AudioSystem = {
         }
 
         const sound = this.sounds[soundName];
-        
+
         // Si es un objeto Audio (archivo MP3)
         if (sound && sound instanceof Audio) {
             try {
                 // Marcar como reproduciendo
                 this.playing[soundName] = true;
-                
+
                 sound.currentTime = 0; // Reiniciar desde el principio
                 sound.volume = this.sfxVolume;
-                
+
                 // Marcar como no reproduciendo cuando termine
                 sound.onended = () => {
                     this.playing[soundName] = false;
                     console.log(`✅ ${soundName} terminó`);
                 };
-                
+
                 sound.play().catch(err => {
                     console.warn(`⚠️ Error reproduciendo ${soundName}:`, err);
                     this.playing[soundName] = false; // Liberar si hay error

@@ -3034,10 +3034,10 @@
                 <div class="window-content" style="padding: 20px; max-height: 400px; overflow-y: auto;">
                     <div class="audio-toggle-wrapper" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                         <span id="audio-icon" class="audio-icon" style="font-size: 24px;">🔊</span>
-                        <label class="audio-switch" style="position: relative; display: inline-block; width: 50px; height: 24px;">
-                            <input type="checkbox" id="audio-toggle" checked onchange="AudioSystem.toggleAudio()" style="opacity: 0; width: 0; height: 0;">
-                            <span class="audio-slider" onclick="document.getElementById('audio-toggle').click()" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 24px; transition: 0.4s;"></span>
-                        </label>
+                        <div class="audio-switch" onclick="AudioSystem.toggleAudio()" style="position: relative; display: inline-block; width: 50px; height: 24px; cursor: pointer;">
+                            <input type="checkbox" id="audio-toggle" checked style="display: none;">
+                            <span class="audio-slider" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 24px; transition: 0.4s; pointer-events: none;"></span>
+                        </div>
                     </div>
                     <div class="volume-control" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #555;">🎵 Música:</label>

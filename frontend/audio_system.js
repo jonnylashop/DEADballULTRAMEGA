@@ -43,7 +43,7 @@ const AudioSystem = {
         // SIEMPRE ACTIVAR AUDIO AL INICIAR (ignorar localStorage anterior)
         this.enabled = true;
         localStorage.setItem('audioEnabled', 'true');
-        
+
         // Cargar volúmenes guardados
         const savedMusicVolume = localStorage.getItem('musicVolume');
         const savedSfxVolume = localStorage.getItem('sfxVolume');
@@ -262,7 +262,12 @@ const AudioSystem = {
      * Reproducir efecto de sonido
      */
     play(soundName) {
-        if (!this.enabled) return;
+        console.log(`[AudioSystem.play] soundName="${soundName}", enabled=${this.enabled}`);
+        
+        if (!this.enabled) {
+            console.warn(`⚠️ AudioSystem deshabilitado, no se reproduce: ${soundName}`);
+            return;
+        }
 
         // Verificar si ya está sonando
         if (this.playing[soundName]) {
@@ -271,6 +276,7 @@ const AudioSystem = {
         }
 
         const sound = this.sounds[soundName];
+        console.log(`[AudioSystem.play] sound para "${soundName}":`, sound);
 
         // Si es un objeto Audio (archivo MP3)
         if (sound && sound instanceof Audio) {

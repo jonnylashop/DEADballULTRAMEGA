@@ -263,12 +263,12 @@ const AudioSystem = {
      */
     playMusic() {
         console.log('🎵 playMusic() llamado. Enabled:', this.enabled, 'BackgroundMusic:', !!this.backgroundMusic);
-        
+
         if (!this.enabled) {
             console.log('⚠️ Audio deshabilitado, no se reproduce música');
             return;
         }
-        
+
         if (!this.backgroundMusic) {
             console.log('⚠️ No hay objeto backgroundMusic');
             return;
@@ -284,7 +284,7 @@ const AudioSystem = {
         }
 
         this.backgroundMusic.volume = this.musicVolume;
-        
+
         console.log('🎵 Intentando reproducir música...');
         this.backgroundMusic.play().then(() => {
             // Mostrar botón flotante de pause cuando la música comience

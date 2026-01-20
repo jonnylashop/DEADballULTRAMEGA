@@ -26,12 +26,16 @@ router.post('/register', async(req, res) => {
         // Ejemplo: {nombre: "Juan", email: "juan@ejemplo.com", password: "123456"}
         const { nombre, email, password } = req.body;
 
+        // DEBUG: Ver qué datos llegan
+        console.log('📝 Datos recibidos en /register:', { nombre, email, password: password ? '***' : 'undefined' });
+
         // ============================================
         // PASO 2: Validaciones básicas
         // ============================================
         // Verificar que ningún campo esté vacío
         if (!nombre || !email || !password) {
             // status(400) = Bad Request (el cliente envió datos incorrectos)
+            console.log('❌ Error: Campos faltantes');
             return res.status(400).json({
                 error: 'Todos los campos son obligatorios (nombre, email, password)'
             });

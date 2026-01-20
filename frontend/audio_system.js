@@ -40,18 +40,14 @@ const AudioSystem = {
     init() {
         console.log('🔊 Inicializando sistema de audio...');
 
-        // Cargar configuración guardada - SI NO HAY CONFIGURACIÓN, ACTIVAR POR DEFECTO
-        const savedEnabled = localStorage.getItem('audioEnabled');
+        // SIEMPRE ACTIVAR AUDIO AL INICIAR (ignorar localStorage anterior)
+        this.enabled = true;
+        localStorage.setItem('audioEnabled', 'true');
+        
+        // Cargar volúmenes guardados
         const savedMusicVolume = localStorage.getItem('musicVolume');
         const savedSfxVolume = localStorage.getItem('sfxVolume');
 
-        // Si es null (primera vez), activar audio por defecto
-        if (savedEnabled !== null) {
-            this.enabled = savedEnabled === 'true';
-        } else {
-            this.enabled = true; // ACTIVADO POR DEFECTO
-            localStorage.setItem('audioEnabled', 'true');
-        }
         if (savedMusicVolume !== null) this.musicVolume = parseFloat(savedMusicVolume);
         if (savedSfxVolume !== null) this.sfxVolume = parseFloat(savedSfxVolume);
 

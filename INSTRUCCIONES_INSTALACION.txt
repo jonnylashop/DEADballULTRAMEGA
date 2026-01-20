@@ -14,9 +14,19 @@
 🚀 INSTALACIÓN:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. Descomprime todos los archivos en una carpeta
-2. Haz doble clic en "INICIAR_JUEGO.bat"
-3. Espera a que se instalen las dependencias (solo la primera vez)
-4. El servidor se iniciará automáticamente
+
+2. CONFIGURAR EL ARCHIVO .env:
+   ⚠️ PASO OBLIGATORIO - Sin esto no funcionará la autenticación
+   • Ve a la carpeta "backend"
+   • Copia el archivo ".env.example" y renómbralo a ".env"
+   • Abre ".env" con un editor de texto
+   • Cambia la línea JWT_SECRET por una clave secreta única
+     (puede ser cualquier texto aleatorio, por ejemplo: MiClaveSecreta123XYZ)
+   • Guarda el archivo
+
+3. Haz doble clic en "INICIAR_JUEGO.bat"
+4. Espera a que se instalen las dependencias (solo la primera vez)
+5. El servidor se iniciará automáticamente
 
 🎮 CÓMO JUGAR:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

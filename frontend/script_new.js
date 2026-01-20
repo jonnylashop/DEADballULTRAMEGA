@@ -3085,6 +3085,10 @@ function rollHitD20() {
         console.log('[DICE] ⚠️ D20 de hit ya lanzado');
         return;
     }
+    
+    console.log('[AUDIO] 🎵 Intentando reproducir sonido de batazo...');
+    playAudio('hit'); // 🎵 Reproducir sonido de batazo AL TIRAR el dado
+    
     const batter = getCurrentBatter();
     const trait = batter ? batter.trait : '';
 

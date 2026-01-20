@@ -310,9 +310,19 @@ const AudioSystem = {
         const musicSlider = document.getElementById('music-volume');
         const sfxSlider = document.getElementById('sfx-volume');
         const audioIcon = document.getElementById('audio-icon');
+        const audioSlider = document.querySelector('.audio-slider');
 
         if (audioToggle) {
             audioToggle.checked = this.enabled;
+        }
+
+        // Actualizar el slider visual
+        if (audioSlider) {
+            if (this.enabled) {
+                audioSlider.style.backgroundColor = '#4CAF50';
+            } else {
+                audioSlider.style.backgroundColor = '#ccc';
+            }
         }
 
         if (musicSlider) {

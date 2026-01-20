@@ -3,7 +3,10 @@
 // Helper para reproducir audio de forma segura
 function playAudio(soundName) {
     if (typeof AudioSystem !== 'undefined' && AudioSystem.play) {
+        console.log(`[AUDIO] Llamando AudioSystem.play("${soundName}")`);
         AudioSystem.play(soundName);
+    } else {
+        console.warn(`[AUDIO] ⚠️ AudioSystem no disponible para reproducir: ${soundName}`);
     }
 }
 
@@ -240,6 +243,21 @@ function startNewGame() {
     gameState.errors = { visitante: 0, local: 0 };
     gameState.isGameActive = true;
     gameState.currentIntention = null;
+
+    // RESETEAR DADOS AL INICIAR JUEGO
+    gameState.diceRolled = { pitcher: false, batter: false };
+    gameState.specialDiceRolled = {
+        oddity1: false,
+        oddity2: false,
+        d4: false,
+        d100: false,
+        steal: false,
+        hitRun: false,
+        injury: false,
+        hit: false,
+        defense: false,
+        bunting: false
+    };
 
     // Iniciar música de fondo
     setTimeout(() => {
@@ -3044,6 +3062,7 @@ let cascadeContext = {
 // HIT TABLE (D20)
 function showHitTable() {
     updateCascadeStatus('⚾ Tirando en Hit Table (D20)...');
+    console.log('[AUDIO] 🎵 Intentando reproducir sonido de batazo...');
     playAudio('hit'); // 🎵 Reproducir sonido de batazo
 
     const container = document.getElementById('hit-table-container');

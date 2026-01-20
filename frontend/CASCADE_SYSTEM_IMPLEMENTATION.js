@@ -248,6 +248,7 @@ function processFinalResult(result) {
     } else if (resultLower.includes('triple')) {
         hitType = 'triple';
         runnerAdvancement = 3;
+        AudioSystem.play('hit');
     } else if (resultLower.includes('home run')) {
         hitType = 'homerun';
         runnerAdvancement = 4;
@@ -255,6 +256,7 @@ function processFinalResult(result) {
         hitType = 'walk';
         runnerAdvancement = 1;
         isWalk = true;
+        AudioSystem.play('walk');
     } else if (resultLower.includes('error') || resultLower.includes('extra base')) {
         hitType = 'error';
         isError = true;

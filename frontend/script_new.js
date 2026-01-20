@@ -937,6 +937,7 @@ function rollPitcherDice(team) {
 
     diceValueInput.value = result;
     gameState.lastPitcherDice = result;
+    AudioSystem.play('dice_roll');
     console.log('[DICE] Lanzador (' + team + ') tiro D' + diceType + ': ' + result);
 
     checkDiceComplete(team);
@@ -953,6 +954,7 @@ function rollBatterDice(team) {
 
     const result = Math.floor(Math.random() * 100) + 1;
     diceValueInput.value = result;
+    AudioSystem.play('dice_roll');
 
     console.log('[DICE] Bateador (' + team + ') tiro D100: ' + result);
 
@@ -3587,6 +3589,7 @@ function applyHitResult() {
 
 function applySingle(batter) {
     updateCascadeStatus('💫 Single - Moviendo tokens...');
+    AudioSystem.play('hit');
 
     // Guardar estado actual de bases
     const oldBases = {
@@ -3679,6 +3682,7 @@ function applySingleAdvance2(batter) {
 
 function applyDouble(batter) {
     updateCascadeStatus('💫 Double - Moviendo tokens...');
+    AudioSystem.play('hit');
 
     // Guardar estado actual
     const oldBases = {
@@ -3772,6 +3776,8 @@ function applyDoubleAdvance3(batter) {
 
 function applyHomeRun(batter) {
     updateCascadeStatus('🎆 HOME RUN! - Todos anotan...');
+    AudioSystem.play('homerun');
+    setTimeout(() => AudioSystem.play('crowd_cheer'), 500);
 
     let totalRuns = 1; // El bateador
 
@@ -3891,11 +3897,18 @@ function applyOutResult() {
 
     // Incrementar outs
     gameState.outs++;
+    AudioSystem.play('out');
+    
+    // Sonido especial si es el tercer out
+    if (gameState.outs >= 3) {
+        setTimeout(() => AudioSystem.play('crowd_aww'), 300);
+    }
 
     // Aplicar lógica según tipo de out
     if (lastDigit >= 0 && lastDigit <= 2) {
         // ========== STRIKEOUT (K) - Corredores permanecen ==========
         updateCascadeStatus('⚾ Strikeout! OUT #' + gameState.outs + ' - Corredores permanecen');
+        AudioSystem.play('strikeout');
         console.log('[OUT] Strikeout - Los corredores no avanzan');
 
         // Registrar strikeout para el pitcher
@@ -4076,6 +4089,7 @@ function applyOutResult() {
 
     } else if (lastDigit >= 7 && lastDigit <= 9) {
         // ========== FLY BALL / POP-UP (Outfield) ==========
+        AudioSystem.play('catch');
         const mss = cascadeContext.currentMSS || 0;
         const canSacFly = (gameState.outs < 2) && (mss < 70) && (oldBases.second || oldBases.third);
 

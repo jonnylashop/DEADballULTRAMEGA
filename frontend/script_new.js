@@ -31,7 +31,7 @@ const gameState = {
     currentIntention: null,
     lastPitcherDice: null, // Almacena el último valor del dado del pitcher para Oddities
     baseStealModifier: 0, // Modificador temporal para robo de bases (Oddity 13)
-    diceRolled: { 
+    diceRolled: {
         visitante: { pitcher: false, batter: false },
         local: { pitcher: false, batter: false }
     }, // Controla si los dados ya fueron lanzados POR EQUIPO
@@ -248,7 +248,7 @@ function startNewGame() {
     gameState.currentIntention = null;
 
     // RESETEAR DADOS AL INICIAR JUEGO
-    gameState.diceRolled = { 
+    gameState.diceRolled = {
         visitante: { pitcher: false, batter: false },
         local: { pitcher: false, batter: false }
     };
@@ -445,7 +445,7 @@ function nextBatter() {
     gameState.strikes = 0;
     gameState.balls = 0;
     gameState.currentIntention = null;
-    gameState.diceRolled = { 
+    gameState.diceRolled = {
         visitante: { pitcher: false, batter: false },
         local: { pitcher: false, batter: false }
     }; // Desbloquear dados para el siguiente bateador
@@ -5208,3 +5208,24 @@ function updateDiceSystemPosition() {
 setTimeout(() => {
     refreshPlayerPhotos();
 }, 500);
+
+// ===== CÁLCULO AUTOMÁTICO AL INGRESAR DADOS MANUALMENTE =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Listeners para equipo VISITANTE
+    const pitcherInputVis = document.getElementById('pitcher-dice-value');
+    const batterInputVis = document.getElementById('batter-dice-value');
+    
+    if (pitcherInputVis && batterInputVis) {
+        pitcherInputVis.addEventListener('input', () => checkDiceComplete('visitante'));
+        batterInputVis.addEventListener('input', () => checkDiceComplete('visitante'));
+    }
+    
+    // Listeners para equipo LOCAL
+    const pitcherInputLoc = document.getElementById('pitcher-dice-value-local');
+    const batterInputLoc = document.getElementById('batter-dice-value-local');
+    
+    if (pitcherInputLoc && batterInputLoc) {
+        pitcherInputLoc.addEventListener('input', () => checkDiceComplete('local'));
+        batterInputLoc.addEventListener('input', () => checkDiceComplete('local'));
+    }
+});

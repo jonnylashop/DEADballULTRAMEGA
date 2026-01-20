@@ -28,6 +28,8 @@ const gameState = {
     currentIntention: null,
     lastPitcherDice: null, // Almacena el último valor del dado del pitcher para Oddities
     baseStealModifier: 0, // Modificador temporal para robo de bases (Oddity 13)
+    diceRolled: { pitcher: false, batter: false }, // Controla si los dados ya fueron lanzados
+    specialDiceRolled: { oddity1: false, oddity2: false, d4: false, d100: false, steal: false, hitRun: false, injury: false, hit: false, defense: false, bunting: false }, // Control para dados especiales
     pitcher: {
         visitante: {
             basePitchDie: 'd12',
@@ -419,6 +421,8 @@ function nextBatter() {
     gameState.strikes = 0;
     gameState.balls = 0;
     gameState.currentIntention = null;
+    gameState.diceRolled = { pitcher: false, batter: false }; // Desbloquear dados para el siguiente bateador
+    gameState.specialDiceRolled = { oddity1: false, oddity2: false, d4: false, d100: false, steal: false, hitRun: false, injury: false, hit: false, defense: false, bunting: false }; // Desbloquear dados especiales
 
     // Limpiar dados del equipo visitante
     const pitcherValue = document.getElementById('pitcher-dice-value');
@@ -937,6 +941,12 @@ function selectIntention(intention) {
 }
 
 function rollPitcherDice(team) {
+    // Bloquear si ya se lanzó
+    if (gameState.diceRolled.pitcher) {
+        console.log('[DICE] ⚠️ Dado del pitcher ya lanzado, esperando siguiente bateador');
+        return;
+    }
+
     const suffix = team === 'local' ? '-local' : '';
     const diceTypeSelect = document.getElementById('pitcher-dice-type' + suffix);
     const diceValueInput = document.getElementById('pitcher-dice-value' + suffix);
@@ -958,6 +968,7 @@ function rollPitcherDice(team) {
 
     diceValueInput.value = result;
     gameState.lastPitcherDice = result;
+    gameState.diceRolled.pitcher = true; // Bloquear dado del pitcher
     AudioSystem.play('dice_roll');
     console.log('[DICE] Lanzador (' + team + ') tiro D' + diceType + ': ' + result);
 
@@ -965,6 +976,12 @@ function rollPitcherDice(team) {
 }
 
 function rollBatterDice(team) {
+    // Bloquear si ya se lanzó
+    if (gameState.diceRolled.batter) {
+        console.log('[DICE] ⚠️ Dado del bateador ya lanzado, esperando siguiente bateador');
+        return;
+    }
+
     const suffix = team === 'local' ? '-local' : '';
     const diceValueInput = document.getElementById('batter-dice-value' + suffix);
 
@@ -975,6 +992,7 @@ function rollBatterDice(team) {
 
     const result = Math.floor(Math.random() * 100) + 1;
     diceValueInput.value = result;
+    gameState.diceRolled.batter = true; // Bloquear dado del bateador
     AudioSystem.play('dice_roll');
 
     console.log('[DICE] Bateador (' + team + ') tiro D100: ' + result);
@@ -1174,6 +1192,7 @@ function closeSwingResultTable() {
         let ballLocation = '';
         if (lastDigit >= 0 && lastDigit <= 2) {
             ballLocation = 'Strikeout';
+            playAudio('strikeout'); // 🎵 Reproducir sonido de ponchado
         } else if (lastDigit >= 3 && lastDigit <= 6) {
             ballLocation = 'Infield';
         } else if (lastDigit >= 7 && lastDigit <= 9) {
@@ -1223,10 +1242,15 @@ function showOdditiesTable() {
 }
 
 function rollOddityDice1() {
+    if (gameState.specialDiceRolled.oddity1) {
+        console.log('[DICE] ⚠️ Dado Oddity 1 ya lanzado');
+        return;
+    }
     const dice1 = document.getElementById('oddity-dice1-value');
     if (!dice1) return;
 
     const roll = Math.floor(Math.random() * 10) + 1;
+    gameState.specialDiceRolled.oddity1 = true;
     dice1.value = roll;
     console.log('[ODDITIES] Dado 1: ' + roll);
 
@@ -1234,10 +1258,15 @@ function rollOddityDice1() {
 }
 
 function rollOddityDice2() {
+    if (gameState.specialDiceRolled.oddity2) {
+        console.log('[DICE] ⚠️ Dado Oddity 2 ya lanzado');
+        return;
+    }
     const dice2 = document.getElementById('oddity-dice2-value');
     if (!dice2) return;
 
     const roll = Math.floor(Math.random() * 10) + 1;
+    gameState.specialDiceRolled.oddity2 = true;
     dice2.value = roll;
     console.log('[ODDITIES] Dado 2: ' + roll);
 
@@ -1590,7 +1619,12 @@ function showD4Roller() {
 }
 
 function rollD4() {
+    if (gameState.specialDiceRolled.d4) {
+        console.log('[DICE] ⚠️ D4 ya lanzado');
+        return;
+    }
     const result = Math.floor(Math.random() * 4) + 1;
+    gameState.specialDiceRolled.d4 = true;
     document.getElementById('d4-value').value = result;
 
     const animalName = document.getElementById('d4-animal-name');
@@ -1658,7 +1692,12 @@ function showD100Roller() {
 }
 
 function rollD100ForRain() {
+    if (gameState.specialDiceRolled.d100) {
+        console.log('[DICE] ⚠️ D100 ya lanzado');
+        return;
+    }
     const result = Math.floor(Math.random() * 100) + 1;
+    gameState.specialDiceRolled.d100 = true;
     const delayMinutes = (result * 2) + 2; // d100*2 + 2 minutos
 
     document.getElementById('d100-value').value = result;
@@ -1843,9 +1882,14 @@ function showBaseStealTable(stealType) {
 }
 
 function rollBaseStealD8() {
+    if (gameState.specialDiceRolled.steal) {
+        console.log('[DICE] ⚠️ Dado de robo ya lanzado');
+        return;
+    }
     const first = gameState.bases.first;
     const second = gameState.bases.second;
     const third = gameState.bases.third;
+    gameState.specialDiceRolled.steal = true;
 
     // Determinar quién intenta robar (el corredor más adelantado o todos)
     let stealingRunner = third || second || first;
@@ -3000,6 +3044,7 @@ let cascadeContext = {
 // HIT TABLE (D20)
 function showHitTable() {
     updateCascadeStatus('⚾ Tirando en Hit Table (D20)...');
+    playAudio('hit'); // 🎵 Reproducir sonido de batazo
 
     const container = document.getElementById('hit-table-container');
     if (container) {
@@ -3017,10 +3062,15 @@ function showHitTable() {
 }
 
 function rollHitD20() {
+    if (gameState.specialDiceRolled.hit) {
+        console.log('[DICE] ⚠️ D20 de hit ya lanzado');
+        return;
+    }
     const batter = getCurrentBatter();
     const trait = batter ? batter.trait : '';
 
     let baseRoll = Math.floor(Math.random() * 20) + 1;
+    gameState.specialDiceRolled.hit = true;
     let modifier = 0;
 
     // Aplicar modificadores por traits
@@ -3170,10 +3220,15 @@ function showDefenseTable(position) {
 }
 
 function rollDefenseD12() {
+    if (gameState.specialDiceRolled.defense) {
+        console.log('[DICE] ⚠️ D12 de defensa ya lanzado');
+        return;
+    }
     const batter = getCurrentBatter();
     const trait = batter ? batter.trait : '';
 
     let baseRoll = Math.floor(Math.random() * 12) + 1;
+    gameState.specialDiceRolled.defense = true;
     let modifier = 0;
 
     // Aplicar modificadores por traits del bateador
@@ -3319,11 +3374,16 @@ function showBuntingTable() {
 }
 
 function rollBuntingD6() {
+    if (gameState.specialDiceRolled.bunting) {
+        console.log('[DICE] ⚠️ D6 de bunting ya lanzado');
+        return;
+    }
     const batter = getCurrentBatter();
     const trait = batter ? batter.trait : '';
     const hitterRating = batter ? parseInt(batter.bt) : 50;
 
     let baseRoll = Math.floor(Math.random() * 6) + 1;
+    gameState.specialDiceRolled.bunting = true;
     let modifier = 0;
 
     // Aplicar modificadores por traits

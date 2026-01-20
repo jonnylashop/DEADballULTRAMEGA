@@ -8,6 +8,9 @@ const AudioSystem = {
 
     // Objetos de audio
     backgroundMusic: null,
+    
+    // Control de reproducción (evitar superposición)
+    playing: {},
 
     // URLs de efectos de sonido (usando recursos gratuitos de freesound.org o generados)
     sounds: {
@@ -128,8 +131,8 @@ const AudioSystem = {
         // Ball - tono grave
         this.sounds.ball = this.createBeep(300, 0.15, 'sine');
 
-        // Hit - sonido de impacto
-        this.sounds.hit = this.createNoise(0.1, 'highpass');
+        // Hit - cargar archivo MP3 real
+        this.sounds.hit = this.loadSound('audio/batazo.mp3');
 
         // Home Run - tono triunfal ascendente
         this.sounds.homerun = this.createSweep(400, 800, 0.5);
@@ -143,8 +146,8 @@ const AudioSystem = {
         // Walk - secuencia de tonos
         this.sounds.walk = this.createBeep(400, 0.2, 'sine');
 
-        // Strikeout - sonido de swoosh
-        this.sounds.strikeout = this.createNoise(0.15, 'lowpass');
+        // Strikeout - cargar archivo MP3 real
+        this.sounds.strikeout = this.loadSound('audio/loponcho.mp3');
 
         // Catch - pop corto
         this.sounds.catch = this.createBeep(600, 0.08, 'sine');
@@ -248,13 +251,58 @@ const AudioSystem = {
     },
 
     /**
+     * Cargar archivo de sonido MP3
+     */
+    loadSound(url) {
+        const audio = new Audio(url);
+        audio.volume = this.sfxVolume;
+        audio.onerror = () => {
+            console.warn(`⚠️ No se pudo cargar: ${url}`);
+        };
+        return audio;
+    },
+
+    /**
      * Reproducir efecto de sonido
      */
     play(soundName) {
         if (!this.enabled) return;
 
+        // Verificar si ya está sonando
+        if (this.playing[soundName]) {
+            console.log(`⏸️ ${soundName} ya está sonando, esperando...`);
+            return;
+        }
+
         const sound = this.sounds[soundName];
-        if (sound && typeof sound === 'function') {
+        
+        // Si es un objeto Audio (archivo MP3)
+        if (sound && sound instanceof Audio) {
+            try {
+                // Marcar como reproduciendo
+                this.playing[soundName] = true;
+                
+                sound.currentTime = 0; // Reiniciar desde el principio
+                sound.volume = this.sfxVolume;
+                
+                // Marcar como no reproduciendo cuando termine
+                sound.onended = () => {
+                    this.playing[soundName] = false;
+                    console.log(`✅ ${soundName} terminó`);
+                };
+                
+                sound.play().catch(err => {
+                    console.warn(`⚠️ Error reproduciendo ${soundName}:`, err);
+                    this.playing[soundName] = false; // Liberar si hay error
+                });
+                console.log(`🔊 Reproduciendo archivo: ${soundName}`);
+            } catch (error) {
+                console.warn(`⚠️ Error reproduciendo ${soundName}:`, error);
+                this.playing[soundName] = false;
+            }
+        }
+        // Si es una función (sonido sintético)
+        else if (sound && typeof sound === 'function') {
             try {
                 sound();
                 console.log(`🔊 Reproduciendo: ${soundName}`);

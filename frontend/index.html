@@ -1014,6 +1014,13 @@
                             <div id="hit-result-display" class="text-center mb-3" style="display: none; padding: 10px; background: rgba(16, 185, 129, 0.2); border-radius: 6px; color: white; font-size: 1.1rem;">
                             </div>
 
+                            <!-- Botón Confirmar Hit -->
+                            <div class="text-center mb-3" id="hit-confirm-section" style="display: none;">
+                                <button class="confirm-result-btn" onclick="confirmHitResult()">
+                                    ✓ Confirmar Hit
+                                </button>
+                            </div>
+
                             <div class="text-center mt-3">
                                 <button class="btn btn-success" onclick="closeHitTable()" id="hit-continue-btn" style="display: none;">✓ Continuar</button>
                             </div>
@@ -1290,7 +1297,14 @@
                                 </div>
                             </div>
 
-                            <table class="table table-dark table-striped table-bordered table-sm">
+                            <!-- Botón Confirmar -->
+                            <div class="text-center mb-3" id="oddity-confirm-section" style="display: none;">
+                                <button class="confirm-result-btn" onclick="confirmOddityResult()">
+                                    ✓ Confirmar Oddity
+                                </button>
+                            </div>
+
+                            <table class="table table-dark table-striped table-bordered table-sm" id="oddities-table-display">
                                 <thead>
                                     <tr>
                                         <th style="width: 10%;">Result</th>

@@ -1304,6 +1304,7 @@ function checkOdditiesComplete() {
     const dice1 = document.getElementById('oddity-dice1-value');
     const dice2 = document.getElementById('oddity-dice2-value');
     const resultDisplay = document.getElementById('oddity-result-value');
+    const confirmSection = document.getElementById('oddity-confirm-section');
 
     if (!dice1 || !dice2 || !resultDisplay) return;
 
@@ -1312,41 +1313,68 @@ function checkOdditiesComplete() {
         const d2 = parseInt(dice2.value);
         const total = d1 + d2;
 
+        // Solo mostrar resultado numérico y botón confirmar
         resultDisplay.textContent = total;
 
-        const odditiesContainer = document.getElementById('oddities-table-container');
-        const rows = odditiesContainer.querySelectorAll('tbody tr');
-
-        rows.forEach(function(row) {
-            row.classList.remove('table-warning', 'fw-bold');
-            row.style.backgroundColor = '';
-        });
-
-        const targetRow = odditiesContainer.querySelector('[data-oddity="' + total + '"]');
-        if (targetRow) {
-            // Ocultar la tabla completa
-            const table = odditiesContainer.querySelector('table');
-            if (table) table.style.display = 'none';
-
-            // Mostrar resultado compacto
-            const oddityName = targetRow.querySelector('td:nth-child(2)').textContent;
-            const oddityEffect = targetRow.querySelector('td:nth-child(3)').textContent;
-
-            const resultDisplayBox = document.getElementById('oddity-result-display');
-            const continueBtn = document.getElementById('oddity-continue-btn');
-
-            if (resultDisplayBox) {
-                resultDisplayBox.innerHTML = '<strong>🎲 ' + oddityName + '</strong><br><small>' + oddityEffect + '</small>';
-                resultDisplayBox.style.display = 'block';
-            }
-
-            if (continueBtn) {
-                continueBtn.style.display = 'inline-block';
-            }
-
-            updateCascadeStatus('🎲 Oddity: ' + oddityName);
-            console.log('[ODDITIES] Resultado: ' + total + ' - ' + oddityName);
+        if (confirmSection) {
+            confirmSection.style.display = 'block';
         }
+
+        console.log('[ODDITIES] Total calculado: ' + total + ' - Esperando confirmación');
+    } else {
+        // Ocultar botón si no hay valores completos
+        if (confirmSection) {
+            confirmSection.style.display = 'none';
+        }
+    }
+}
+
+// Nueva función para confirmar oddity
+function confirmOddityResult() {
+    const dice1 = document.getElementById('oddity-dice1-value');
+    const dice2 = document.getElementById('oddity-dice2-value');
+    const resultDisplay = document.getElementById('oddity-result-value');
+
+    if (!dice1 || !dice2 || !resultDisplay) return;
+
+    const total = parseInt(dice1.value) + parseInt(dice2.value);
+
+    const odditiesContainer = document.getElementById('oddities-table-container');
+    const rows = odditiesContainer.querySelectorAll('tbody tr');
+
+    rows.forEach(function(row) {
+        row.classList.remove('table-warning', 'fw-bold');
+        row.style.backgroundColor = '';
+    });
+
+    const targetRow = odditiesContainer.querySelector('[data-oddity="' + total + '"]');
+    if (targetRow) {
+        // Ocultar la tabla completa
+        const table = document.getElementById('oddities-table-display');
+        if (table) table.style.display = 'none';
+
+        // Ocultar botón confirmar
+        const confirmSection = document.getElementById('oddity-confirm-section');
+        if (confirmSection) confirmSection.style.display = 'none';
+
+        // Mostrar resultado compacto
+        const oddityName = targetRow.querySelector('td:nth-child(2)').textContent;
+        const oddityEffect = targetRow.querySelector('td:nth-child(3)').textContent;
+
+        const resultDisplayBox = document.getElementById('oddity-result-display');
+        const continueBtn = document.getElementById('oddity-continue-btn');
+
+        if (resultDisplayBox) {
+            resultDisplayBox.innerHTML = '<strong>🎲 ' + oddityName + '</strong><br><small>' + oddityEffect + '</small>';
+            resultDisplayBox.style.display = 'block';
+        }
+
+        if (continueBtn) {
+            continueBtn.style.display = 'inline-block';
+        }
+
+        updateCascadeStatus('🎲 Oddity: ' + oddityName);
+        console.log('[ODDITIES] Resultado confirmado: ' + total + ' - ' + oddityName);
     }
 }
 
@@ -3071,8 +3099,6 @@ let cascadeContext = {
 // HIT TABLE (D20)
 function showHitTable() {
     updateCascadeStatus('⚾ Tirando en Hit Table (D20)...');
-    console.log('[AUDIO] 🎵 Intentando reproducir sonido de batazo...');
-    playAudio('hit'); // 🎵 Reproducir sonido de batazo
 
     const container = document.getElementById('hit-table-container');
     if (container) {
@@ -3094,9 +3120,6 @@ function rollHitD20() {
         console.log('[DICE] ⚠️ D20 de hit ya lanzado');
         return;
     }
-
-    console.log('[AUDIO] 🎵 Intentando reproducir sonido de batazo...');
-    playAudio('hit'); // 🎵 Reproducir sonido de batazo AL TIRAR el dado
 
     const batter = getCurrentBatter();
     const trait = batter ? batter.trait : '';
@@ -3211,9 +3234,29 @@ function rollHitD20() {
     }
     resultDisplay.innerHTML = message;
     resultDisplay.style.display = 'block';
-    continueBtn.style.display = 'block';
+    
+    // Mostrar botón confirmar en vez de continuar
+    const confirmSection = document.getElementById('hit-confirm-section');
+    if (confirmSection) confirmSection.style.display = 'block';
+    continueBtn.style.display = 'none';
 
-    console.log('[HIT] D20=' + result + ', Result: ' + hitType + (needsDefense ? ', DEF(' + position + ')' : ''));
+    console.log('[HIT] D20=' + result + ', Result: ' + hitType + (needsDefense ? ', DEF(' + position + ')' : '') + ' - Esperando confirmación');
+}
+
+// Nueva función para confirmar hit y reproducir audio
+function confirmHitResult() {
+    console.log('[AUDIO] 🎵 Reproduciendo sonido de batazo al confirmar hit...');
+    playAudio('hit'); // 🎵 Reproducir sonido de batazo.mp3 AL CONFIRMAR
+    
+    // Ocultar botón confirmar
+    const confirmSection = document.getElementById('hit-confirm-section');
+    if (confirmSection) confirmSection.style.display = 'none';
+    
+    // Mostrar botón continuar
+    const continueBtn = document.getElementById('hit-continue-btn');
+    if (continueBtn) continueBtn.style.display = 'block';
+    
+    console.log('[HIT] ✅ Hit confirmado, audio reproducido');
 }
 
 function closeHitTable() {
@@ -5214,18 +5257,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Listeners para equipo VISITANTE
     const pitcherInputVis = document.getElementById('pitcher-dice-value');
     const batterInputVis = document.getElementById('batter-dice-value');
-    
+
     if (pitcherInputVis && batterInputVis) {
         pitcherInputVis.addEventListener('input', () => checkDiceComplete('visitante'));
         batterInputVis.addEventListener('input', () => checkDiceComplete('visitante'));
     }
-    
+
     // Listeners para equipo LOCAL
     const pitcherInputLoc = document.getElementById('pitcher-dice-value-local');
     const batterInputLoc = document.getElementById('batter-dice-value-local');
-    
+
     if (pitcherInputLoc && batterInputLoc) {
         pitcherInputLoc.addEventListener('input', () => checkDiceComplete('local'));
         batterInputLoc.addEventListener('input', () => checkDiceComplete('local'));
+    }
+
+    // Listeners para ODDITIES (entrada manual)
+    const oddityDice1 = document.getElementById('oddity-dice1-value');
+    const oddityDice2 = document.getElementById('oddity-dice2-value');
+
+    if (oddityDice1 && oddityDice2) {
+        oddityDice1.addEventListener('input', checkOdditiesComplete);
+        oddityDice2.addEventListener('input', checkOdditiesComplete);
     }
 });

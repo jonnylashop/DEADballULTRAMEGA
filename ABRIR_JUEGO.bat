@@ -48,7 +48,7 @@ timeout /t 3 /nobreak >nul
 :: Abrir el navegador
 echo.
 echo Abriendo navegador...
-start http://localhost:3000/frontend/menu.html
+start http://localhost:3000/menu.html
 
 echo.
 echo ========================================

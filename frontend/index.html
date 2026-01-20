@@ -3011,6 +3011,9 @@
     </div>
     <!-- Cierre de app -->
 
+    <!-- Sistema de audio - DEBE cargarse ANTES de crear ventanas -->
+    <script src="audio_system.js"></script>
+
     <!-- Script para crear ventanas flotantes con JavaScript -->
     <script>
         // ========================================
@@ -3034,10 +3037,10 @@
                 <div class="window-content" style="padding: 20px; max-height: 400px; overflow-y: auto;">
                     <div class="audio-toggle-wrapper" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
                         <span id="audio-icon" class="audio-icon" style="font-size: 24px;">🔊</span>
-                        <div class="audio-switch" onclick="AudioSystem.toggleAudio()" style="position: relative; display: inline-block; width: 50px; height: 24px; cursor: pointer;">
-                            <input type="checkbox" id="audio-toggle" checked style="display: none;">
-                            <span class="audio-slider" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 24px; transition: 0.4s; pointer-events: none;"></span>
-                        </div>
+                        <label class="audio-switch" id="audio-switch-control" style="position: relative; display: inline-block; width: 50px; height: 24px; cursor: pointer;">
+                            <input type="checkbox" id="audio-toggle" checked>
+                            <span class="audio-slider"></span>
+                        </label>
                     </div>
                     <div class="volume-control" style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-size: 14px; color: #555;">🎵 Música:</label>
@@ -3050,6 +3053,24 @@
                 </div>
             `;
             document.body.appendChild(audioWindow);
+
+            // Agregar event listener al toggle de audio DESPUÉS de agregarlo al DOM
+            const audioSwitch = document.getElementById('audio-switch-control');
+            if (audioSwitch) {
+                audioSwitch.addEventListener('click', function(e) {
+                    console.log('🎚️ Click en audio toggle detectado!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof AudioSystem !== 'undefined' && typeof AudioSystem.toggleAudio === 'function') {
+                        AudioSystem.toggleAudio();
+                    } else {
+                        console.error('❌ AudioSystem.toggleAudio no disponible');
+                    }
+                });
+                console.log('✅ Event listener del audio toggle agregado');
+            } else {
+                console.error('❌ No se encontró audio-switch-control');
+            }
 
             // Ventana de Chat
             const chatWindow = document.createElement('div');
@@ -3267,9 +3288,6 @@
             // document.getElementById('userNameDisplay').textContent = usuario.nombre;
         }
     </script>
-
-    <!-- Sistema de audio -->
-    <script src="audio_system.js"></script>
 
     <!-- Enlazamos el archivo de JavaScript personalizado -->
     <script src="script_new.js?v=3"></script>
@@ -4445,6 +4463,14 @@
             if (typeof AudioSystem !== 'undefined') {
                 AudioSystem.init();
                 console.log('🎵 Sistema de audio inicializado');
+                
+                // Crear función global para el toggle
+                window.toggleAudioGlobal = function(event) {
+                    console.log('🎚️ toggleAudioGlobal llamado desde onclick');
+                    event.preventDefault();
+                    event.stopPropagation();
+                    AudioSystem.toggleAudio();
+                };
             }
 
             document.querySelectorAll('.player-photo').forEach(cell => {
@@ -5638,6 +5664,12 @@
 
         console.log('✅ SISTEMA DE FOTOS LISTO');
     </script>
+
+    <!-- Botón flotante de PAUSE para la música (al final del body) -->
+    <button id="music-pause-btn" onclick="AudioSystem.toggleAudio()" style="display: none; position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); border: none; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 9999; transition: all 0.3s ease;"
+        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        ⏸️
+    </button>
 </body>
 
 </html>

@@ -46,6 +46,9 @@ const AudioSystem = {
         if (savedMusicVolume !== null) this.musicVolume = parseFloat(savedMusicVolume);
         if (savedSfxVolume !== null) this.sfxVolume = parseFloat(savedSfxVolume);
 
+        // Crear botón de pause dinámicamente
+        this.createPauseButton();
+
         // Crear música de fondo (usando sonido sintético si no hay archivo)
         this.createBackgroundMusic();
 
@@ -56,6 +59,41 @@ const AudioSystem = {
         this.updateUI();
 
         console.log('✅ Sistema de audio inicializado');
+    },
+
+    /**
+     * Crear botón flotante de pause
+     */
+    createPauseButton() {
+        // Si ya existe, no crear otro
+        if (document.getElementById('music-pause-btn')) return;
+
+        const btn = document.createElement('button');
+        btn.id = 'music-pause-btn';
+        btn.innerHTML = '⏸️';
+        btn.style.cssText = `
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 9999;
+            transition: all 0.3s ease;
+        `;
+        btn.onclick = () => this.toggleAudio();
+        btn.onmouseover = () => btn.style.transform = 'scale(1.1)';
+        btn.onmouseout = () => btn.style.transform = 'scale(1)';
+
+        document.body.appendChild(btn);
+        console.log('✅ Botón de pause creado dinámicamente');
     },
 
     /**
@@ -233,13 +271,24 @@ const AudioSystem = {
         }
 
         this.backgroundMusic.volume = this.musicVolume;
-        this.backgroundMusic.play().catch(error => {
+        this.backgroundMusic.play().then(() => {
+            // Mostrar botón flotante de pause cuando la música comience
+            console.log('🎵 Música reproduciendo, mostrando botón de pause...');
+            const pauseBtn = document.getElementById('music-pause-btn');
+            if (pauseBtn) {
+                pauseBtn.style.display = 'block';
+                console.log('✅ Botón de pause mostrado');
+            }
+        }).catch(error => {
             console.log('⚠️ Autoplay bloqueado por el navegador. Haz clic en cualquier parte para activar la música.');
 
             // Intentar reproducir después de la primera interacción del usuario
             const playOnInteraction = () => {
                 if (this.enabled && this.backgroundMusic && this.backgroundMusic.paused) {
-                    this.backgroundMusic.play().catch(err => {
+                    this.backgroundMusic.play().then(() => {
+                        const pauseBtn = document.getElementById('music-pause-btn');
+                        if (pauseBtn) pauseBtn.style.display = 'block';
+                    }).catch(err => {
                         console.log('⚠️ No se pudo reproducir música:', err.message);
                     });
                 }
@@ -260,6 +309,13 @@ const AudioSystem = {
         if (this.backgroundMusic) {
             this.backgroundMusic.pause();
             console.log('✅ Música pausada. Estado paused:', this.backgroundMusic.paused);
+
+            // Ocultar botón flotante de pause
+            const pauseBtn = document.getElementById('music-pause-btn');
+            if (pauseBtn) {
+                pauseBtn.style.display = 'none';
+                console.log('✅ Botón de pause ocultado');
+            }
         } else {
             console.log('⚠️ No hay objeto backgroundMusic');
         }
@@ -269,17 +325,26 @@ const AudioSystem = {
      * Alternar activación del audio
      */
     toggleAudio() {
+        console.log('🎚️ toggleAudio() llamado. Estado actual enabled:', this.enabled);
+        console.log('🎵 Estado actual música paused:', this.backgroundMusic ? this.backgroundMusic.paused : 'no existe');
+
         this.enabled = !this.enabled;
         localStorage.setItem('audioEnabled', this.enabled);
 
         if (!this.enabled) {
+            console.log('❌ Desactivando audio...');
             this.pauseMusic();
             console.log('🔇 Audio desactivado');
         } else {
+            console.log('✅ Activando audio...');
             // Intentar reproducir inmediatamente (ya hay interacción del usuario con el toggle)
             if (this.backgroundMusic) {
                 this.backgroundMusic.volume = this.musicVolume;
-                this.backgroundMusic.play().catch(error => {
+                this.backgroundMusic.play().then(() => {
+                    // Mostrar botón de pause
+                    const pauseBtn = document.getElementById('music-pause-btn');
+                    if (pauseBtn) pauseBtn.style.display = 'block';
+                }).catch(error => {
                     console.log('⚠️ No se pudo reanudar música:', error.message);
                 });
             }

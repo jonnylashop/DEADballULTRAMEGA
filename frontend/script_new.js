@@ -1,5 +1,12 @@
 // DEADBALL - SCRIPT LIMPIO Y FUNCIONAL
 
+// Helper para reproducir audio de forma segura
+function playAudio(soundName) {
+    if (typeof AudioSystem !== 'undefined' && AudioSystem.play) {
+        AudioSystem.play(soundName);
+    }
+}
+
 const gameState = {
     currentInning: 1,
     isTopHalf: true,
@@ -233,7 +240,13 @@ function startNewGame() {
     gameState.currentIntention = null;
 
     // Iniciar música de fondo
-    setTimeout(() => AudioSystem.playMusic(), 500);
+    setTimeout(() => {
+        if (typeof AudioSystem !== 'undefined' && AudioSystem.playMusic) {
+            AudioSystem.playMusic();
+        } else {
+            console.warn('⚠️ AudioSystem no disponible todavía');
+        }
+    }, 500);
 
     // Inicializar pitchers
     gameState.pitcher = {
@@ -359,6 +372,14 @@ function resetGame() {
     // Actualizar display
     updateGameDisplay();
     updateGameButtons();
+
+    // Asegurar que el botón esté visible
+    const startBtn = document.getElementById('start-game-btn');
+    if (startBtn) {
+        startBtn.style.display = 'block';
+        startBtn.style.visibility = 'visible';
+        console.log('[GAME] Botón de inicio restaurado');
+    }
 
     alert('🔄 Partido reseteado. Pulsa "Iniciar Nuevo Juego" para comenzar.');
     console.log('[GAME] Partido reseteado correctamente');
@@ -3898,7 +3919,7 @@ function applyOutResult() {
     // Incrementar outs
     gameState.outs++;
     AudioSystem.play('out');
-    
+
     // Sonido especial si es el tercer out
     if (gameState.outs >= 3) {
         setTimeout(() => AudioSystem.play('crowd_aww'), 300);

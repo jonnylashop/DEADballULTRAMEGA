@@ -17,9 +17,14 @@ class Team {
                 players // Array de 9 jugadores con sus stats
             } = teamData;
 
-            // Validar que hay al menos 9 jugadores titulares
-            if (!players || players.length < 9) {
-                throw new Error('Un equipo debe tener al menos 9 jugadores titulares');
+            // Validar que hay jugadores (mínimo recomendado: 9)
+            if (!players || players.length === 0) {
+                throw new Error('El equipo debe tener al menos un jugador');
+            }
+
+            // Advertencia si hay menos de 9 (pero permitir guardar)
+            if (players.length < 9) {
+                console.warn(`⚠️ Equipo "${teamName}" tiene solo ${players.length} jugadores (se recomiendan 9)`);
             }
 
             // Validar que el nombre no esté vacío
@@ -106,9 +111,13 @@ class Team {
         try {
             const { teamName, players } = teamData;
 
-            // Validaciones - Permitir 9 o más jugadores (titulares + banquillo)
-            if (players && players.length < 9) {
-                throw new Error('Un equipo debe tener al menos 9 jugadores titulares');
+            // Validaciones - Advertir si hay menos de 9 jugadores
+            if (players && players.length > 0 && players.length < 9) {
+                console.warn(`⚠️ Equipo actualizado con solo ${players.length} jugadores (se recomiendan 9)`);
+            }
+
+            if (players && players.length === 0) {
+                throw new Error('El equipo debe tener al menos un jugador');
             }
 
             const playersJson = JSON.stringify(players);

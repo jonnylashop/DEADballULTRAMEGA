@@ -1054,6 +1054,15 @@ function checkDiceComplete(team) {
         const outcome = getSwingResultOutcome(mss, bt, obt);
         resultDescription.textContent = 'SRT: ' + mss + ' (BT:' + bt + ', OBT:' + obt + ') - ' + outcome;
 
+        // 🎵 REPRODUCIR AUDIO DE STRIKEOUT INMEDIATAMENTE cuando aparece el MSS
+        if (mss >= (obt + 6) && mss <= 98) {
+            const lastDigit = mss % 10;
+            if (lastDigit >= 0 && lastDigit <= 2) {
+                console.log('🎵 [STRIKEOUT AUDIO] MSS=' + mss + ', último dígito=' + lastDigit + ' - Reproduciendo AHORA');
+                playAudio('strikeout');
+            }
+        }
+
         if (confirmSection) {
             confirmSection.style.display = 'block';
         }
@@ -1107,14 +1116,7 @@ function confirmResult(team) {
         return;
     }
 
-    // 🎵 REPRODUCIR AUDIO DE STRIKEOUT INMEDIATAMENTE (antes de mostrar tablas)
-    if (total >= 21) {
-        const lastDigit = total % 10;
-        if (lastDigit >= 0 && lastDigit <= 2) {
-            console.log('🎵 [STRIKEOUT AUDIO] Reproduciendo AHORA desde confirmResult()');
-            playAudio('strikeout'); // Strikeout detectado!
-        }
-    }
+    // Audio ya reproducido en checkDiceComplete(), no duplicar aquí
 
     showSwingResultTable(total, team);
 }
@@ -5288,20 +5290,50 @@ setTimeout(() => {
 
 // ===== CÁLCULO AUTOMÁTICO AL INGRESAR DADOS MANUALMENTE =====
 document.addEventListener('DOMContentLoaded', function() {
+    // Función para validar límites de dados
+    function validateDiceInput(input, getMinMax) {
+        input.addEventListener('input', function() {
+            const { min, max } = getMinMax();
+            let value = parseInt(this.value);
+            if (!isNaN(value)) {
+                if (value < min) this.value = min;
+                if (value > max) this.value = max;
+            }
+        });
+    }
+
     // Listeners para equipo VISITANTE
     const pitcherInputVis = document.getElementById('pitcher-dice-value');
+    const pitcherTypeVis = document.getElementById('pitcher-dice-type');
     const batterInputVis = document.getElementById('batter-dice-value');
 
-    if (pitcherInputVis && batterInputVis) {
+    if (pitcherInputVis && pitcherTypeVis && batterInputVis) {
+        // Validación dinámica según tipo de dado del pitcher
+        validateDiceInput(pitcherInputVis, () => {
+            const diceType = parseInt(pitcherTypeVis.value);
+            if (diceType > 0) return { min: 1, max: diceType }; // Dado positivo
+            else return { min: diceType, max: -1 }; // Dado negativo
+        });
+        validateDiceInput(batterInputVis, () => ({ min: 1, max: 100 })); // D100 siempre
+        
         pitcherInputVis.addEventListener('input', () => checkDiceComplete('visitante'));
         batterInputVis.addEventListener('input', () => checkDiceComplete('visitante'));
     }
 
     // Listeners para equipo LOCAL
     const pitcherInputLoc = document.getElementById('pitcher-dice-value-local');
+    const pitcherTypeLoc = document.getElementById('pitcher-dice-type-local');
     const batterInputLoc = document.getElementById('batter-dice-value-local');
 
-    if (pitcherInputLoc && batterInputLoc) {
+    if (pitcherInputLoc && pitcherTypeLoc && batterInputLoc) {
+        // Validación dinámica según tipo de dado del pitcher
+        validateDiceInput(pitcherInputLoc, () => {
+            const diceType = parseInt(pitcherTypeLoc.value);
+            if (diceType > 0) return { min: 1, max: diceType }; // Dado positivo
+            else return { min: diceType, max: -1 }; // Dado negativo
+        });
+        validateDiceInput(batterInputLoc, () => ({ min: 1, max: 100 })); // D100 siempre
+        
         pitcherInputLoc.addEventListener('input', () => checkDiceComplete('local'));
         batterInputLoc.addEventListener('input', () => checkDiceComplete('local'));
     }
@@ -5311,6 +5343,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const oddityDice2 = document.getElementById('oddity-dice2-value');
 
     if (oddityDice1 && oddityDice2) {
+        validateDiceInput(oddityDice1, () => ({ min: 1, max: 10 })); // D10
+        validateDiceInput(oddityDice2, () => ({ min: 1, max: 10 })); // D10
         oddityDice1.addEventListener('input', checkOdditiesComplete);
         oddityDice2.addEventListener('input', checkOdditiesComplete);
     }
@@ -5318,6 +5352,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Listener para HIT D20 (entrada manual)
     const hitD20Input = document.getElementById('hit-d20-value');
     if (hitD20Input) {
+        validateDiceInput(hitD20Input, () => ({ min: 1, max: 20 })); // D20
         hitD20Input.addEventListener('input', function() {
             if (this.value !== '') {
                 // Simular que se tiró el dado manualmente
@@ -5325,4 +5360,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // VALIDACIÓN PARA TODOS LOS DEMÁS DADOS ESPECIALES
+    const diceInputs = [
+        { id: 'defense-d12-value', min: 1, max: 12 },
+        { id: 'd4-value', min: 1, max: 4 },
+        { id: 'd100-value', min: 1, max: 100 },
+        { id: 'base-steal-d8-value', min: 1, max: 8 },
+        { id: 'injury-severity-d100-value', min: 1, max: 100 },
+        { id: 'injury-location-d20-value', min: 1, max: 20 },
+        { id: 'catastrophic-d6-value', min: 1, max: 6 },
+        { id: 'bunting-dice-value', min: 1, max: 6 }
+    ];
+
+    diceInputs.forEach(dice => {
+        const input = document.getElementById(dice.id);
+        if (input) {
+            validateDiceInput(input, () => ({ min: dice.min, max: dice.max }));
+        }
+    });
 });

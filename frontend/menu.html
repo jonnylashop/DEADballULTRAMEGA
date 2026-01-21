@@ -1162,7 +1162,9 @@
     </div>
     <script src="auth.js"></script>
     <script>
-        // API_URL ya está definido en auth.js, no redeclarar
+        // API_URL ya está definido en auth.js para rutas de autenticación
+        // Definimos API_BASE para otras rutas
+        const API_BASE = 'http://localhost:3000/api';
 
         // Verificar si ya está logueado al cargar la página
         window.addEventListener('DOMContentLoaded', () => {
@@ -1271,7 +1273,21 @@
         }
 
         function showCredits() {
-            alert('DEADball ULTRAMEGA\n\nSimulador de béisbol con sistema de dados\nBasado en el juego de mesa DEADball\n\n© 2026');
+            alert('⚾ DEADball ULTRAMEGA ⚾\n\n' +
+                'Simulador de Béisbol con Sistema de Dados\n\n' +
+                '🎲 Basado en el juego de rol DEADball de W.M. AKERS\n\n' +
+                '👨‍💻 Desarrollado por: Juan Latienda ("jonnylashop")\n' +
+                '🏆 Para: CB Storos Baseball\n' +
+                '🎓 Proyecto Final del Curso Full Stack Web Developer de Code Space\n' +
+                '📅 Versión 1.0 - 2026\n\n' +
+                '✨ Características:\n' +
+                '• Sistema completo de juego con dados\n' +
+                '• Gestión de equipos y jugadores\n' +
+                '• Estadísticas y partidas guardadas\n' +
+                '• Hall of Fame\n' +
+                '• Chat en tiempo real\n\n' +
+                '📧 Contacto: t.me/Jonnylashop\n' +
+                '🌐 Web: cbstoros.com');
         }
 
         // === MODAL DE ESTADÍSTICAS ===
@@ -1290,10 +1306,16 @@
                 const token = localStorage.getItem('token');
                 const usuario = JSON.parse(localStorage.getItem('usuario'));
 
+                console.log('🔑 Token obtenido:', token ? 'Existe' : 'No existe');
+                console.log('👤 Usuario:', usuario);
+
                 playerName.textContent = usuario.nombre;
 
                 // Llamar al API para obtener estadísticas
-                const response = await fetch(`${API_URL}/games/stats`, {
+                console.log('📡 Llamando a:', `${API_BASE}/games/stats`);
+                console.log('🔐 Authorization header:', `Bearer ${token ? token.substring(0, 20) + '...' : 'null'}`);
+
+                const response = await fetch(`${API_BASE}/games/stats`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -1378,8 +1400,12 @@
             try {
                 const token = localStorage.getItem('token');
 
+                console.log('🔑 Token obtenido para cargar partidas:', token ? 'Existe' : 'No existe');
+                console.log('📡 Llamando a:', `${API_BASE}/games`);
+                console.log('🔐 Authorization header:', `Bearer ${token ? token.substring(0, 20) + '...' : 'null'}`);
+
                 // Llamar al API para obtener partidas guardadas
-                const response = await fetch(`${API_URL}/games`, {
+                const response = await fetch(`${API_BASE}/games`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -1468,7 +1494,7 @@
                 const token = localStorage.getItem('token');
 
                 // Obtener datos de la partida
-                const response = await fetch(`${API_URL}/games/${gameId}`, {
+                const response = await fetch(`${API_BASE}/games/${gameId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -1534,7 +1560,7 @@
 
             try {
                 // Llamar al API para obtener el ranking
-                const response = await fetch(`${API_URL}/games/hall-of-fame?limit=20`);
+                const response = await fetch(`${API_BASE}/games/hall-of-fame?limit=20`);
                 const data = await response.json();
 
                 if (!response.ok) {

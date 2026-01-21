@@ -1089,9 +1089,17 @@ function getSwingResultOutcome(mss, bt, obt) {
 }
 
 function confirmResult(team) {
-    console.log('[RESULT] Confirmando resultado');
+    console.log('[RESULT] Confirmando resultado para equipo:', team);
 
-    const finalResult = document.getElementById('final-result');
+    const suffix = team === 'local' ? '-local' : '';
+    const finalResult = document.getElementById('final-result' + suffix);
+
+    if (!finalResult) {
+        alert('Error: No se encontró el elemento de resultado para equipo ' + team);
+        console.error('[RESULT] No se encontró final-result' + suffix);
+        return;
+    }
+
     const total = parseInt(finalResult.textContent);
 
     if (isNaN(total)) {
@@ -1099,11 +1107,14 @@ function confirmResult(team) {
         return;
     }
 
-    showSwingResultTable(total);
+    showSwingResultTable(total, team);
 }
 
-function showSwingResultTable(mss) {
-    console.log('[TABLE] Mostrando Swing Result Table para MSS: ' + mss);
+function showSwingResultTable(mss, team) {
+    console.log('[TABLE] Mostrando Swing Result Table para MSS: ' + mss + ', equipo: ' + team);
+
+    // Guardar el equipo en cascadeContext para usar en funciones posteriores
+    cascadeContext.currentTeam = team || 'visitante';
 
     // Mostrar el área de resolución azul
     const playsArea = document.getElementById('plays-resolution-area');
@@ -1186,7 +1197,10 @@ function closeSwingResultTable() {
         tableContainer.style.display = 'none';
     }
 
-    const finalResult = document.getElementById('final-result');
+    // Usar el equipo guardado en cascadeContext
+    const team = cascadeContext.currentTeam || 'visitante';
+    const suffix = team === 'local' ? '-local' : '';
+    const finalResult = document.getElementById('final-result' + suffix);
     const mss = parseInt(finalResult ? finalResult.textContent : 0);
 
     cascadeContext.currentMSS = mss;

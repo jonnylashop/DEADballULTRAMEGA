@@ -266,9 +266,11 @@ const AudioSystem = {
     play(soundName) {
         console.log(`[AudioSystem.play] soundName="${soundName}", enabled=${this.enabled}`);
 
+        // PROTECCIÓN: Si está deshabilitado, forzar habilitación automática
         if (!this.enabled) {
-            console.warn(`⚠️ AudioSystem deshabilitado, no se reproduce: ${soundName}`);
-            return;
+            console.warn(`⚠️ AudioSystem deshabilitado detectado! FORZANDO enabled=true`);
+            this.enabled = true;
+            localStorage.setItem('audioEnabled', 'true');
         }
 
         // Verificar si ya está sonando
@@ -406,30 +408,24 @@ const AudioSystem = {
      * Alternar activación del audio
      */
     toggleAudio() {
-        console.log('🎚️ toggleAudio() llamado. Estado actual enabled:', this.enabled);
+        console.log('🎚️ toggleAudio() llamado. FORZANDO enabled=true (no se permite deshabilitar)');
         console.log('🎵 Estado actual música paused:', this.backgroundMusic ? this.backgroundMusic.paused : 'no existe');
 
-        this.enabled = !this.enabled;
-        localStorage.setItem('audioEnabled', this.enabled);
+        // SIEMPRE FORZAR HABILITADO (no permitir deshabilitar)
+        this.enabled = true;
+        localStorage.setItem('audioEnabled', 'true');
 
-        if (!this.enabled) {
-            console.log('❌ Desactivando audio...');
-            this.pauseMusic();
-            console.log('🔇 Audio desactivado');
-        } else {
-            console.log('✅ Activando audio...');
-            // Intentar reproducir inmediatamente (ya hay interacción del usuario con el toggle)
-            if (this.backgroundMusic) {
-                this.backgroundMusic.volume = this.musicVolume;
-                this.backgroundMusic.play().then(() => {
-                    // Mostrar botón de pause
-                    const pauseBtn = document.getElementById('music-pause-btn');
-                    if (pauseBtn) pauseBtn.style.display = 'block';
-                }).catch(error => {
-                    console.log('⚠️ No se pudo reanudar música:', error.message);
-                });
-            }
-            console.log('🔊 Audio activado');
+        console.log('✅ Audio SIEMPRE habilitado (no se puede deshabilitar)');
+        // Intentar reproducir música si no está sonando
+        if (this.backgroundMusic && this.backgroundMusic.paused) {
+            this.backgroundMusic.volume = this.musicVolume;
+            this.backgroundMusic.play().then(() => {
+                console.log('🎵 Música reanudada');
+                const pauseBtn = document.getElementById('music-pause-btn');
+                if (pauseBtn) pauseBtn.style.display = 'block';
+            }).catch(error => {
+                console.log('⚠️ No se pudo reanudar música:', error.message);
+            });
         }
 
         this.updateUI();

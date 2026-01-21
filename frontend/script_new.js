@@ -3138,6 +3138,15 @@ function rollHitD20() {
 
     document.getElementById('hit-d20-value').value = baseRoll + (modifier !== 0 ? ' (' + (modifier > 0 ? '+' : '') + modifier + ')' : '');
 
+    // Procesar resultado
+    processHitD20Result(result, baseRoll, modifier);
+}
+
+// Función reutilizable para procesar resultado de D20 (manual o automático)
+function processHitD20Result(result, baseRoll = null, modifier = 0) {
+    const batter = getCurrentBatter();
+    const trait = batter ? batter.trait : '';
+
     const resultDisplay = document.getElementById('hit-result-display');
     const continueBtn = document.getElementById('hit-continue-btn');
 
@@ -3223,7 +3232,7 @@ function rollHitD20() {
 
     // Display result
     let message = '<strong>🎯 ' + hitType + '</strong>';
-    if (modifier !== 0) {
+    if (baseRoll !== null && modifier !== 0) {
         message += '<br><small>🎲 Roll base: ' + baseRoll + ' + Trait: ' + (modifier > 0 ? '+' : '') + modifier + ' = ' + result + '</small>';
     }
     if (isContactHitter || isSpeedyRunner) {

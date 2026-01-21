@@ -1111,6 +1111,7 @@ function confirmResult(team) {
     if (total >= 21) {
         const lastDigit = total % 10;
         if (lastDigit >= 0 && lastDigit <= 2) {
+            console.log('🎵 [STRIKEOUT AUDIO] Reproduciendo AHORA desde confirmResult()');
             playAudio('strikeout'); // Strikeout detectado!
         }
     }

@@ -3426,7 +3426,6 @@ function showOutTable(mss) {
         let outType = '';
         if (lastDigit === 0 || lastDigit === 1 || lastDigit === 2) {
             outType = 'Strikeout (K) - Runners hold';
-            playAudio('strikeout'); // 🎵 Reproducir sonido loponcho cuando se lee "Strikeout"
         } else if (lastDigit === 3) {
             outType = 'Groundball to 1B (G-3) - Runners may advance';
         } else if (lastDigit === 4) {

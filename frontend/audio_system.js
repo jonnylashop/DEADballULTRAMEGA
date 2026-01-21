@@ -264,11 +264,8 @@ const AudioSystem = {
      * Reproducir efecto de sonido
      */
     play(soundName) {
-        console.log(`[AudioSystem.play] soundName="${soundName}", enabled=${this.enabled}`);
-
-        // PROTECCIÓN: Si está deshabilitado, forzar habilitación automática
+        // PROTECCIÓN SILENCIOSA: Si está deshabilitado, forzar habilitación automática
         if (!this.enabled) {
-            console.warn(`⚠️ AudioSystem deshabilitado detectado! FORZANDO enabled=true`);
             this.enabled = true;
             localStorage.setItem('audioEnabled', 'true');
         }

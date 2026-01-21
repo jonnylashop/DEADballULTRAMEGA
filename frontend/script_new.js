@@ -1107,6 +1107,14 @@ function confirmResult(team) {
         return;
     }
 
+    // 🎵 REPRODUCIR AUDIO DE STRIKEOUT INMEDIATAMENTE (antes de mostrar tablas)
+    if (total >= 21) {
+        const lastDigit = total % 10;
+        if (lastDigit >= 0 && lastDigit <= 2) {
+            playAudio('strikeout'); // Strikeout detectado!
+        }
+    }
+
     showSwingResultTable(total, team);
 }
 
@@ -1233,7 +1241,7 @@ function closeSwingResultTable() {
         let ballLocation = '';
         if (lastDigit >= 0 && lastDigit <= 2) {
             ballLocation = 'Strikeout';
-            playAudio('strikeout'); // 🎵 Reproducir sonido de ponchado
+            // Audio ya reproducido en confirmResult(), no duplicar aquí
         } else if (lastDigit >= 3 && lastDigit <= 6) {
             ballLocation = 'Infield';
         } else if (lastDigit >= 7 && lastDigit <= 9) {

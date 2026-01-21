@@ -788,6 +788,235 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
         }
+        /* === MODAL DE ESTADÍSTICAS === */
+        
+        .stats-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .stats-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .stats-container {
+            background: rgba(15, 23, 42, 0.98);
+            border: 3px solid #fbbf24;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .stats-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-header h2 {
+            color: #fbbf24;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #475569;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: #fbbf24;
+            transform: translateY(-3px);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fbbf24;
+            margin-bottom: 0.3rem;
+        }
+        
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stats-loading {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+        /* === MODAL DE CARGAR PARTIDA === */
+        
+        .load-game-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .load-game-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .load-game-container {
+            background: rgba(15, 23, 42, 0.98);
+            border: 3px solid #fbbf24;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .load-game-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .load-game-header h2 {
+            color: #fbbf24;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .games-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .game-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #475569;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .game-card:hover {
+            border-color: #fbbf24;
+            transform: translateX(5px);
+            background: rgba(30, 41, 59, 0.95);
+        }
+        
+        .game-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .game-teams {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fbbf24;
+        }
+        
+        .game-date {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .game-score {
+            font-size: 1.5rem;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .game-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .game-status.in-progress {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+        
+        .game-status.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .load-game-loading {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+        
+        .no-games {
+            text-align: center;
+            color: #94a3b8;
+            padding: 3rem;
+            font-size: 1.1rem;
+        }
+        
+        .modal-close-btn-generic {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            border: 2px solid #fbbf24;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .modal-close-btn-generic:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+        }
     </style>
 </head>
 
@@ -831,6 +1060,34 @@
             </div>
             <div id="rankingContent" class="ranking-loading">
                 Cargando ranking...
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE ESTADÍSTICAS -->
+    <div id="statsModal" class="stats-modal" onclick="closeStatsModal(event)">
+        <div class="stats-container" onclick="event.stopPropagation()">
+            <button class="modal-close-btn-generic" onclick="closeStatsModal(event)">✖ Cerrar</button>
+            <div class="stats-header">
+                <h2>📊 Mis Estadísticas</h2>
+                <p id="statsPlayerName" style="color: #94a3b8;"></p>
+            </div>
+            <div id="statsContent" class="stats-loading">
+                Cargando estadísticas...
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CARGAR PARTIDA -->
+    <div id="loadGameModal" class="load-game-modal" onclick="closeLoadGameModal(event)">
+        <div class="load-game-container" onclick="event.stopPropagation()">
+            <button class="modal-close-btn-generic" onclick="closeLoadGameModal(event)">✖ Cerrar</button>
+            <div class="load-game-header">
+                <h2>💾 Cargar Partida</h2>
+                <p style="color: #94a3b8;">Selecciona una partida guardada para continuar jugando</p>
+            </div>
+            <div id="loadGameContent" class="load-game-loading">
+                Cargando partidas guardadas...
             </div>
         </div>
     </div>
@@ -897,8 +1154,8 @@
         <h1>DEADball ULTRAMEGA</h1>
         <p class="subtitle">Simulador de Béisbol con Dados</p>
         <div class="welcome-user" id="welcomeMsg"></div>
-        <div class="menu-buttons"><button class="menu-btn" onclick="startNewGame()"><span>🎮 Nuevo Juego</span></button><button class="menu-btn secondary disabled"><span>💾 Cargar Partida</span></button><button class="menu-btn secondary disabled"><span>📊 Estadísticas</span></button>
-            <button class="menu-btn secondary disabled"><span>⚙️ Configuración</span></button><button class="menu-btn secondary" onclick="showCredits()"><span>ℹ️ Acerca de</span></button><button class="logout-btn" onclick="handleLogout()">🚪 Cerrar Sesión </button></div>
+        <div class="menu-buttons"><button class="menu-btn" onclick="startNewGame()"><span>🎮 Nuevo Juego</span></button><button class="menu-btn secondary" onclick="openLoadGameModal()"><span>💾 Cargar Partida</span></button><button class="menu-btn secondary" onclick="openStatsModal()"><span>📊 Estadísticas</span></button>
+            <button class="menu-btn secondary" onclick="showCredits()"><span>ℹ️ Acerca de</span></button><button class="logout-btn" onclick="handleLogout()">🚪 Cerrar Sesión </button></div>
         <div class="footer">
             <p>Versión 1.0 - 2026</p>
         </div>
@@ -1015,6 +1272,234 @@
 
         function showCredits() {
             alert('DEADball ULTRAMEGA\n\nSimulador de béisbol con sistema de dados\nBasado en el juego de mesa DEADball\n\n© 2026');
+        }
+
+        // === MODAL DE ESTADÍSTICAS ===
+        async function openStatsModal() {
+            const modal = document.getElementById('statsModal');
+            const content = document.getElementById('statsContent');
+            const playerName = document.getElementById('statsPlayerName');
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Mostrar loading
+            content.innerHTML = '<div class="stats-loading">⏳ Cargando estadísticas...</div>';
+
+            try {
+                const token = localStorage.getItem('token');
+                const usuario = JSON.parse(localStorage.getItem('usuario'));
+
+                playerName.textContent = usuario.nombre;
+
+                // Llamar al API para obtener estadísticas
+                const response = await fetch(`${API_URL}/games/stats`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al cargar estadísticas');
+                }
+
+                // Mostrar las estadísticas
+                displayStats(data.estadisticas);
+            } catch (error) {
+                console.error('Error al cargar estadísticas:', error);
+                content.innerHTML = `
+                    <div class="stats-loading">
+                        ❌ Error al cargar estadísticas<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+
+        function displayStats(stats) {
+            const content = document.getElementById('statsContent');
+
+            if (!stats) {
+                content.innerHTML = '<div class="stats-loading">📊 No hay estadísticas disponibles</div>';
+                return;
+            }
+
+            const html = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎮</div>
+                        <div class="stat-value">${stats.partidos_jugados || 0}</div>
+                        <div class="stat-label">Partidos Jugados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-value" style="color: #10b981;">${stats.ganados || 0}</div>
+                        <div class="stat-label">Ganados</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💔</div>
+                        <div class="stat-value" style="color: #ef4444;">${stats.perdidos || 0}</div>
+                        <div class="stat-label">Perdidos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value">${stats.completados || 0}</div>
+                        <div class="stat-label">Completados</div>
+                    </div>
+                </div>
+            `;
+
+            content.innerHTML = html;
+        }
+
+        function closeStatsModal(event) {
+            if (event && event.target.id !== 'statsModal' &&
+                !event.target.classList.contains('modal-close-btn-generic')) {
+                return;
+            }
+            const modal = document.getElementById('statsModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // === MODAL DE CARGAR PARTIDA ===
+        async function openLoadGameModal() {
+            const modal = document.getElementById('loadGameModal');
+            const content = document.getElementById('loadGameContent');
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Mostrar loading
+            content.innerHTML = '<div class="load-game-loading">⏳ Cargando partidas guardadas...</div>';
+
+            try {
+                const token = localStorage.getItem('token');
+
+                // Llamar al API para obtener partidas guardadas
+                const response = await fetch(`${API_URL}/games`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al cargar partidas');
+                }
+
+                // Mostrar las partidas
+                displaySavedGames(data.games);
+            } catch (error) {
+                console.error('Error al cargar partidas:', error);
+                content.innerHTML = `
+                    <div class="load-game-loading">
+                        ❌ Error al cargar partidas guardadas<br>
+                        <small>${error.message}</small>
+                    </div>
+                `;
+            }
+        }
+
+        function displaySavedGames(games) {
+            const content = document.getElementById('loadGameContent');
+
+            if (!games || games.length === 0) {
+                content.innerHTML = `
+                    <div class="no-games">
+                        💾 No tienes partidas guardadas<br>
+                        <small>Empieza una nueva partida y guárdala para verla aquí</small>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="games-list">';
+
+            games.forEach(game => {
+                const fecha = new Date(game.created_at).toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const estado = game.estado_juego ? JSON.parse(game.estado_juego) : {};
+                const homeTeam = estado.homeTeam || {
+                    name: 'Local'
+                };
+                const awayTeam = estado.awayTeam || {
+                    name: 'Visitante'
+                };
+                const homeScore = estado.homeScore || 0;
+                const awayScore = estado.awayScore || 0;
+
+                const statusClass = game.completado ? 'completed' : 'in-progress';
+                const statusText = game.completado ? 'Completada' : 'En progreso';
+
+                html += `
+                    <div class="game-card" onclick="loadGame(${game.id})">
+                        <div class="game-card-header">
+                            <div class="game-teams">
+                                ⚾ ${homeTeam.name} vs ${awayTeam.name}
+                            </div>
+                            <div class="game-date">${fecha}</div>
+                        </div>
+                        <div class="game-score">
+                            ${homeTeam.name}: ${homeScore} - ${awayTeam.name}: ${awayScore}
+                        </div>
+                        <span class="game-status ${statusClass}">
+                            ${statusText}
+                        </span>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            content.innerHTML = html;
+        }
+
+        async function loadGame(gameId) {
+            try {
+                const token = localStorage.getItem('token');
+
+                // Obtener datos de la partida
+                const response = await fetch(`${API_URL}/games/${gameId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al cargar partida');
+                }
+
+                // Guardar el estado en localStorage
+                localStorage.setItem('gameState', data.game.estado_juego);
+                localStorage.setItem('currentGameId', gameId);
+
+                // Redirigir al juego
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error al cargar partida:', error);
+                alert('Error al cargar la partida: ' + error.message);
+            }
+        }
+
+        function closeLoadGameModal(event) {
+            if (event && event.target.id !== 'loadGameModal' &&
+                !event.target.classList.contains('modal-close-btn-generic')) {
+                return;
+            }
+            const modal = document.getElementById('loadGameModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
         }
 
         function showError(message) {
@@ -1303,9 +1788,19 @@
                 }
             }
 
-            // Cerrar ranking modal con ESC
-            if (rankingModal && rankingModal.classList.contains('active') && event.key === 'Escape') {
-                closeRankingModal();
+            // Cerrar modales con ESC
+            if (event.key === 'Escape') {
+                if (rankingModal && rankingModal.classList.contains('active')) {
+                    closeRankingModal();
+                }
+                const statsModal = document.getElementById('statsModal');
+                if (statsModal && statsModal.classList.contains('active')) {
+                    closeStatsModal(event);
+                }
+                const loadGameModal = document.getElementById('loadGameModal');
+                if (loadGameModal && loadGameModal.classList.contains('active')) {
+                    closeLoadGameModal(event);
+                }
             }
         });
     </script>

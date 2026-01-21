@@ -50,7 +50,7 @@ router.get('/', verificarToken, async(req, res) => {
         const partidas = await Game.obtenerPorUsuario(userId, limit);
 
         res.json({
-            partidas: partidas
+            games: partidas // Cambiado para coincidir con frontend
         });
     } catch (error) {
         console.error('Error en get games:', error);
@@ -112,7 +112,7 @@ router.get('/:id', verificarToken, async(req, res) => {
         const partida = await Game.obtenerPorId(gameId, userId);
 
         res.json({
-            partida: partida
+            game: partida // Cambiado para coincidir con frontend
         });
     } catch (error) {
         console.error('Error en get game by id:', error);

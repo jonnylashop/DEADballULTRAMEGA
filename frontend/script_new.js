@@ -66,6 +66,11 @@ const gameState = {
     }
 };
 
+// Sincronizar gameState con window.gameStateData automáticamente
+function syncGameState() {
+    window.gameStateData = gameState;
+}
+
 const basePositions = {
     home: { x: '50%', y: '40%' },
     first: { x: '39%', y: '51%' },
@@ -247,6 +252,9 @@ function startNewGame() {
     gameState.isGameActive = true;
     gameState.currentIntention = null;
 
+    // Exponer gameState globalmente para guardar/cargar partidas
+    syncGameState();
+
     // RESETEAR DADOS AL INICIAR JUEGO
     gameState.diceRolled = {
         visitante: { pitcher: false, batter: false },
@@ -375,6 +383,9 @@ function resetGame() {
     gameState.visitanteBatterIndex = 0;
     gameState.localBatterIndex = 0;
     gameState.outs = 0;
+
+    // Sincronizar estado
+    syncGameState();
     gameState.strikes = 0;
     gameState.balls = 0;
     gameState.bases = { first: null, second: null, third: null };
@@ -532,6 +543,9 @@ function changeInning() {
         gameState.currentInning++;
     }
 
+    // Sincronizar estado después de cambiar inning
+    syncGameState();
+
     initializeFirstBatter();
     updateDiceSystemPosition();
     updateGameDisplay();
@@ -556,13 +570,73 @@ function updateScoreboard() {
     const rows = document.querySelectorAll('tbody tr');
     if (rows.length >= 2) {
         const visitanteCells = rows[0].querySelectorAll('.inning-score');
-        for (var i = 0; i < gameState.score.visitante.length; i++) {
-            if (visitanteCells[i]) visitanteCells[i].textContent = gameState.score.visitante[i];
+        const localCells = rows[1].querySelectorAll('.inning-score');
+
+        // Limpiar resaltados anteriores en celdas
+        visitanteCells.forEach(cell => {
+            cell.classList.remove('current-inning-active');
+            cell.style.background = '';
+            cell.style.boxShadow = '';
+            cell.style.fontWeight = '';
+            cell.style.color = '';
+        });
+        localCells.forEach(cell => {
+            cell.classList.remove('current-inning-active');
+            cell.style.background = '';
+            cell.style.boxShadow = '';
+            cell.style.fontWeight = '';
+            cell.style.color = '';
+        });
+
+        // Limpiar resaltados anteriores en headers
+        const inningHeaders = document.querySelectorAll('.inning-header');
+        inningHeaders.forEach(header => {
+            header.classList.remove('current-inning-header');
+            header.style.background = '';
+            header.style.boxShadow = '';
+            header.style.color = '';
+        });
+
+        // Resaltar header del inning actual
+        const currentInningHeader = document.querySelector(`.inning-header[data-inning="${gameState.currentInning}"]`);
+        if (currentInningHeader) {
+            currentInningHeader.classList.add('current-inning-header');
+            currentInningHeader.style.background = 'linear-gradient(135deg, #ffd700, #ffed4e)';
+            currentInningHeader.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.8)';
+            currentInningHeader.style.color = '#1e3c72';
         }
 
-        const localCells = rows[1].querySelectorAll('.inning-score');
+        // Actualizar valores y resaltar inning actual
+        for (var i = 0; i < gameState.score.visitante.length; i++) {
+            if (visitanteCells[i]) {
+                visitanteCells[i].textContent = gameState.score.visitante[i];
+
+                // Resaltar inning actual (índice = currentInning - 1)
+                if (i === gameState.currentInning - 1 && gameState.isTopHalf) {
+                    visitanteCells[i].classList.add('current-inning-active');
+                    visitanteCells[i].style.background = 'linear-gradient(135deg, #ffd700, #ffed4e)';
+                    visitanteCells[i].style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.5)';
+                    visitanteCells[i].style.fontWeight = 'bold';
+                    visitanteCells[i].style.color = '#1e3c72';
+                    visitanteCells[i].style.animation = 'pulse-glow 2s infinite';
+                }
+            }
+        }
+
         for (var j = 0; j < gameState.score.local.length; j++) {
-            if (localCells[j]) localCells[j].textContent = gameState.score.local[j];
+            if (localCells[j]) {
+                localCells[j].textContent = gameState.score.local[j];
+
+                // Resaltar inning actual (índice = currentInning - 1)
+                if (j === gameState.currentInning - 1 && !gameState.isTopHalf) {
+                    localCells[j].classList.add('current-inning-active');
+                    localCells[j].style.background = 'linear-gradient(135deg, #ffd700, #ffed4e)';
+                    localCells[j].style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.5)';
+                    localCells[j].style.fontWeight = 'bold';
+                    localCells[j].style.color = '#1e3c72';
+                    localCells[j].style.animation = 'pulse-glow 2s infinite';
+                }
+            }
         }
 
         const visitanteTotal = rows[0].querySelector('.total-runs');
@@ -821,6 +895,9 @@ function addRun(team, runs = 1) {
 
     console.log(`[SCORE] ${runs} carrera(s) para ${team}. Pitcher ${pitchingTeam} afectado por fatiga.`);
     updateScoreboard();
+
+    // Sincronizar estado después de anotar carreras
+    syncGameState();
 }
 
 function hasRunnersOnBase() {
@@ -3398,6 +3475,13 @@ function closeDefenseTable() {
     const container = document.getElementById('defense-table-container');
     if (container) container.style.display = 'none';
 
+    // Validar que hay un hitType antes de aplicar resultado
+    if (!cascadeContext.hitType) {
+        console.warn('[DEFENSE] No hay hitType definido - no se puede aplicar resultado');
+        updateCascadeStatus('⚡ Esperando jugada...');
+        return;
+    }
+
     // Aplicar resultado del hit con modificación defensiva
     applyHitResult();
 }
@@ -3738,6 +3822,13 @@ function applyHitResult() {
 
     const batter = getCurrentBatter();
     const hitType = cascadeContext.hitType;
+
+    // Validar que hitType existe
+    if (!hitType) {
+        console.error('[ERROR] hitType es null - no se puede aplicar resultado');
+        updateCascadeStatus('❌ Error: No hay tipo de hit definido');
+        return;
+    }
 
     console.log('[HIT] Aplicando: ' + hitType + ' para ' + batter.name);
 
@@ -5315,7 +5406,7 @@ document.addEventListener('DOMContentLoaded', function() {
             else return { min: diceType, max: -1 }; // Dado negativo
         });
         validateDiceInput(batterInputVis, () => ({ min: 1, max: 100 })); // D100 siempre
-        
+
         pitcherInputVis.addEventListener('input', () => checkDiceComplete('visitante'));
         batterInputVis.addEventListener('input', () => checkDiceComplete('visitante'));
     }
@@ -5333,7 +5424,7 @@ document.addEventListener('DOMContentLoaded', function() {
             else return { min: diceType, max: -1 }; // Dado negativo
         });
         validateDiceInput(batterInputLoc, () => ({ min: 1, max: 100 })); // D100 siempre
-        
+
         pitcherInputLoc.addEventListener('input', () => checkDiceComplete('local'));
         batterInputLoc.addEventListener('input', () => checkDiceComplete('local'));
     }

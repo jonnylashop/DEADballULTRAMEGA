@@ -30,15 +30,15 @@
                     <thead>
                         <tr>
                             <th>Equipo</th>
-                            <th>1</th>
-                            <th>2</th>
-                            <th>3</th>
-                            <th>4</th>
-                            <th>5</th>
-                            <th>6</th>
-                            <th>7</th>
-                            <th>8</th>
-                            <th>9</th>
+                            <th class="inning-header" data-inning="1">1</th>
+                            <th class="inning-header" data-inning="2">2</th>
+                            <th class="inning-header" data-inning="3">3</th>
+                            <th class="inning-header" data-inning="4">4</th>
+                            <th class="inning-header" data-inning="5">5</th>
+                            <th class="inning-header" data-inning="6">6</th>
+                            <th class="inning-header" data-inning="7">7</th>
+                            <th class="inning-header" data-inning="8">8</th>
+                            <th class="inning-header" data-inning="9">9</th>
                             <th>R</th>
                             <th>H</th>
                             <th>E</th>
@@ -89,6 +89,10 @@
                         </button>
                 <button class="load-game-btn" onclick="mostrarPartidas()" title="Cargar partida guardada">
                             📂 Cargar
+                        </button>
+                <!-- Botón PDF Scoresheet -->
+                <button class="save-game-btn" onclick="descargarScoresheetActual()" title="Descargar scoresheet PDF" style="background: #f97316;">
+                            📄 PDF
                         </button>
                 <!-- Botón de Chat -->
                 <button class="save-game-btn" onclick="toggleChat()" title="Abrir chat" style="background: #667eea;">
@@ -3274,6 +3278,12 @@
     <!-- MODALES -->
     <!-- ================================================== -->
 
+    <!-- jsPDF para generación de scoresheets PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Sistema de Scoresheet PDF -->
+    <script src="scoresheet_pdf.js"></script>
+
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
@@ -3741,6 +3751,38 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
         }
+        /* Animaciones para modal de partidas */
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Animación de pulso dorado para inning activo */
+        
+        @keyframes pulse-glow {
+            0%,
+            100% {
+                box-shadow: 0 0 15px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(255, 215, 0, 1), inset 0 0 15px rgba(255, 255, 255, 0.8);
+            }
+        }
         /* Responsivo */
         
         @media (max-width: 1400px) {
@@ -3843,7 +3885,7 @@
         }
 
         // ================================================
-        // MOSTRAR LISTA DE PARTIDAS GUARDADAS
+        // MOSTRAR LISTA DE PARTIDAS GUARDADAS (SOLO NO FINALIZADAS)
         // ================================================
         async function mostrarPartidas() {
             try {
@@ -3853,7 +3895,7 @@
                     return;
                 }
 
-                const response = await fetch('http://localhost:3000/api/games?limit=20', {
+                const response = await fetch('http://localhost:3000/api/games?limit=50', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -3866,8 +3908,11 @@
                     return;
                 }
 
-                // Crear modal con lista de partidas
-                mostrarModalPartidas(data.games);
+                // FILTRAR SOLO PARTIDAS NO FINALIZADAS (A MEDIAS)
+                const partidasAMedias = (data.games || []).filter(game => game.completed === 0);
+
+                // Crear modal con lista de partidas a medias
+                mostrarModalPartidas(partidasAMedias);
             } catch (error) {
                 console.error('Error al cargar partidas:', error);
                 alert('❌ Error al cargar las partidas');
@@ -3882,7 +3927,7 @@
             const oldOverlay = document.getElementById('games-modal-overlay');
             if (oldOverlay) oldOverlay.remove();
 
-            // Crear overlay
+            // Crear overlay con animación
             const overlay = document.createElement('div');
             overlay.id = 'games-modal-overlay';
             overlay.style.cssText = `
@@ -3891,82 +3936,290 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.8);
+                background: rgba(0, 0, 0, 0.85);
                 z-index: 10000;
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                animation: fadeIn 0.3s ease;
             `;
 
-            // Crear modal
+            // Crear modal con diseño mejorado
             const modal = document.createElement('div');
             modal.style.cssText = `
-                background: linear-gradient(135deg, #1e3c72, #2a5298);
-                padding: 30px;
-                border-radius: 15px;
-                max-width: 600px;
+                background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+                padding: 0;
+                border-radius: 20px;
+                max-width: 700px;
                 width: 90%;
-                max-height: 80vh;
-                overflow-y: auto;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-                border: 3px solid #ffd700;
+                max-height: 85vh;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 215, 0, 0.3);
+                animation: slideDown 0.4s ease;
             `;
 
+            // Header del modal
             let html = `
-                <h2 style="color: #ffd700; margin-top: 0; text-align: center;">📂 Partidas Guardadas</h2>
+                <div style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 25px;
+                    border-radius: 20px 20px 0 0;
+                    border-bottom: 3px solid #ffd700;
+                ">
+                    <h2 style="
+                        color: #fff;
+                        margin: 0;
+                        text-align: center;
+                        font-size: 26px;
+                        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                    ">
+                        <span style="font-size: 32px;">⏸️</span>
+                        <span>Partidas en Curso</span>
+                    </h2>
+                    <p style="
+                        color: rgba(255,255,255,0.9);
+                        margin: 10px 0 0 0;
+                        text-align: center;
+                        font-size: 14px;
+                    ">Haz clic en una partida para continuar jugando</p>
+                </div>
             `;
+
+            // Contenido del modal
+            html += `<div style="padding: 25px; max-height: 60vh; overflow-y: auto;">`;
 
             if (games.length === 0) {
-                html += `<p style="color: white; text-align: center;">No tienes partidas guardadas</p>`;
+                html += `
+                    <div style="
+                        text-align: center;
+                        padding: 60px 20px;
+                        color: rgba(255,255,255,0.6);
+                    ">
+                        <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">🎮</div>
+                        <p style="font-size: 18px; margin: 0;">No tienes partidas a medias</p>
+                        <p style="font-size: 14px; margin-top: 10px; opacity: 0.7;">Inicia una nueva partida y guárdala cuando quieras</p>
+                    </div>
+                `;
             } else {
-                html += `<div style="display: grid; gap: 15px;">`;
+                // Agrupar por día
+                const partidasPorDia = {};
                 games.forEach(game => {
-                    const fecha = new Date(game.game_date).toLocaleString('es-ES');
-                    const estado = game.completed ? '✅ Completada' : '⏸️ En curso';
-                    html += `
-                        <div style="
-                            background: rgba(255, 255, 255, 0.1);
-                            padding: 15px;
-                            border-radius: 10px;
-                            border: 2px solid rgba(255, 215, 0, 0.3);
-                            cursor: pointer;
-                            transition: all 0.3s ease;
-                        " onmouseover="this.style.background='rgba(255, 215, 0, 0.2)'" 
-                           onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'"
-                           onclick="cargarPartida(${game.id})">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                <span style="color: white; font-weight: bold;">⚾ ${game.home_team} vs ${game.away_team}</span>
-                                <span style="color: #4FC3F7; font-size: 12px;">${fecha}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="color: #66BB6A; font-size: 18px; font-weight: bold;">${game.home_score} - ${game.away_score}</span>
-                                <span style="color: ${game.completed ? '#66BB6A' : '#FFD700'}; font-size: 12px;">${estado}</span>
-                            </div>
-                            <div style="margin-top: 8px; font-size: 12px; color: rgba(255, 255, 255, 0.7);">
-                                Inning: ${game.inning} | Outs: ${game.outs}
-                            </div>
-                        </div>
-                    `;
+                    const fecha = new Date(game.game_date);
+                    const hoy = new Date();
+                    const ayer = new Date(hoy);
+                    ayer.setDate(ayer.getDate() - 1);
+
+                    let diaLabel;
+                    if (fecha.toDateString() === hoy.toDateString()) {
+                        diaLabel = '🔥 Hoy';
+                    } else if (fecha.toDateString() === ayer.toDateString()) {
+                        diaLabel = '📅 Ayer';
+                    } else {
+                        diaLabel = '📆 ' + fecha.toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }
+
+                    if (!partidasPorDia[diaLabel]) {
+                        partidasPorDia[diaLabel] = [];
+                    }
+                    partidasPorDia[diaLabel].push(game);
                 });
-                html += `</div>`;
+
+                // Renderizar cascada por días
+                Object.keys(partidasPorDia).forEach(dia => {
+                    html += `
+                        <div style="margin-bottom: 25px;">
+                            <div style="
+                                color: #ffd700;
+                                font-weight: bold;
+                                font-size: 16px;
+                                margin-bottom: 15px;
+                                padding-bottom: 8px;
+                                border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+                            ">${dia}</div>
+                    `;
+
+                    partidasPorDia[dia].forEach((game, index) => {
+                        const fecha = new Date(game.game_date);
+                        const hora = fecha.toLocaleTimeString('es-ES', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        const inningTexto = game.inning <= 9 ? `Inning ${game.inning}` : `Extra Inning ${game.inning}`;
+
+                        html += `
+                            <div style="
+                                background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+                                padding: 20px;
+                                border-radius: 12px;
+                                border: 2px solid rgba(102, 126, 234, 0.3);
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                margin-bottom: 12px;
+                                position: relative;
+                                overflow: hidden;
+                            " 
+                            onmouseover="this.style.transform='translateX(5px)'; this.style.borderColor='#ffd700'; this.style.boxShadow='0 5px 20px rgba(255, 215, 0, 0.3)'"
+                            onmouseout="this.style.transform='translateX(0)'; this.style.borderColor='rgba(102, 126, 234, 0.3)'; this.style.boxShadow='none'"
+                            onclick="cargarPartida(${game.id}); document.getElementById('games-modal-overlay').remove();">
+                                
+                                <!-- Indicador lateral -->
+                                <div style="
+                                    position: absolute;
+                                    left: 0;
+                                    top: 0;
+                                    bottom: 0;
+                                    width: 5px;
+                                    background: linear-gradient(180deg, #667eea, #764ba2);
+                                "></div>
+                                
+                                <!-- Hora -->
+                                <div style="
+                                    position: absolute;
+                                    top: 15px;
+                                    right: 20px;
+                                    background: rgba(255, 215, 0, 0.2);
+                                    color: #ffd700;
+                                    padding: 5px 12px;
+                                    border-radius: 20px;
+                                    font-size: 11px;
+                                    font-weight: bold;
+                                ">
+                                    🕐 ${hora}
+                                </div>
+
+                                <!-- Equipos -->
+                                <div style="margin-bottom: 15px; padding-right: 80px;">
+                                    <div style="
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 15px;
+                                        margin-bottom: 8px;
+                                    ">
+                                        <span style="
+                                            color: #fff;
+                                            font-weight: bold;
+                                            font-size: 18px;
+                                            flex: 1;
+                                        ">🏠 ${game.home_team}</span>
+                                        <span style="
+                                            color: #66BB6A;
+                                            font-size: 24px;
+                                            font-weight: bold;
+                                            min-width: 30px;
+                                            text-align: center;
+                                        ">${game.home_score}</span>
+                                    </div>
+                                    <div style="
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 15px;
+                                    ">
+                                        <span style="
+                                            color: rgba(255,255,255,0.85);
+                                            font-weight: bold;
+                                            font-size: 18px;
+                                            flex: 1;
+                                        ">✈️ ${game.away_team}</span>
+                                        <span style="
+                                            color: #90CAF9;
+                                            font-size: 24px;
+                                            font-weight: bold;
+                                            min-width: 30px;
+                                            text-align: center;
+                                        ">${game.away_score}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Info del juego -->
+                                <div style="
+                                    display: flex;
+                                    gap: 15px;
+                                    flex-wrap: wrap;
+                                    margin-top: 12px;
+                                    align-items: center;
+                                ">
+                                    <span style="
+                                        background: rgba(255, 255, 255, 0.1);
+                                        padding: 6px 12px;
+                                        border-radius: 6px;
+                                        font-size: 12px;
+                                        color: rgba(255,255,255,0.8);
+                                    ">⚾ ${inningTexto}</span>
+                                    <span style="
+                                        background: rgba(255, 255, 255, 0.1);
+                                        padding: 6px 12px;
+                                        border-radius: 6px;
+                                        font-size: 12px;
+                                        color: rgba(255,255,255,0.8);
+                                    ">🔴 ${game.outs || 0} Outs</span>
+                                    <span style="
+                                        background: rgba(255, 215, 0, 0.2);
+                                        padding: 6px 12px;
+                                        border-radius: 6px;
+                                        font-size: 12px;
+                                        color: #ffd700;
+                                        font-weight: bold;
+                                    ">👆 Click para continuar</span>
+                                    <button 
+                                        onclick="event.stopPropagation(); descargarScoresheetGuardada(${game.id})"
+                                        style="
+                                            background: linear-gradient(135deg, #f97316, #ea580c);
+                                            padding: 6px 12px;
+                                            border: none;
+                                            border-radius: 6px;
+                                            font-size: 12px;
+                                            color: white;
+                                            font-weight: bold;
+                                            cursor: pointer;
+                                            margin-left: auto;
+                                        "
+                                        onmouseover="this.style.transform='scale(1.05)'"
+                                        onmouseout="this.style.transform='scale(1)'"
+                                    >📄 PDF</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += `</div>`;
+                });
             }
 
+            html += `</div>`;
+
+            // Footer con botón cerrar
             html += `
-                <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" 
-                    style="
-                        margin-top: 20px;
-                        width: 100%;
-                        padding: 12px;
-                        background: linear-gradient(135deg, #EF5350, #E53935);
-                        color: white;
-                        border: none;
-                        border-radius: 8px;
-                        font-weight: bold;
-                        cursor: pointer;
-                        font-size: 14px;
-                    ">
-                    ❌ Cerrar
-                </button>
+                <div style="
+                    padding: 20px 25px;
+                    background: rgba(0, 0, 0, 0.3);
+                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                ">
+                    <button onclick="document.getElementById('games-modal-overlay').remove()" 
+                        style="
+                            width: 100%;
+                            padding: 14px;
+                            background: linear-gradient(135deg, #ef5350, #e53935);
+                            color: white;
+                            border: none;
+                            border-radius: 10px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            font-size: 15px;
+                            transition: all 0.3s ease;
+                        "
+                        onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 5px 20px rgba(239, 83, 80, 0.4)'"
+                        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">
+                        ❌ Cerrar
+                    </button>
+                </div>
             `;
 
             modal.innerHTML = html;

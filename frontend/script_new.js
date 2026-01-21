@@ -2371,6 +2371,7 @@ function calculateHitAndRun() {
                 '📍 Corredores en 1B y 2B';
         }
     } else if (battingResult === 'strikeout' || (battingResult === 'out' && mss < 70)) {
+        playAudio('strikeout'); // 🎵 Reproducir sonido loponcho cuando se lee "STRIKEOUT"
         if (stealSuccess) {
             resultText = '❌ STRIKEOUT/POP UP + ROBO EXITOSO\n\n' +
                 `MSS: ${mss} (Out)\n` +
@@ -2450,6 +2451,7 @@ function applyHitAndRunResult() {
             gameState.hits[getCurrentBattingTeam()]++;
         }
     } else if (battingResult === 'strikeout' || (battingResult === 'out' && hitAndRunContext.mssRoll < 70)) {
+        playAudio('strikeout'); // 🎵 Reproducir sonido loponcho en strikeout de hit-and-run
         if (stealSuccess) {
             // Strikeout/Pop + Steal Success = Batter out, runner stays at 1st
             updateCascadeStatus('⚡ HIT & RUN: Out + Robo Exitoso - Bateador OUT, corredor en 1B');
@@ -3424,6 +3426,7 @@ function showOutTable(mss) {
         let outType = '';
         if (lastDigit === 0 || lastDigit === 1 || lastDigit === 2) {
             outType = 'Strikeout (K) - Runners hold';
+            playAudio('strikeout'); // 🎵 Reproducir sonido loponcho cuando se lee "Strikeout"
         } else if (lastDigit === 3) {
             outType = 'Groundball to 1B (G-3) - Runners may advance';
         } else if (lastDigit === 4) {

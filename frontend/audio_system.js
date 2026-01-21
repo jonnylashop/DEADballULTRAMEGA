@@ -44,6 +44,8 @@ const AudioSystem = {
         this.enabled = true;
         localStorage.setItem('audioEnabled', 'true');
 
+        console.log('✅ AudioSystem.enabled establecido a:', this.enabled);
+
         // Cargar volúmenes guardados
         const savedMusicVolume = localStorage.getItem('musicVolume');
         const savedSfxVolume = localStorage.getItem('sfxVolume');
@@ -263,7 +265,7 @@ const AudioSystem = {
      */
     play(soundName) {
         console.log(`[AudioSystem.play] soundName="${soundName}", enabled=${this.enabled}`);
-        
+
         if (!this.enabled) {
             console.warn(`⚠️ AudioSystem deshabilitado, no se reproduce: ${soundName}`);
             return;

@@ -3234,7 +3234,7 @@ function rollHitD20() {
     }
     resultDisplay.innerHTML = message;
     resultDisplay.style.display = 'block';
-    
+
     // Mostrar botón confirmar en vez de continuar
     const confirmSection = document.getElementById('hit-confirm-section');
     if (confirmSection) confirmSection.style.display = 'block';
@@ -3247,15 +3247,15 @@ function rollHitD20() {
 function confirmHitResult() {
     console.log('[AUDIO] 🎵 Reproduciendo sonido de batazo al confirmar hit...');
     playAudio('hit'); // 🎵 Reproducir sonido de batazo.mp3 AL CONFIRMAR
-    
+
     // Ocultar botón confirmar
     const confirmSection = document.getElementById('hit-confirm-section');
     if (confirmSection) confirmSection.style.display = 'none';
-    
+
     // Mostrar botón continuar
     const continueBtn = document.getElementById('hit-continue-btn');
     if (continueBtn) continueBtn.style.display = 'block';
-    
+
     console.log('[HIT] ✅ Hit confirmado, audio reproducido');
 }
 
@@ -5279,5 +5279,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (oddityDice1 && oddityDice2) {
         oddityDice1.addEventListener('input', checkOdditiesComplete);
         oddityDice2.addEventListener('input', checkOdditiesComplete);
+    }
+
+    // Listener para HIT D20 (entrada manual)
+    const hitD20Input = document.getElementById('hit-d20-value');
+    if (hitD20Input) {
+        hitD20Input.addEventListener('input', function() {
+            if (this.value !== '') {
+                // Simular que se tiró el dado manualmente
+                processHitD20Result(parseInt(this.value));
+            }
+        });
     }
 });
